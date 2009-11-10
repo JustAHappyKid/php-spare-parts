@@ -137,11 +137,11 @@ class HtmlForm {
       $options = array();
       $defaultValue = null;
       $optionTagsMatch = array();
-      preg_match_all("/<option[^>]*>[^<]*/is", $selectHtml, $optionTagsMatch);
+      preg_match_all("/<option[^>]*>(.*)<\/option>/isU", $selectHtml, $optionTagsMatch);
       foreach ($optionTagsMatch[0] as $optionHtml) {
         $selected = preg_match("/selected/i", $optionHtml) ? true : false;
-        preg_match("/<option.*>(.*)/is", $optionHtml, $innerContentMatch);
-        $innerContent = $innerContentMatch[1];
+        preg_match("/<option.*>(.*)<\/option>/isU", $optionHtml, $innerContentMatch);
+        $innerContent = strip_tags($innerContentMatch[1]);
         $thisOptionValue = $this->getValue($optionHtml);
         if ($thisOptionValue === null) { $thisOptionValue = $innerContent; }
         if ($selected) {
