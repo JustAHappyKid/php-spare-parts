@@ -7,20 +7,27 @@ function init_error_handling() {
   set_exception_handler('exception_handler');
 }
 
+class StandardPhpError extends Exception {}
+class StandardPhpWarning extends Exception {}
+class StandardPhpNotice extends Exception {}
+class UserLevelPhpError extends Exception {}
+class UserLevelPhpWarning extends Exception {}
+class UserLevelPhpNotice extends Exception {}
+
 function error_handler($errno, $errstr, $errfile, $errline) {
 
-  $error_type = array(
-    E_ERROR           => "PHP Error",
-    E_WARNING         => "PHP Warning",
-    E_PARSE           => "Parsing Error",
-    E_NOTICE          => "PHP Notice",
-    E_CORE_ERROR      => "Core Error",
-    E_CORE_WARNING    => "Core Warning",
-    E_COMPILE_ERROR   => "Compile Error",
-    E_COMPILE_WARNING => "Compile Warning",
-    E_USER_ERROR      => "PHP User Error",
-    E_USER_WARNING    => "PHP User Warning",
-    E_USER_NOTICE     => "PHP User Notice"
+  $errorTypes = array(
+    E_ERROR           => 'StandardPhpError',
+    E_WARNING         => 'StandardPhpWarning',
+    E_NOTICE          => 'StandardPhpError',
+    //E_PARSE           => "Parsing Error",
+    //E_CORE_ERROR      => "Core Error",
+    //E_CORE_WARNING    => "Core Warning",
+    //E_COMPILE_ERROR   => "Compile Error",
+    //E_COMPILE_WARNING => "Compile Warning",
+    E_USER_ERROR      => 'UserLevelPhpError',
+    E_USER_WARNING    => 'UserLevelPhpWarning',
+    E_USER_NOTICE     => 'UserLevelPhpNotice'
   );
 
   // XXX: I had to turn this off, as it was causing my web interface to
@@ -37,7 +44,8 @@ function error_handler($errno, $errstr, $errfile, $errline) {
     return;
   }
 
-  throw new Exception($error_type[$errno] . ": " . htmlspecialchars_decode($errstr));
+  $exceptionClass = $errorTypes[$errno];
+  throw new $exceptionClass(htmlspecialchars_decode($errstr));
 }
 
 function exception_handler($exception) {
