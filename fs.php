@@ -181,7 +181,7 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
             $handle = opendir($file);
             while( $filename = readdir($handle) ) {
                 if( $filename != "." and $filename != ".." ) {
-                    if( !delete_dir(path_join($file, $filename)) ) {
+                    if( !delete_dir(pathJoin($file, $filename)) ) {
                         $success = false;
                     }
                 }
