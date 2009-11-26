@@ -19,7 +19,7 @@ function error_handler($errno, $errstr, $errfile, $errline) {
   $errorTypes = array(
     E_ERROR           => 'StandardPhpError',
     E_WARNING         => 'StandardPhpWarning',
-    E_NOTICE          => 'StandardPhpError',
+    E_NOTICE          => 'StandardPhpNotice',
     //E_PARSE           => "Parsing Error",
     //E_CORE_ERROR      => "Core Error",
     //E_CORE_WARNING    => "Core Warning",
@@ -44,8 +44,13 @@ function error_handler($errno, $errstr, $errfile, $errline) {
     return;
   }
 
-  $exceptionClass = $errorTypes[$errno];
-  throw new $exceptionClass(htmlspecialchars_decode($errstr));
+  $exceptionClass = isset($errorTypes[$errno]) ? $errorTypes[$errno] : null;
+  $errMsg = htmlspecialchars_decode($errstr);
+  if ($exceptionClass) {
+    throw new $exceptionClass($errMsg);
+  } else {
+    throw new Exception($errMsg);
+  }
 }
 
 function exception_handler($exception) {
@@ -122,16 +127,17 @@ function exception_handler($exception) {
  * is set, an email containing the error report will be sent to the address
  * specified by that constant.
  */
-function process_error_report($brief_detail, $full_report) {
-  if (DEVELOPMENT_MODE) {
-    echo "<pre>\n" . htmlspecialchars($full_report) . "\n</pre>";
+function process_error_report($briefDetail, $fullReport) {
+  if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+    echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
+  } else if (defined('ADMIN_EMAIL')) {
+    echo "<p>Sorry, something went wrong.  Our team has been notified of the problem, but " .
+      "it would be helpful if you <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and " .
+      "tell us what you were doing that led to this failure.  We'll do our best to get " .
+      "this fixed ASAP!</p>\n";
+    mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
   } else {
-    echo "
-      <p>Sorry, something went wrong.  Our team has been notified of the
-        problem, but it would be helpful if you
-        <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and tell us what
-        you were doing that led to this failure.  We'll do our best to get
-        this fixed ASAP!</p>";
-    mail(ADMIN_EMAIL, "PHP Error Report", $full_report);
+    echo "<p>Uh-oh -- something went wrong, and DEVELOPMENT_MODE is off and ADMIN_EMAIL is " .
+      "not defined!</p>\n";
   }
 }
