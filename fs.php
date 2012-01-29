@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(__FILE__) . '/file-path.php';
 
 # XXX: Does this function do anything different than PHP's built-in 'glob' function?
 # Returns an array containing filenames for all files matching $pattern within
@@ -28,7 +29,7 @@ function getFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
 # Each path will be relative to the directory $dir.  Directories are traversed recursively.
 # No directory names will be returned, only files (and links, etc).
 function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
-  $dir = tidyDirName($dir);
+  $dir = normalizePath($dir);
 
   $files_to_return = array();
   $files_in_dir = getFilesInDir($dir, $pattern, $getHiddenFiles);
@@ -51,6 +52,41 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
   return $files_to_return;
 }
 
+
+// ***********************************************************************
+//
+// determines whether or not the first parameter, $item, is a
+// sub-directory of, the same directory as, or a file within the given
+// $parentdir.  this function will not actually check for the existence of
+// either directory, but only compare string values.
+//
+// ***********************************************************************
+
+function isWithinOrIsDirectory($item, $dir) {
+  $itemNorm = normalizePath($item);
+  $dirNorm = normalizePath($dir);
+  return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm;
+}
+
+// ***********************************************************************
+//
+// determines whether or not the first parameter, $item, is a
+// sub-directory of or a file inside of the given $parentdir.
+// unlike isWithinDirectory(), above, this function will return
+// false if $item appears to be the same directory as $parentdir.
+// this function will not actually check for the existence of either
+// directory, but only compare string values.
+//
+// ***********************************************************************
+
+function isWithinDirectory($item, $dir) {
+  $dirNorm = normalizePath($dir);
+  return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm &&
+         // XXX: Will this "+ 1" cause some incorrect results??
+         //      E.g., isWithinDirectory('path/to/f', 'path/to/');
+         //      Maybe not...  Tests would be in order, either way!
+         strlen($itemNorm) > (strlen($dirNorm) + 1);
+}
 
 
 
@@ -203,36 +239,6 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
 
 
 
-
-    // ***********************************************************************
-    //
-    // make_dir( $dir )
-    //
-    // TODO: make this function cross-platform compatible...  right now, it will almost certainly
-    //       only work on Unix-based OS's - if it will even work on all of those...
-    //       it'd probably be best to rewrite it as a recursive function that
-    //       just uses PHP's mkdir() function.
-    //
-    // make a directory, and its parent directories, if they do not exist.
-    //
-    // ***********************************************************************
-
-    function make_dir( $dir )
-    {
-        if( !$dir or strlen($dir) == 0 ) {
-            trigger_error("no directory was specified", E_USER_WARNING);
-            return;
-        }
-
-        $output = $return_value = null;
-        exec('mkdir -p ' . escapeshellarg($dir), $output, $return_value);
-        return !$return_value;
-    }
-
-
-
-
-
     // ***********************************************************************
     //
     // move_dir( $source, $dest )
@@ -252,7 +258,7 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
             // if it's a directory, call move_dir() recursively, on all
             // contents of the directory...
 
-            $source = tidyDirName($source);
+            $source = normalizePath($source);
 
             if( !is_writable($source) || !is_readable($source) )
                 return false;
@@ -304,98 +310,6 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
         }
 
         return true;
-    }
-
-
-
-
-
-    // ***********************************************************************
-    //
-    // tidy up a directory name.
-    // examples:
-    //  /path/to/dir       => /path/to/dir
-    //  xtra///slashes//   => xtra/slashes
-    //  /dot/./slash/.     => /dot/slash
-    //  path/../to         => path/../to
-    //  ./some/path        => some/path
-    //
-    // (note that no special case is made for "..")
-    //
-    // ***********************************************************************
-
-    function tidyDirName( $dir_name )
-    {
-        $result = '';
-
-        $components = explode('/', $dir_name);
-
-        // the first component is a special case...
-        if( $components[0] == '.' ) {
-
-            // if the $dir_name started with a "./", then we'll remove it, and
-            // begin with our component at index 1, which will be whatever
-            // directly followed "./".
-            $result .= @ $components[1];
-            unset($components[1]);
-        }
-        else if( $components[0] != '' ) {
-
-            // for this case, the $dir_name is a relative path without a "./"
-            // in front of it.
-            $result .= $components[0];
-        }
-        unset($components[0]);
-
-        foreach( $components as $thisOne )
-        {
-            if( $thisOne != '' && $thisOne != '.' ) {
-                $result .= '/' . $thisOne;
-            }
-        }
-
-        return $result;
-    }
-
-
-
-
-
-    // ***********************************************************************
-    //
-    // determines whether or not the first parameter, $item, is a
-    // sub-directory of, the same directory as, or a file within the given
-    // $parentdir.  this function will not actually check for the existence of
-    // either directory, but only compare string values.
-    //
-    // ***********************************************************************
-
-    function is_within_or_is_directory( $item, $parentdir )
-    {
-        $parentdir = tidyDirName($parentdir);
-        return( substr($item, 0, strlen($parentdir)) == $parentdir );
-    }
-
-
-
-
-
-    // ***********************************************************************
-    //
-    // determines whether or not the first parameter, $item, is a
-    // sub-directory of or a file inside of the given $parentdir.
-    // unlike is_within_or_is_directory(), above, this function will return
-    // false if $item appears to be the same directory as $parentdir.
-    // this function will not actually check for the existence of either
-    // directory, but only compare string values.
-    //
-    // ***********************************************************************
-
-    function is_within_directory( $item, $parentdir )
-    {
-        $parentdir = tidyDirName($parentdir);
-        return( substr($item, 0, strlen($parentdir)) == $parentdir &&
-                strlen($item) > (strlen($parentdir) + 1));
     }
 
 

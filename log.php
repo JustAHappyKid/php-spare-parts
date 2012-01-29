@@ -1,44 +1,39 @@
 <?php
 
-function debug($message) {
-  log_msg('debug', $message);
-}
-
-function info($message) {
-  log_msg('info', $message);
-}
-
-function warn($message) {
-  log_msg('warning', $message);
-}
-
-function error($message) {
-  log_msg('error', $message);
-}
-
-function log_msg($level, $message) {
-  global $__path_to_log_file, $__log_file_handle, $__log_to_stdout;
-  $datetime = strftime('%Y-%m-%d %H:%M');
-  $log_line = "[$datetime] [$level] $message\n";
-  if ($__log_to_stdout) {
-    echo $log_line;
+function logMsg($level, $message) {
+  global $__msgFormatFunc;
+  $logLine = null;
+  if ($__msgFormatFunc) {
+    $logLine = call_user_func($__msgFormatFunc, $level, $message) . "\n";
   } else {
-    if (empty($__path_to_log_file)) {
+    $datetime = strftime('%Y-%m-%d %H:%M');
+    $logLine = "[$datetime] [$level] $message\n";
+  }
+  writeToLog($logLine);
+}
+
+function writeToLog($content) {
+  global $__logToStdout, $__pathToLogFile, $__logFileHandle;
+  if ($__logToStdout) {
+    echo $content;
+  } else {
+    if (empty($__pathToLogFile)) {
       throw new Exception("No log file is configured");
     }
-    if (empty($__log_file_handle)) {
-      $__log_file_handle = fopen($__path_to_log_file, 'a');
+    if (empty($__logFileHandle)) {
+      $__logFileHandle = fopen($__pathToLogFile, 'a');
     }
-    fwrite($__log_file_handle, $log_line);
+    fwrite($__logFileHandle, $content);
   }
 }
 
-function configure_logging($path) {
-  global $__path_to_log_file, $__log_to_stdout;
+function configureLogging($path, $msgFormatFunc = null) {
+  global $__pathToLogFile, $__logToStdout, $__msgFormatFunc;
   if ($path === null) {
-    $__log_to_stdout = true;
+    $__logToStdout = true;
   } else {
-    $__log_to_stdout = false;
-    $__path_to_log_file = $path;
+    $__logToStdout = false;
+    $__pathToLogFile = $path;
   }
+  $__msgFormatFunc = $msgFormatFunc;
 }

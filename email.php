@@ -1,5 +1,6 @@
 <?php
 
-function sendEmail($from, $to, $subject, $message) {
-  mail($to, $subject, $message, "From: $from");
+function sendEmail($from, $to, $subject, $message, Array $headers = array()) {
+  $allHeaders = array_merge(array("From: $from"), $headers);
+  mail($to, $subject, $message, implode("\r\n", $allHeaders));
 }

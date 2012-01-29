@@ -7,12 +7,29 @@ function init_error_handling() {
   set_exception_handler('exception_handler');
 }
 
-class StandardPhpError extends Exception {}
-class StandardPhpWarning extends Exception {}
-class StandardPhpNotice extends Exception {}
-class UserLevelPhpError extends Exception {}
-class UserLevelPhpWarning extends Exception {}
-class UserLevelPhpNotice extends Exception {}
+class ErrorHandlerInvokedException extends Exception {
+  public function getAdjustedTraceAsString() {
+    $orig = parent::getTrace();
+    //$new = array_slice($orig, 1);
+    $new = $orig;
+    $str = '';
+    foreach ($new as $pos => $layer) {
+      if (empty($layer['file'])) {
+        $str .= "???\n";
+      } else {
+        $str .= "#$pos {$layer['file']} on line {$layer['line']}: {$layer['function']}\n";
+      }
+    }
+    return $str;
+  }
+}
+
+class StandardPhpError extends ErrorHandlerInvokedException {}
+class StandardPhpWarning extends ErrorHandlerInvokedException {}
+class StandardPhpNotice extends ErrorHandlerInvokedException {}
+class UserLevelPhpError extends ErrorHandlerInvokedException {}
+class UserLevelPhpWarning extends ErrorHandlerInvokedException {}
+class UserLevelPhpNotice extends ErrorHandlerInvokedException {}
 
 function error_handler($errno, $errstr, $errfile, $errline) {
 
