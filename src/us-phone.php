@@ -46,7 +46,6 @@ class PhoneNumberInput extends TextLineInput {
       $this->cleanedValue = $pn->asRawTenDigits();
       return array();
     } catch (InvalidPhoneNumber $_) {
-      notice('The following invalid phone number was provided: ' . $submittedValues[$this->name]);
       return array('Please provide a 10-digit phone number (e.g., 123-456-7890).');
     }
   }
