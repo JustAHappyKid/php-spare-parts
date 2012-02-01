@@ -3,10 +3,16 @@
 require_once dirname(__FILE__) . '/form.php';
 
 class ZipCode {
+
   public $zip5, $zip4;
+
   function __construct($z5, $z4) {
     if (!is_string($z5) || !preg_match('/^[0-9]{5}$/', $z5)) throw new InvalidArgumentException();
     list($this->zip5, $this->zip4) = array($z5, $z4);
+  }
+
+  public function __toString() {
+    return $this->zip5 . ($this->zip4 ? ('-' . $this->zip4) : '');
   }
 }
 
