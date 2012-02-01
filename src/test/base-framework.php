@@ -81,7 +81,11 @@ function runDefinedTests() {
     }
   }
   $testClasses = array();
-  foreach (getSubclasses('TestHarness') as $c) {
+  $baseHarnessClass = 'MyPHPLibs\Test\TestHarness';
+  if (!class_exists($baseHarnessClass)) {
+    throw new Exception("Something is wrong: class $baseHarnessClass does not exist!");
+  }
+  foreach (getSubclasses($baseHarnessClass) as $c) {
     if (!isAbstractClass($c)) $testClasses []= $c;
   }
   if (count($testFuncs) == 0 && count($testClasses) == 0) {
@@ -100,8 +104,8 @@ function runDefinedTests() {
 
 function runTestMethods($className) {
   $t = new $className;
-  $ro = new ReflectionObject($t);
-  $methods = $ro->getMethods(ReflectionMethod::IS_PUBLIC);
+  $ro = new \ReflectionObject($t);
+  $methods = $ro->getMethods(\ReflectionMethod::IS_PUBLIC);
   $methodsRun = 0;
   foreach ($methods as $m) {
     $methodName = $m->getName();
