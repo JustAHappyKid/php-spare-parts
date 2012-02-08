@@ -1,5 +1,7 @@
 <?php
 
+use \MyPHPLibs\Test\TestFailure;
+
 function fail($msg) {
   throw new TestFailure($msg);
 }
