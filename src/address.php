@@ -1,12 +1,15 @@
 <?php
 
 require_once dirname(__FILE__) . '/form.php';
-require_once dirname(__FILE__) . '/us-address.php';
+require_once dirname(__FILE__) . '/locales/us/address.php'; # getStatesMap
+require_once dirname(__FILE__) . '/locales/us/forms.php';   # ZipCodeInput
+
+use \MyPHPLibs\Locales\US;
 
 class StateOrProvinceInput extends TextLineInput {
   public function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
     if ($submittedValues['country'] == 'US') {
-      $states = getStatesMap($includeMilitaryPseudoStates = true, $includeTerritories = true);
+      $states = US\getStatesMap($includeMilitaryPseudoStates = true, $includeTerritories = true);
       foreach ($states as $abbr => $name) {
         $upper = strtoupper($trimmedValue);
         if ($upper == $abbr || $upper == "$abbr." || $upper == strtoupper($name) ||
@@ -23,7 +26,7 @@ class StateOrProvinceInput extends TextLineInput {
 function newStateOrProvinceInput($name, $label) {
   return new StateOrProvinceInput($name, $label); }
 
-class ZipOrPostalCodeInput extends ZipCodeInput {
+class ZipOrPostalCodeInput extends US\ZipCodeInput {
 
   private $lastFourRequired = false;
 

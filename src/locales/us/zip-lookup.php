@@ -3,9 +3,9 @@
 namespace MyPHPLibs\Locales\US;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/web-browser.php';
-require_once dirname(dirname(dirname(__FILE__))) . '/us-address.php';
+require_once dirname(__FILE__) . '/address.php';
 
-use \MyPHPLibs\WebBrowsing\WebBrowser, \ZipCode;
+use \MyPHPLibs\WebBrowsing\WebBrowser;
 
 function lookupZipCode($addr, WebBrowser $client) {
   $vars = array('mode' => 0,
