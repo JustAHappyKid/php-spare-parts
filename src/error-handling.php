@@ -145,6 +145,8 @@ function exception_handler($exception) {
  * specified by that constant.
  */
 function process_error_report($briefDetail, $fullReport) {
+  header('Content-Type: text/html; charset=utf-8');
+  header('Content-Disposition: inline');
   if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
     echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
   } else if (defined('ADMIN_EMAIL')) {
