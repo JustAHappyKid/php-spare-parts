@@ -40,6 +40,14 @@ abstract class BaseFormContainer {
       '</div>';
   }
 
+  public function addSubmitButtons(Array $namesAndLabels) {
+    $inputsHtml = "";
+    foreach ($namesAndLabels as $name => $label) {
+      $inputsHtml .= "<input type=\"submit\" name=\"$name\" value=\"$label\" />\n";
+    }
+    $this->nodes []= '<div class="submit">' . $inputsHtml . '</div>';
+  }
+
   public function addJavaScript($code) {
     $this->nodes []= "<script type=\"text/javascript\">\n" . $code . "\n</script>\n";
   }
