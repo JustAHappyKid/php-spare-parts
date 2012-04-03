@@ -212,10 +212,6 @@ abstract class FrontController {
       $this->warn("Someone tried to access non-existent page at URI {$_SERVER['REQUEST_URI']}" .
                   $referrerInfo);
       return $this->get404Response();
-      $page = $this->getNotFoundPage();
-      $r = $this->renderAndOutputPage($page);
-      $r->statusCode = 404;
-      return $r;
     }
   }
 
