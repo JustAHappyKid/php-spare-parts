@@ -2,9 +2,11 @@
 
 namespace MyPHPLibs\Webapp;
 
-require_once dirname(__FILE__) . '/../fs.php';        # pathJoin
-require_once dirname(__FILE__) . '/../names.php';     # hyphenatedToCamelCaseName
-//require_once dirname(__FILE__) . '/../types.php';            # 
+require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
+require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCaseName
+require_once dirname(__FILE__) . '/current-request.php';  # getPath, isPostRequest, isGetRequest
+
+use \MyPHPLibs\Webapp\CurrentRequest;
 
 class Controller {
   public $user;
@@ -42,15 +44,15 @@ class Controller {
   }
 
   protected function getCurrentPath() {
-    return getCurrentPath();
+    return CurrentRequest\getPath();
   }
 
   protected function isPostRequest() {
-    return isPostRequest();
+    return CurrentRequest\isPostRequest();
   }
 
   protected function isGetRequest() {
-    return isGetRequest();
+    return CurrentRequest\isGetRequest();
   }
 
   protected function saveInSession($var, $value) {
