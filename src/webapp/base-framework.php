@@ -72,7 +72,8 @@ abstract class FrontController {
       (empty($_SERVER['HTTP_REFERER']) ? "unknown" : $_SERVER['HTTP_REFERER']) . ")";
     $reqMethod = $_SERVER['REQUEST_METHOD'];
     if (!in_array(strtolower($reqMethod), array('get', 'head', 'post'))) {
-      notice("Resource {$this->requestedPath} was requested using unsupported method $reqMethod");
+      $this->notice("Resource {$this->requestedPath} was requested using unsupported " .
+                    "method $reqMethod");
       $r = new ResponseObj;
       $r->statusCode = 405; # "Method Not Allowed"
       $r->content = '405, Method Not Allowed';
@@ -197,6 +198,13 @@ abstract class FrontController {
     return $response;
   }
 */
+
+  protected function getDefaultPageForRequest() {
+    $page = new HtmlPage;
+    $page->currentLocation = $_SERVER['REQUEST_URI'];
+    $page->contentType = 'text/html; charset=utf-8';
+    return $page;
+  }
 
   protected function handlePageNotFound($referrerInfo) {
     $relocateTo = null;
@@ -339,6 +347,7 @@ abstract class FrontController {
   protected function cookieDomain() { return null; }
   abstract protected function sessionLifetimeInSeconds();
   abstract protected function info($msg);
+  abstract protected function notice($msg);
   abstract protected function warn($msg);
 }
 
