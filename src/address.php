@@ -84,6 +84,14 @@ function getCountriesMapForSelectField() {
                "ZM" => "ZAMBIA", "ZW" => "ZIMBABWE");
 }
 
+class CountrySelectInput extends SelectInput {
+  function __construct($name, $label) {
+    return parent::__construct($name, $label, getCountriesMapForSelectField());
+  }
+}
+function newCountrySelectInput($name, $label) {
+  return new CountrySelectInput($name, $label); }
+
 class StateOrProvinceInput extends TextLineInput {
   public function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
     if ($submittedValues['country'] == 'US') {
