@@ -111,7 +111,7 @@ abstract class FrontController {
   private function dispatchToAction() {
     //$fname = substr($_SERVER['REQUEST_URI'], 1) . '.php';
     $pathAndQuery = substr($_SERVER['REQUEST_URI'], 1);
-    $origPath = current(explode('?', $pathAndQuery));
+    $origPath = urldecode(current(explode('?', $pathAndQuery)));
     $p = preg_replace('@/$@', '', $origPath);
     $unconsumedPathComponents = array();
     $actionsDir = pathJoin($this->webappDir, 'actions');
