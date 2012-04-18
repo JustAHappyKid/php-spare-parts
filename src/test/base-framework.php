@@ -112,6 +112,7 @@ function runTestMethods($className) {
     if ($methodName != 'setUp') {
       $t->setUp();
       $t->$methodName();
+      $t->tearDown();
       $methodsRun += 1;
     }
   }
@@ -140,6 +141,7 @@ class TestHarness {
     // XXX: is this relevant here?
     //expectErrorLogMessages(0);
   }
+  public function tearDown() { }
 }
 
 class TestFailure extends Exception {}
