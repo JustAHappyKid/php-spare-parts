@@ -20,6 +20,7 @@ class HttpClient {
   protected function debug($message) {}
   protected function info($message) {}
   protected function notice($message) {}
+  protected function warn($message) {}
 
 	var $host_name="";
 	var $host_port=0;
