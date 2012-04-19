@@ -136,7 +136,7 @@ function exceptionHandler($exception) {
   }
 }
 
-class TestHarness {
+abstract class TestHarness {
   public function setUp() {
     // XXX: is this relevant here?
     //expectErrorLogMessages(0);
