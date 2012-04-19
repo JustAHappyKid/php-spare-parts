@@ -309,8 +309,7 @@ class HttpClient {
           }
           $data = @ $this->fread($this->connection, 2);
           if ($data != "\r\n") {
-            $this->dataAccessError("It was not possible to read end-of-data-chunk " .
-                                   "from the HTTP server");
+            $this->notice("It was not possible to read end-of-data-chunk from the HTTP server");
           }
         }
       }
