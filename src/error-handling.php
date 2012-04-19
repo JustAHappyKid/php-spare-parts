@@ -1,10 +1,14 @@
 <?php
 
-function init_error_handling() {
+namespace MyPHPLibs\ErrorHandling;
+
+use \Exception;
+
+function initErrorHandling() {
   ini_set('docref_root', null);
   ini_set('docref_ext', null);
-  set_error_handler('error_handler');
-  set_exception_handler('exception_handler');
+  set_error_handler('\\MyPHPLibs\\ErrorHandling\\errorHandler');
+  set_exception_handler('\\MyPHPLibs\\ErrorHandling\\exceptionHandler');
 }
 
 class ErrorHandlerInvokedException extends Exception {
@@ -31,7 +35,7 @@ class UserLevelPhpError extends ErrorHandlerInvokedException {}
 class UserLevelPhpWarning extends ErrorHandlerInvokedException {}
 class UserLevelPhpNotice extends ErrorHandlerInvokedException {}
 
-function error_handler($errno, $errstr, $errfile, $errline) {
+function errorHandler($errno, $errstr, $errfile, $errline) {
 
   $errorTypes = array(
     E_ERROR           => 'StandardPhpError',
@@ -61,7 +65,8 @@ function error_handler($errno, $errstr, $errfile, $errline) {
     return;
   }
 
-  $exceptionClass = isset($errorTypes[$errno]) ? $errorTypes[$errno] : null;
+  $exceptionClass = isset($errorTypes[$errno]) ?
+    ('\\MyPHPLibs\\ErrorHandling\\' . $errorTypes[$errno]) : null;
   $errMsg = htmlspecialchars_decode($errstr);
   if ($exceptionClass) {
     throw new $exceptionClass($errMsg);
@@ -70,7 +75,7 @@ function error_handler($errno, $errstr, $errfile, $errline) {
   }
 }
 
-function exception_handler($exception) {
+function exceptionHandler($exception) {
 
   function hash_to_str($h) {
     $str = "";
