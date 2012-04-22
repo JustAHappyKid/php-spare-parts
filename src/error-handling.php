@@ -131,10 +131,9 @@ function exceptionHandler($exception) {
     // - End Error Detail Message --------------------------------------------
     // -------------------------------------------------------------------------
 
-    process_error_report($exception->getMessage(), $body);
+    presentErrorReport($exception->getMessage(), $body);
     exit();
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     exit("UH-OH!  An exception was raised from within the exception " .
       "handler!  The exception's message follows:\n" . $e->getMessage());
   }
@@ -149,19 +148,25 @@ function exceptionHandler($exception) {
  * is set, an email containing the error report will be sent to the address
  * specified by that constant.
  */
-function process_error_report($briefDetail, $fullReport) {
-  header('Content-Type: text/html; charset=utf-8');
-  header('Content-Disposition: inline');
-  if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
-    echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
-  } else if (defined('ADMIN_EMAIL')) {
-    echo "<p>Sorry, something went wrong.  Our team has been notified of the problem, but " .
-      "it would be helpful if you <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and " .
-      "tell us what you were doing that led to this failure.  We'll do our best to get " .
-      "this fixed ASAP!</p>\n";
-    mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
+function presentErrorReport($briefDetail, $fullReport) {
+  if (php_sapi_name() == 'cli') {
+    # TODO: Shouldn't we still send an email if DEVELOPMENT_MODE is off and ADMIN_EMAIL is set,
+    #       even if we're running under the CLI??
+    echo "\n$fullReport\n\n";
   } else {
-    echo "<p>Uh-oh -- something went wrong, and DEVELOPMENT_MODE is off and ADMIN_EMAIL is " .
-      "not defined!</p>\n";
+    header('Content-Type: text/html; charset=utf-8');
+    header('Content-Disposition: inline');
+    if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+      echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
+    } else if (defined('ADMIN_EMAIL')) {
+      echo "<p>Sorry, something went wrong.  Our team has been notified of the problem, but " .
+        "it would be helpful if you <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and " .
+        "tell us what you were doing that led to this failure.  We'll do our best to get " .
+        "this fixed ASAP!</p>\n";
+      mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
+    } else {
+      echo "<p>Uh-oh -- something went wrong, and DEVELOPMENT_MODE is off and ADMIN_EMAIL is " .
+        "not defined!</p>\n";
+    }
   }
 }
