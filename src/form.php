@@ -538,6 +538,7 @@ class HiddenInput extends InputFormField {
     return array();
   }
 }
+function newHiddenInput($name, $value) { return new HiddenInput($name, $value); }
 
 abstract class InputFormField {
 
