@@ -3,7 +3,8 @@
 namespace MyPHPLibs\WebBrowsing;
 
 require_once dirname(__FILE__) . '/html-parsing.php'; # htmlSoupToDOMDocument
-use \Exception;
+
+use \Exception, \InvalidArgumentException;
 
 class HtmlForm {
 
@@ -11,7 +12,19 @@ class HtmlForm {
     return array('text', 'password', 'email', 'search', 'checkbox', 'radio', 'submit',
                  'image', 'reset', 'button', 'hidden'); }
 
-  public $name, $id, $action, $method, $enctype, $fields, $namelessFields;
+  # This requires a bit of explanation -- we have three arrays for holding the form's field
+  # objects.  NOTE, this should probably be re-thought and re-tooled a bit; when initially
+  # designed, the assumption was made that all fields would have a name, and that the name would
+  # always be unique...  Since then, we've added support for both nameless fields (such as
+  # submit buttons not having a name) and multiple fields having the same name (such as the
+  # case where a form has multiple submit buttons all having the same name).
+  # So, $fields is an associative array using field names as keys.  $namelessFields is a simple
+  # (non-associative) array containing all nameless fields; and, $allFields is a simple
+  # (non-associative) array containing every field; it duplicates what $fields and
+  # $namelessFields hold combined.  All arrays hold instances of HtmlFormField for their values.
+  public $fields, $namelessFields, $allFields;
+
+  public $name, $id, $action, $method, $enctype;
   public $xpathObj;
 
   function __construct($formHtml = null) {
@@ -134,20 +147,30 @@ class HtmlForm {
   }
 
   public function getDefaultValuesToSubmit($submitButton = null) {
+    if ($submitButton !== null && !is_string($submitButton) &&
+        !($submitButton instanceof HtmlButtonField)) {
+      throw new InvalidArgumentException("\$submitButton parameter must be an HtmlButtonField " .
+        "instance or a string containing the name of the button to use for form submission");
+    }
     $fieldTypesToSubmit = array('text', 'password', 'textarea', 'checkbox', 'radio', 'select',
                                 'hidden');
     $values = array();
     $submitButtons = array();
-    foreach ($this->fields as $name => $field) {
+    $submitButtonObj = null;
+    if ($submitButton instanceof HtmlButtonField) {
+      $submitButtonObj = $submitButton;
+    }
+    foreach ($this->allFields as $field) {
+      $name = $field->name;
       if (in_array($field->type, $fieldTypesToSubmit)) $values[$name] = $field->value;
       if ($field->isSubmitButton()) {
-        $submitButtons[$name] = $field;
-        if ($submitButton != null && $name == $submitButton) {
-          $values = array_merge($values, $field->valuesToSubmit($name));
+        $submitButtons []= $field;
+        if (is_string($submitButton) && $name == $submitButton) {
+          $submitButtonObj = $field;
         }
       }
     }
-    if ($submitButton &&
+    if ($submitButton && is_string($submitButton) &&
         (empty($this->fields[$submitButton]) || !$this->fields[$submitButton]->isSubmitButton())) {
       throw new Exception("Form has no submit button named '$submitButton'");
     }
@@ -156,20 +179,17 @@ class HtmlForm {
                           "specified for form submission");
     }
     if ($submitButton == null && count($submitButtons) == 1) {
-      $btnName = key($submitButtons);
-      if (!empty($btnName)) {
-        $values = array_merge($values, current($submitButtons)->valuesToSubmit($btnName));
-      }
+      $submitButtonObj = current($submitButtons);
+    }
+    if ($submitButtonObj && !empty($submitButtonObj->name)) {
+      $values = array_merge($values, $submitButtonObj->valuesToSubmit());
     }
     return $values;
   }
 
   public function getButtons() {
     $buttons = array();
-    foreach ($this->fields as $n => $f) {
-      if ($f instanceof HtmlButtonField) $buttons []= $f;
-    }
-    foreach ($this->namelessFields as $n => $f) {
+    foreach ($this->allFields as $n => $f) {
       if ($f instanceof HtmlButtonField) $buttons []= $f;
     }
     return $buttons;
@@ -180,6 +200,13 @@ class HtmlForm {
       if ($b->isSubmitButton()) return true;
     }
     return false;
+  }
+
+  public function getButtonHavingLabel($label) {
+    foreach ($this->getButtons() as $b) {
+      if ($b->buttonText == $label) return $b;
+    }
+    return null;
   }
 
   public function guessFieldLabel($field) {
@@ -215,13 +242,14 @@ class HtmlForm {
   }
 
   private function addField($name, $field) {
+    $field->name = $name;
     if (empty($name)) {
       $this->namelessFields []= $field;
     } else {
       if (isset($this->fields[$name])) warn("Form has multiple fields with name '$name'");
-      //if ($name == '') throw new Exception("Internal error: \$name is empty string");
       $this->fields[$name] = $field;
     }
+    $this->allFields []= $field;
     return $field;
   }
 
@@ -262,7 +290,7 @@ class HtmlForm {
 }
 
 class HtmlFormField {
-  public $id, $type, $value, $label, $xmlNode, $labelWasGuessed, $guessedLabel;
+  public $id, $type, $name, $value, $label, $xmlNode, $labelWasGuessed, $guessedLabel;
   function __construct($type, $value, $node) {
     $this->id = $node ? $node->getAttribute('id') : null;
     $this->type = $type; $this->value = $value; $this->xmlNode = $node; $this->label = null;
@@ -307,7 +335,8 @@ class HtmlButtonField extends HtmlFormField {
   public function isSubmitButton() {
     return in_array($this->type, array('submit', 'image'));
   }
-  public function valuesToSubmit($name) {
+  public function valuesToSubmit() {
+    $name = $this->name;
     if ($this->type == 'image') {
       return array("$name.x" => '0', "$name.y" => '0');
     } else {
