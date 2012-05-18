@@ -34,7 +34,7 @@ function findNodes($xpathObj, $xpathExpr) {
 # "ID suchandsuch defined in Entity" seem to be coming up even when there are not multiple
 # elements claiming the same ID; perhaps a bug in some versions of libxml2 or something...
 function htmlSoupToDOMDocument($html, $logPrefix = null) {
-  libxml_use_internal_errors(true);
+  $prevUseExtErrorsVal = libxml_use_internal_errors(true);
 
   $dom = new DOMDocument();
   $dom->loadHTML($html);
@@ -45,6 +45,7 @@ function htmlSoupToDOMDocument($html, $logPrefix = null) {
   }
   libxml_clear_errors();
 
+  libxml_use_internal_errors($prevUseExtErrorsVal);
   return $dom;
 }
 
