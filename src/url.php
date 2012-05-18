@@ -2,9 +2,10 @@
 
 require_once dirname(__FILE__) . '/file-path.php';
 
-function takeDomain($url) { return takeUrlPart($url, 'host'); }
-function takePath($url) { return takeUrlPart($url, 'path'); }
-function takeQuery($url) { return takeUrlPart($url, 'query'); }
+function takeScheme($url) { return takeUrlPart($url, 'scheme'); }
+function takeDomain($url) { return takeUrlPart($url, 'host');   }
+function takePath  ($url) { return takeUrlPart($url, 'path');   }
+function takeQuery ($url) { return takeUrlPart($url, 'query');  }
 
 function takeUrlPart($url, $part) {
   $parts = parse_url($url);
