@@ -116,6 +116,10 @@ class HttpClient {
   }
 
   protected function makeRequest($url, $extraArguments = null) {
+    if (strstr($url, ' ')) {
+      $this->warn("Escaping space characters in following URL: $url");
+      $url = str_replace(' ', '%20', $url);
+    }
     $this->getRequestArguments($url, $arguments);
     if ($extraArguments == null) { $extraArguments = array(); }
     $arguments = is_null($extraArguments) ?
