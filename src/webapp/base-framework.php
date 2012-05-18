@@ -146,7 +146,8 @@ abstract class FrontController {
           if (!in_array(strtolower($_SERVER['REQUEST_METHOD']), array('get', 'head'))) {
             throw new Exception("Attempting redirect for request other than GET or HEAD");
           }
-          throw new DoRedirect($requestedPath . '/' . at($_SERVER, 'QUERY_STRING', ''), 302);
+          $q = at($_SERVER, 'QUERY_STRING');
+          throw new DoRedirect($requestedPath . '/' . ($q ? ('?' . $q) : ''), 302);
         }
       }
 
@@ -286,6 +287,9 @@ abstract class FrontController {
       $this->info('Beginning new session for client using ' .
            (isset($_SERVER['HTTP_USER_AGENT']) ?
              ('the following User-Agent: ' . $_SERVER['HTTP_USER_AGENT']) : 'unknown User-Agent'));
+    } else if (!preg_match('/^[-,a-zA-Z0-9]+$/', $_COOKIE[$sessionName])) {
+      warn("Illegal session-ID provided: " . $_COOKIE[$sessionName]);
+      unset($_COOKIE[$sessionName]);
     }
 
     session_start();
