@@ -1,7 +1,7 @@
 <?php
 
 require_once 'html-form.php';
-use MyPHPLibs\WebBrowsing\HtmlForm;
+use \MyPHPLibs\WebBrowsing\HtmlForm;
 
 function testParsingForm() {
   $formHtml = '
@@ -362,6 +362,19 @@ function testNamelessSubmitButtonDoesNotYieldValueToSubmit() {
   assertEqual(1, count($form->getDefaultValuesToSubmit()));
 }
 
+function testValueIsSubmittedForButtonWhenNotExplicitlySpecifiedAsButtonToUse() {
+  $form = new HtmlForm('
+    <form action="/huhwhat" method="post">
+      Enter sumthing: <input type="text" name="sumthin" />
+      <input type="submit" name="myfavbtn" value="Let a rip" />
+    </form>');
+  $values = $form->getDefaultValuesToSubmit();
+  assertTrue(isset($values['myfavbtn']),
+    'Value should be submitted for submit button that has a name, even if not explicitly ' .
+    'specified in call to getDefaultValuesToSubmit');
+  assertEqual('Let a rip', $values['myfavbtn']);
+}
+
 function testUsingParticularSubmitButtonOnMultiButtonForm() {
   $form = new HtmlForm('
     <form action="/take-it" method="post">
@@ -407,4 +420,26 @@ function testSubmitButtonUsingInputTagWithoutSpecifiedNameIsStillAcknowledged() 
   $btns = $form->getButtons();
   assertEqual(1, count($btns));
   assertEqual('Send', $btns[0]->buttonText);
+}
+
+function testHandlingFormThatContainsMultipleSubmitButtonsHavingSameName() {
+  $form = new HtmlForm('
+    <form action="/giddyup" method="post">
+      Write me something: <textarea name="txt">here</textarea>
+      <input type="submit" name="btn" value="Submit here" />
+      <input type="submit" name="btn" value="Or here" />
+    </form>');
+  $btn = $form->getButtonHavingText('Or here');
+  $values = $form->getDefaultValuesToSubmit($btn);
+  assertEqual('Or here', $values['btn']);
+}
+
+function testAttemptingToSubmitFormUsingNonButtonInput() {
+  $form = new HtmlForm('
+    <form action="/submit-here" method="post">
+      <input type="text" name="no-btn" /> <input type="submit" value="Go" />
+    </form>');
+  try {
+    $form->getDefaultValuesToSubmit($form->fields['no-btn']);
+  } catch (InvalidArgumentException $_) { /* That's what we're hoping for. */ }
 }
