@@ -24,12 +24,12 @@ class HtmlForm {
   # $namelessFields hold combined.  All arrays hold instances of HtmlFormField for their values.
   public $fields, $namelessFields, $allFields;
 
-  public $name, $id, $action, $method, $enctype;
-  public $xpathObj;
+  public $name, $id, $action, $method, $enctype, $xpathObj, $warnings;
 
   function __construct($formHtml = null) {
     $this->fields = array();
     $this->namelessFields = array();
+    $this->warnings = array();
     if ($formHtml !== null) $this->parse($formHtml);
   }
 
@@ -69,7 +69,7 @@ class HtmlForm {
       $type = ($typeAttr == null || $typeAttr == 'input') ? 'text' :
         preg_replace('/[^a-z]/', '', strtolower($this->getAttribute($input, 'type')));
       if (!in_array($type, self::supportedInputTypes())) {
-        warn("Found input field with unrecognized type, '$type'");
+        $this->warn("Found input field with unrecognized type, '$type'");
       }
       if ($type == 'radio') {
         $value = $v === null ? "on" : $v;  # Default value of "on" is used by web browsers
@@ -202,11 +202,18 @@ class HtmlForm {
     return false;
   }
 
-  public function getButtonHavingLabel($label) {
+  public function getButtonHavingText($txt) {
+    $match = null;
     foreach ($this->getButtons() as $b) {
-      if ($b->buttonText == $label) return $b;
+      if (stristr($b->buttonText, $txt)) {
+        if ($match) throw new MultipleMatchingButtons("Multiple buttons have text '$txt'");
+        $match = $b;
+      }
     }
-    return null;
+    if ($match === null) {
+      throw new NoMatchingButtons("No buttons have text '$txt'");
+    }
+    return $match;
   }
 
   public function guessFieldLabel($field) {
@@ -217,9 +224,8 @@ class HtmlForm {
 
     if (empty($node)) {
       if (isset($field->xmlNode->tagName)) {
-        warn("Element with tag name '{$field->xmlNode->tagName}' has no parent node!");
-      } else {
-        warn("Node has no parent node!");
+        throw new Exception("Element " . (isset($field->xmlNode->tagName) ?
+          "with tag name '{$field->xmlNode->tagName}' " : "") . "has no parent node!");
       }
       return null;
     }
@@ -246,7 +252,7 @@ class HtmlForm {
     if (empty($name)) {
       $this->namelessFields []= $field;
     } else {
-      if (isset($this->fields[$name])) warn("Form has multiple fields with name '$name'");
+      if (isset($this->fields[$name])) $this->warn("Form has multiple fields with name '$name'");
       $this->fields[$name] = $field;
     }
     $this->allFields []= $field;
@@ -286,6 +292,10 @@ class HtmlForm {
 
   private function normalizeSpace($txt) {
     return preg_replace('/(\n|\s{2,}|\xC2\xA0)/', ' ', $txt);
+  }
+
+  protected function warn($msg) {
+    $this->warnings []= $msg;
   }
 }
 
@@ -344,3 +354,6 @@ class HtmlButtonField extends HtmlFormField {
     }
   }
 }
+
+class NoMatchingButtons extends Exception {}
+class MultipleMatchingButtons extends Exception {}
