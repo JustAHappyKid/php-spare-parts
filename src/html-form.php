@@ -9,8 +9,8 @@ use \Exception, \InvalidArgumentException;
 class HtmlForm {
 
   protected static function supportedInputTypes() {
-    return array('text', 'password', 'email', 'search', 'checkbox', 'radio', 'submit',
-                 'image', 'reset', 'button', 'hidden'); }
+    return array('text', 'password', 'email', 'tel', 'url', 'search', 'checkbox', 'radio',
+                 'submit', 'image', 'reset', 'button', 'hidden'); }
 
   # This requires a bit of explanation -- we have three arrays for holding the form's field
   # objects.  NOTE, this should probably be re-thought and re-tooled a bit; when initially
