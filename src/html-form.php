@@ -223,11 +223,8 @@ class HtmlForm {
     $node = $field->xmlNode->parentNode;
 
     if (empty($node)) {
-      if (isset($field->xmlNode->tagName)) {
-        throw new Exception("Element " . (isset($field->xmlNode->tagName) ?
-          "with tag name '{$field->xmlNode->tagName}' " : "") . "has no parent node!");
-      }
-      return null;
+      throw new Exception("Element " . (isset($field->xmlNode->tagName) ?
+        "with tag name '{$field->xmlNode->tagName}' " : "") . "has no parent node!");
     }
 
     # We must remove the input-field node, itself, in case it is a <textarea> or <select>
