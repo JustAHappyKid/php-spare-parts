@@ -216,15 +216,17 @@ class HtmlForm {
     return $match;
   }
 
-  public function guessFieldLabel($field) {
+  public function guessFieldLabel(HtmlFormField $field) {
     if ($field->labelWasGuessed) return $field->guessedLabel;
 
     $textContent = '';
     $node = $field->xmlNode->parentNode;
 
     if (empty($node)) {
-      throw new Exception("Element " . (isset($field->xmlNode->tagName) ?
-        "with tag name '{$field->xmlNode->tagName}' " : "") . "has no parent node!");
+      $this->warn("Element " . (isset($field->xmlNode->tagName) ?
+        "of type '{$field->xmlNode->tagName}' and " : "") . "having name '{$field->name}' " .
+        "has no parent node!");
+      return null;
     }
 
     # We must remove the input-field node, itself, in case it is a <textarea> or <select>
