@@ -29,87 +29,87 @@ class HttpClient {
 
   const defaultChunkSize = 1024;
 
-	var $host_name="";
-	var $host_port=0;
-	var $proxy_host_name="";
-	var $proxy_host_port=80;
-	var $socks_host_name = '';
-	var $socks_host_port = 1080;
+  var $host_name="";
+  var $host_port=0;
+  var $proxy_host_name="";
+  var $proxy_host_port=80;
+  var $socks_host_name = '';
+  var $socks_host_port = 1080;
 
-	var $protocol="http";
-	var $request_method="GET";
-	var $user_agent = 'HttpClient (PHP class from my-php-libs)';
-	var $authentication_mechanism="";
-	var $user;
-	var $password;
-	var $realm;
-	var $workstation;
-	var $proxy_authentication_mechanism="";
-	var $proxy_user;
-	var $proxy_password;
-	var $proxy_realm;
-	var $proxy_workstation;
-	var $request_uri="";
-	var $request="";
-	var $request_headers=array();
-	var $request_user;
-	var $request_password;
-	var $request_realm;
-	var $request_workstation;
-	var $proxy_request_user;
-	var $proxy_request_password;
-	var $proxy_request_realm;
-	var $proxy_request_workstation;
-	var $request_body="";
-	var $request_arguments=array();
-	var $protocol_version="1.1";
-	var $timeout=0;
-	var $data_timeout=0;
-	var $debug=0;
-	var $support_cookies=1;
-	var $cookies=array();
-	var $error="";
-	//var $exclude_address="";
-	var $follow_redirect=0;
-	var $redirection_limit=5;
-	var $response_status="";
-	var $response_message="";
-	var $file_buffer_length=8000;
-	var $force_multipart_form_post=0;
+  var $protocol="http";
+  var $request_method="GET";
+  var $user_agent = 'HttpClient (PHP class from my-php-libs)';
+  var $authentication_mechanism="";
+  var $user;
+  var $password;
+  var $realm;
+  var $workstation;
+  var $proxy_authentication_mechanism="";
+  var $proxy_user;
+  var $proxy_password;
+  var $proxy_realm;
+  var $proxy_workstation;
+  var $request_uri="";
+  var $request="";
+  var $request_headers=array();
+  var $request_user;
+  var $request_password;
+  var $request_realm;
+  var $request_workstation;
+  var $proxy_request_user;
+  var $proxy_request_password;
+  var $proxy_request_realm;
+  var $proxy_request_workstation;
+  var $request_body="";
+  var $request_arguments=array();
+  var $protocol_version="1.1";
+  var $timeout=0;
+  var $data_timeout=0;
+  var $debug=0;
+  var $support_cookies=1;
+  var $cookies=array();
+  var $error="";
+  //var $exclude_address="";
+  var $follow_redirect=0;
+  var $redirection_limit=5;
+  var $response_status="";
+  var $response_message="";
+  var $file_buffer_length=8000;
+  var $force_multipart_form_post=0;
 
   var $use_curl = 0;
-	//var $prefer_curl = 0;
+  //var $prefer_curl = 0;
 
   var $currentLocation = null;
 
-	# private variables
-	private $state="Disconnected";
-	private $connection=0;
-	private $content_length=0;
-	private $response="";
-	private $read_response=0;
-	//private $numBytesRead = 0;
-	private $request_host="";
-	private $next_token="";
-	private $redirection_level=0;
-	private $chunked=0;
-	private $bytesLeftForChunk = 0;
-	private $lastChunkRead = false;
-	private $months=array(
-		"Jan"=>"01",
-		"Feb"=>"02",
-		"Mar"=>"03",
-		"Apr"=>"04",
-		"May"=>"05",
-		"Jun"=>"06",
-		"Jul"=>"07",
-		"Aug"=>"08",
-		"Sep"=>"09",
-		"Oct"=>"10",
-		"Nov"=>"11",
-		"Dec"=>"12");
-	private $session='';
-	private $connection_close=0;
+  # private variables
+  private $state="Disconnected";
+  private $connection=0;
+  private $content_length=0;
+  private $response="";
+  private $read_response=0;
+  //private $numBytesRead = 0;
+  private $request_host="";
+  private $next_token="";
+  private $redirection_level=0;
+  private $chunked=0;
+  private $bytesLeftForChunk = 0;
+  private $lastChunkRead = false;
+  private $months=array(
+    "Jan"=>"01",
+    "Feb"=>"02",
+    "Mar"=>"03",
+    "Apr"=>"04",
+    "May"=>"05",
+    "Jun"=>"06",
+    "Jul"=>"07",
+    "Aug"=>"08",
+    "Sep"=>"09",
+    "Oct"=>"10",
+    "Nov"=>"11",
+    "Dec"=>"12");
+  private $session='';
+  private $connection_close=0;
 
   public function get($url) {
     return $this->makeRequest($url, array('RequestMethod' => 'GET'));
@@ -160,34 +160,34 @@ class HttpClient {
     }
   }
 
-	function Tokenize($string,$separator="")
-	{
-		if(!strcmp($separator,""))
-		{
-			$separator=$string;
-			$string=$this->next_token;
-		}
-		for($character=0;$character<strlen($separator);$character++)
-		{
-			if(GetType($position=strpos($string,$separator[$character]))=="integer")
-				$found=(IsSet($found) ? min($found,$position) : $position);
-		}
-		if(IsSet($found))
-		{
-			$this->next_token=substr($string,$found+1);
-			return(substr($string,0,$found));
-		}
-		else
-		{
-			$this->next_token="";
-			return($string);
-		}
-	}
+  function Tokenize($string,$separator="")
+  {
+    if(!strcmp($separator,""))
+    {
+      $separator=$string;
+      $string=$this->next_token;
+    }
+    for($character=0;$character<strlen($separator);$character++)
+    {
+      if(GetType($position=strpos($string,$separator[$character]))=="integer")
+        $found=(IsSet($found) ? min($found,$position) : $position);
+    }
+    if(IsSet($found))
+    {
+      $this->next_token=substr($string,$found+1);
+      return(substr($string,0,$found));
+    }
+    else
+    {
+      $this->next_token="";
+      return($string);
+    }
+  }
 
-	function cookieEncode($value, $name)
-	{
-		return($name ? str_replace("=", "%25", $value) : str_replace(";", "%3B", $value));
-	}
+  function cookieEncode($value, $name)
+  {
+    return($name ? str_replace("=", "%25", $value) : str_replace(";", "%3B", $value));
+  }
 
   private function raiseError($msg) {
     if (empty($msg) || trim($msg) == "") {
@@ -197,30 +197,30 @@ class HttpClient {
     throw new Exception($msg);
   }
 
-	function dataAccessError($error, $check_connection = 0) {
-		if (function_exists("socket_get_status")) {
-			$status = $this->socket_get_status($this->connection);
-			if ($status["timed_out"]) {
-				$error .= ": data access time out";
+  function dataAccessError($error, $check_connection = 0) {
+    if (function_exists("socket_get_status")) {
+      $status = $this->socket_get_status($this->connection);
+      if ($status["timed_out"]) {
+        $error .= ": data access time out";
       }	else if ($status["eof"]) {
-				/*if ($check_connection) {
-					$error = "";
-				} else {
-					$error .= ": the server disconnected";
+        /*if ($check_connection) {
+          $error = "";
+        } else {
+          $error .= ": the server disconnected";
         }*/
         $error .= ": status is 'eof'";
-			}
-		}
+      }
+    }
     $this->state = "Disconnected";
     throw new HttpConnectionError($error);
-	}
+  }
 
   private function readLine() {
     $line = "";
     while (substr($line, -1, 1) != "\n") {
       if ($this->feof($this->connection)) {
         $this->dataAccessError("Reached end-of-file (end of data stream) when attempting " .
-                               "to read another line");
+                              "to read another line");
       }
       $data = $this->fgets($this->connection, 100);
       if ($data === false || strlen($data) == 0) {
@@ -238,40 +238,40 @@ class HttpClient {
     return substr($line, 0, -$charsToTrim);
   }
 
-	function putLine($line)
-	{
+  function putLine($line)
+  {
     $this->debug("C $line");
-		if(!fputs($this->connection,$line."\r\n"))
-		{
-			$this->dataAccessError("it was not possible to send a line to the HTTP server");
-			return(0);
-		}
-		return(1);
-	}
+    if(!fputs($this->connection,$line."\r\n"))
+    {
+      $this->dataAccessError("it was not possible to send a line to the HTTP server");
+      return(0);
+    }
+    return(1);
+  }
 
-	function PutData(&$data)
-	{
-		if(strlen($data))
-		{
+  function PutData(&$data)
+  {
+    if(strlen($data))
+    {
       $this->debug("C $data");
-			if(!fputs($this->connection,$data))
-			{
-				$this->dataAccessError("it was not possible to send data to the HTTP server");
-				return(0);
-			}
-		}
-		return(1);
-	}
+      if(!fputs($this->connection,$data))
+      {
+        $this->dataAccessError("it was not possible to send data to the HTTP server");
+        return(0);
+      }
+    }
+    return(1);
+  }
 
-	function FlushData()
-	{
-		if(!fflush($this->connection))
-		{
-			$this->dataAccessError("it was not possible to send data to the HTTP server");
-			return(0);
-		}
-		return(1);
-	}
+  function FlushData()
+  {
+    if(!fflush($this->connection))
+    {
+      $this->dataAccessError("it was not possible to send data to the HTTP server");
+      return(0);
+    }
+    return(1);
+  }
 
   private function readChunkSize() {
     $line = $this->readLine();
@@ -337,7 +337,7 @@ class HttpClient {
       }
       if (strlen($bytes) == 0 && !$this->feof($this->connection)) {
         $this->dataAccessError("It was not possible to read data from the HTTP server",
-                               $this->connection_close);
+                              $this->connection_close);
       }
     }
     return $bytes;
@@ -365,7 +365,7 @@ class HttpClient {
     }
     /*
     if (strlen($ip) == 0 || (strlen($this->exclude_address)
-                             && !strcmp($this->gethostbyname($this->exclude_address), $ip))) {
+                            && !strcmp($this->gethostbyname($this->exclude_address), $ip))) {
       $this->raiseError("Could not resolve the host domain \"$domain\"");
     }
     */
@@ -432,7 +432,7 @@ class HttpClient {
           else
           {
             $this->debug('Connecting to ' . $host_server_type . ' server IP ' . $host_ip .
-                         ' port ' . $host_port . '...');
+                        ' port ' . $host_port . '...');
             $command = 1;
             $address_type = 1;
             if(!fputs($this->connection, chr($version).chr($command)."\x00".chr($address_type).pack('Nn', ip2long($host_ip), $host_port)))
@@ -584,7 +584,7 @@ class HttpClient {
           if($php_version<4003000)
             $error="establishing SSL connections requires at least PHP version 4.3.0 or having the cURL extension enabled";
           elseif(!function_exists("extension_loaded")
-                 || !extension_loaded("openssl"))
+                || !extension_loaded("openssl"))
             $error="establishing SSL connections requires the OpenSSL extension enabled";
         }
       }
@@ -628,209 +628,209 @@ class HttpClient {
     }
   }
 
-	function GetFileDefinition(&$file,&$definition)
-	{
-		$name="";
-		if(IsSet($file["FileName"]))
-			$name=basename($file["FileName"]);
-		if(IsSet($file["Name"]))
-			$name=$file["Name"];
-		if(strlen($name)==0)
-			return("it was not specified the file part name");
-		if(IsSet($file["Content-Type"]))
-		{
-			$content_type=$file["Content-Type"];
-			$type=$this->Tokenize(strtolower($content_type),"/");
-			$sub_type=$this->Tokenize("");
-			switch($type)
-			{
-				case "text":
-				case "image":
-				case "audio":
-				case "video":
-				case "application":
-				case "message":
-					break;
-				case "automatic":
-					switch($sub_type)
-					{
-						case "name":
-							switch(GetType($dot=strrpos($name,"."))=="integer" ? strtolower(substr($name,$dot)) : "")
-							{
-								case ".xls":
-									$content_type="application/excel";
-									break;
-								case ".hqx":
-									$content_type="application/macbinhex40";
-									break;
-								case ".doc":
-								case ".dot":
-								case ".wrd":
-									$content_type="application/msword";
-									break;
-								case ".pdf":
-									$content_type="application/pdf";
-									break;
-								case ".pgp":
-									$content_type="application/pgp";
-									break;
-								case ".ps":
-								case ".eps":
-								case ".ai":
-									$content_type="application/postscript";
-									break;
-								case ".ppt":
-									$content_type="application/powerpoint";
-									break;
-								case ".rtf":
-									$content_type="application/rtf";
-									break;
-								case ".tgz":
-								case ".gtar":
-									$content_type="application/x-gtar";
-									break;
-								case ".gz":
-									$content_type="application/x-gzip";
-									break;
-								case ".php":
-								case ".php3":
-									$content_type="application/x-httpd-php";
-									break;
-								case ".js":
-									$content_type="application/x-javascript";
-									break;
-								case ".ppd":
-								case ".psd":
-									$content_type="application/x-photoshop";
-									break;
-								case ".swf":
-								case ".swc":
-								case ".rf":
-									$content_type="application/x-shockwave-flash";
-									break;
-								case ".tar":
-									$content_type="application/x-tar";
-									break;
-								case ".zip":
-									$content_type="application/zip";
-									break;
-								case ".mid":
-								case ".midi":
-								case ".kar":
-									$content_type="audio/midi";
-									break;
-								case ".mp2":
-								case ".mp3":
-								case ".mpga":
-									$content_type="audio/mpeg";
-									break;
-								case ".ra":
-									$content_type="audio/x-realaudio";
-									break;
-								case ".wav":
-									$content_type="audio/wav";
-									break;
-								case ".bmp":
-									$content_type="image/bitmap";
-									break;
-								case ".gif":
-									$content_type="image/gif";
-									break;
-								case ".iff":
-									$content_type="image/iff";
-									break;
-								case ".jb2":
-									$content_type="image/jb2";
-									break;
-								case ".jpg":
-								case ".jpe":
-								case ".jpeg":
-									$content_type="image/jpeg";
-									break;
-								case ".jpx":
-									$content_type="image/jpx";
-									break;
-								case ".png":
-									$content_type="image/png";
-									break;
-								case ".tif":
-								case ".tiff":
-									$content_type="image/tiff";
-									break;
-								case ".wbmp":
-									$content_type="image/vnd.wap.wbmp";
-									break;
-								case ".xbm":
-									$content_type="image/xbm";
-									break;
-								case ".css":
-									$content_type="text/css";
-									break;
-								case ".txt":
-									$content_type="text/plain";
-									break;
-								case ".htm":
-								case ".html":
-									$content_type="text/html";
-									break;
-								case ".xml":
-									$content_type="text/xml";
-									break;
-								case ".mpg":
-								case ".mpe":
-								case ".mpeg":
-									$content_type="video/mpeg";
-									break;
-								case ".qt":
-								case ".mov":
-									$content_type="video/quicktime";
-									break;
-								case ".avi":
-									$content_type="video/x-ms-video";
-									break;
-								case ".eml":
-									$content_type="message/rfc822";
-									break;
-								default:
-									$content_type="application/octet-stream";
-									break;
-							}
-							break;
-						default:
-							return($content_type." is not a supported automatic content type detection method");
-					}
-					break;
-				default:
-					return($content_type." is not a supported file content type");
-			}
-		}
-		else
-			$content_type="application/octet-stream";
-		$definition=array(
-			"Content-Type"=>$content_type,
-			"NAME"=>$name
-		);
-		if(IsSet($file["FileName"]))
-		{
-			if(GetType($length=@filesize($file["FileName"]))!="integer")
-			{
-				$error="it was not possible to determine the length of the file ".$file["FileName"];
-				if(IsSet($php_errormsg)
-				&& strlen($php_errormsg))
-					$error.=": ".$php_errormsg;
-				if(!file_exists($file["FileName"]))
-					$error="it was not possible to access the file ".$file["FileName"];
-				return($error);
-			}
-			$definition["FILENAME"]=$file["FileName"];
-			$definition["Content-Length"]=$length;
-		}
-		elseif(IsSet($file["Data"]))
-			$definition["Content-Length"]=strlen($definition["DATA"]=$file["Data"]);
-		else
-			return("it was not specified a valid file name");
-		return("");
-	}
+  function GetFileDefinition(&$file,&$definition)
+  {
+    $name="";
+    if(IsSet($file["FileName"]))
+      $name=basename($file["FileName"]);
+    if(IsSet($file["Name"]))
+      $name=$file["Name"];
+    if(strlen($name)==0)
+      return("it was not specified the file part name");
+    if(IsSet($file["Content-Type"]))
+    {
+      $content_type=$file["Content-Type"];
+      $type=$this->Tokenize(strtolower($content_type),"/");
+      $sub_type=$this->Tokenize("");
+      switch($type)
+      {
+        case "text":
+        case "image":
+        case "audio":
+        case "video":
+        case "application":
+        case "message":
+          break;
+        case "automatic":
+          switch($sub_type)
+          {
+            case "name":
+              switch(GetType($dot=strrpos($name,"."))=="integer" ? strtolower(substr($name,$dot)) : "")
+              {
+                case ".xls":
+                  $content_type="application/excel";
+                  break;
+                case ".hqx":
+                  $content_type="application/macbinhex40";
+                  break;
+                case ".doc":
+                case ".dot":
+                case ".wrd":
+                  $content_type="application/msword";
+                  break;
+                case ".pdf":
+                  $content_type="application/pdf";
+                  break;
+                case ".pgp":
+                  $content_type="application/pgp";
+                  break;
+                case ".ps":
+                case ".eps":
+                case ".ai":
+                  $content_type="application/postscript";
+                  break;
+                case ".ppt":
+                  $content_type="application/powerpoint";
+                  break;
+                case ".rtf":
+                  $content_type="application/rtf";
+                  break;
+                case ".tgz":
+                case ".gtar":
+                  $content_type="application/x-gtar";
+                  break;
+                case ".gz":
+                  $content_type="application/x-gzip";
+                  break;
+                case ".php":
+                case ".php3":
+                  $content_type="application/x-httpd-php";
+                  break;
+                case ".js":
+                  $content_type="application/x-javascript";
+                  break;
+                case ".ppd":
+                case ".psd":
+                  $content_type="application/x-photoshop";
+                  break;
+                case ".swf":
+                case ".swc":
+                case ".rf":
+                  $content_type="application/x-shockwave-flash";
+                  break;
+                case ".tar":
+                  $content_type="application/x-tar";
+                  break;
+                case ".zip":
+                  $content_type="application/zip";
+                  break;
+                case ".mid":
+                case ".midi":
+                case ".kar":
+                  $content_type="audio/midi";
+                  break;
+                case ".mp2":
+                case ".mp3":
+                case ".mpga":
+                  $content_type="audio/mpeg";
+                  break;
+                case ".ra":
+                  $content_type="audio/x-realaudio";
+                  break;
+                case ".wav":
+                  $content_type="audio/wav";
+                  break;
+                case ".bmp":
+                  $content_type="image/bitmap";
+                  break;
+                case ".gif":
+                  $content_type="image/gif";
+                  break;
+                case ".iff":
+                  $content_type="image/iff";
+                  break;
+                case ".jb2":
+                  $content_type="image/jb2";
+                  break;
+                case ".jpg":
+                case ".jpe":
+                case ".jpeg":
+                  $content_type="image/jpeg";
+                  break;
+                case ".jpx":
+                  $content_type="image/jpx";
+                  break;
+                case ".png":
+                  $content_type="image/png";
+                  break;
+                case ".tif":
+                case ".tiff":
+                  $content_type="image/tiff";
+                  break;
+                case ".wbmp":
+                  $content_type="image/vnd.wap.wbmp";
+                  break;
+                case ".xbm":
+                  $content_type="image/xbm";
+                  break;
+                case ".css":
+                  $content_type="text/css";
+                  break;
+                case ".txt":
+                  $content_type="text/plain";
+                  break;
+                case ".htm":
+                case ".html":
+                  $content_type="text/html";
+                  break;
+                case ".xml":
+                  $content_type="text/xml";
+                  break;
+                case ".mpg":
+                case ".mpe":
+                case ".mpeg":
+                  $content_type="video/mpeg";
+                  break;
+                case ".qt":
+                case ".mov":
+                  $content_type="video/quicktime";
+                  break;
+                case ".avi":
+                  $content_type="video/x-ms-video";
+                  break;
+                case ".eml":
+                  $content_type="message/rfc822";
+                  break;
+                default:
+                  $content_type="application/octet-stream";
+                  break;
+              }
+              break;
+            default:
+              return($content_type." is not a supported automatic content type detection method");
+          }
+          break;
+        default:
+          return($content_type." is not a supported file content type");
+      }
+    }
+    else
+      $content_type="application/octet-stream";
+    $definition=array(
+      "Content-Type"=>$content_type,
+      "NAME"=>$name
+    );
+    if(IsSet($file["FileName"]))
+    {
+      if(GetType($length=@filesize($file["FileName"]))!="integer")
+      {
+        $error="it was not possible to determine the length of the file ".$file["FileName"];
+        if(IsSet($php_errormsg)
+        && strlen($php_errormsg))
+          $error.=": ".$php_errormsg;
+        if(!file_exists($file["FileName"]))
+          $error="it was not possible to access the file ".$file["FileName"];
+        return($error);
+      }
+      $definition["FILENAME"]=$file["FileName"];
+      $definition["Content-Length"]=$length;
+    }
+    elseif(IsSet($file["Data"]))
+      $definition["Content-Length"]=strlen($definition["DATA"]=$file["Data"]);
+    else
+      return("it was not specified a valid file name");
+    return("");
+  }
 
   protected function sendRequest($arguments) {
     if ($this->state == "Disconnected") {
@@ -1142,7 +1142,7 @@ class HttpClient {
       $this->FlushData();
     }
     /*if (!$success) {
-     $this->raiseError("5 could not send the HTTP request: " . $this->error);*/
+    $this->raiseError("5 could not send the HTTP request: " . $this->error);*/
     $this->state = "RequestSent";
   }
 
@@ -1308,209 +1308,209 @@ class HttpClient {
       ($this->host_port ? ':' . $this->host_port : '') . $absPath;
   }
 
-	function Authenticate(&$headers, $proxy, &$proxy_authorization, &$user, &$password, &$realm, &$workstation)
-	{
-		if($proxy)
-		{
-			$authenticate_header="proxy-authenticate";
-			$authorization_header="Proxy-Authorization";
-			$authenticate_status="407";
-			$authentication_mechanism=$this->proxy_authentication_mechanism;
-		}
-		else
-		{
-			$authenticate_header="www-authenticate";
-			$authorization_header="Authorization";
-			$authenticate_status="401";
-			$authentication_mechanism=$this->authentication_mechanism;
-		}
-		if(IsSet($headers[$authenticate_header]))
-		{
-			if(function_exists("class_exists")
-			&& !class_exists("sasl_client_class"))
-				return($this->raiseError("the SASL client class needs to be loaded to be able to authenticate".($proxy ? " with the proxy server" : "")." and access this site"));
-			if(GetType($headers[$authenticate_header])=="array")
-				$authenticate=$headers[$authenticate_header];
-			else
-				$authenticate=array($headers[$authenticate_header]);
-			for($response="", $mechanisms=array(),$m=0;$m<count($authenticate);$m++)
-			{
-				$mechanism=$this->Tokenize($authenticate[$m]," ");
-				$response=$this->Tokenize("");
-				if(strlen($authentication_mechanism))
-				{
-					if(!strcmp($authentication_mechanism,$mechanism))
-					{
-						$mechanisms[]=$mechanism;
-						break;
-					}
-				}
-				else
-					$mechanisms[]=$mechanism;
-			}
-			$sasl=new sasl_client_class;
-			if(IsSet($user))
-				$sasl->SetCredential("user",$user);
-			if(IsSet($password))
-				$sasl->SetCredential("password",$password);
-			if(IsSet($realm))
-				$sasl->SetCredential("realm",$realm);
-			if(IsSet($workstation))
-				$sasl->SetCredential("workstation",$workstation);
-			$sasl->SetCredential("uri",$this->request_uri);
-			$sasl->SetCredential("method",$this->request_method);
-			$sasl->SetCredential("session",$this->session);
-			do
-			{
-				$status=$sasl->Start($mechanisms,$message,$interactions);
-			}
-			while($status==SASL_INTERACT);
-			switch($status)
-			{
-				case SASL_CONTINUE:
-					break;
-				case SASL_NOMECH:
-					return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".(strlen($authentication_mechanism) ? "authentication mechanism ".$authentication_mechanism." may not be used: " : "").$sasl->error));
-				default:
-					return($this->raiseError("Could not start the SASL ".($proxy ? "proxy " : "")."authentication client: ".$sasl->error));
-			}
-			for(;;)
-			{
-				if(strlen($error=$this->ReadReplyBody($body,$this->file_buffer_length)))
-					return($error);
-				if(strlen($body)==0)
-					break;
-			}
-			$authorization_value=$sasl->mechanism.(IsSet($message) ? " ".($sasl->encode_response ? base64_encode($message) : $message) : "");
-			$request_arguments=$this->request_arguments;
-			$arguments=$request_arguments;
-			$arguments["Headers"][$authorization_header]=$authorization_value;
-			if(!$proxy
-			&& strlen($proxy_authorization))
-				$arguments["Headers"]["Proxy-Authorization"]=$proxy_authorization;
-			if(strlen($error=$this->Close())
-			|| strlen($error=$this->Open($arguments)))
-				return($this->raiseError($error));
-			$authenticated=0;
-			if(IsSet($message))
-			{
-				if(strlen($error=$this->SendRequest($arguments))
-				|| strlen($error=$this->ReadReplyHeadersResponse($headers)))
-					return($this->raiseError($error));
-				if(!IsSet($headers[$authenticate_header]))
-					$authenticate=array();
-				elseif(GetType($headers[$authenticate_header])=="array")
-					$authenticate=$headers[$authenticate_header];
-				else
-					$authenticate=array($headers[$authenticate_header]);
-				for($mechanism=0;$mechanism<count($authenticate);$mechanism++)
-				{
-					if(!strcmp($this->Tokenize($authenticate[$mechanism]," "),$sasl->mechanism))
-					{
-						$response=$this->Tokenize("");
-						break;
-					}
-				}
-				switch($this->response_status)
-				{
-					case $authenticate_status:
-						break;
-					case "301":
-					case "302":
-					case "303":
-					case "307":
-						return($this->redirect($headers));
-					default:
-						if(intval($this->response_status/100)==2)
-						{
-							if($proxy)
-								$proxy_authorization=$authorization_value;
-							$authenticated=1;
-							break;
-						}
-						if($proxy
-						&& !strcmp($this->response_status,"401"))
-						{
-							$proxy_authorization=$authorization_value;
-							$authenticated=1;
-							break;
-						}
-						return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".$this->response_status." ".$this->response_message));
-				}
-			}
-			for(;!$authenticated;)
-			{
-				do
-				{
-					$status=$sasl->Step($response,$message,$interactions);
-				}
-				while($status==SASL_INTERACT);
-				switch($status)
-				{
-					case SASL_CONTINUE:
-						$authorization_value=$sasl->mechanism.(IsSet($message) ? " ".($sasl->encode_response ? base64_encode($message) : $message) : "");
-						$arguments=$request_arguments;
-						$arguments["Headers"][$authorization_header]=$authorization_value;
-						if(!$proxy
-						&& strlen($proxy_authorization))
-							$arguments["Headers"]["Proxy-Authorization"]=$proxy_authorization;
-						if(strlen($error=$this->SendRequest($arguments))
-						|| strlen($error=$this->ReadReplyHeadersResponse($headers)))
-							return($this->raiseError($error));
-						switch($this->response_status)
-						{
-							case $authenticate_status:
-								if(GetType($headers[$authenticate_header])=="array")
-									$authenticate=$headers[$authenticate_header];
-								else
-									$authenticate=array($headers[$authenticate_header]);
-								for($response="",$mechanism=0;$mechanism<count($authenticate);$mechanism++)
-								{
-									if(!strcmp($this->Tokenize($authenticate[$mechanism]," "),$sasl->mechanism))
-									{
-										$response=$this->Tokenize("");
-										break;
-									}
-								}
-								for(;;)
-								{
-									if(strlen($error=$this->ReadReplyBody($body,$this->file_buffer_length)))
-										return($error);
-									if(strlen($body)==0)
-										break;
-								}
-								$this->state="Connected";
-								break;
-							case "301":
-							case "302":
-							case "303":
-							case "307":
-								return($this->redirect($headers));
-							default:
-								if(intval($this->response_status/100)==2)
-								{
-									if($proxy)
-										$proxy_authorization=$authorization_value;
-									$authenticated=1;
-									break;
-								}
-								if($proxy
-								&& !strcmp($this->response_status,"401"))
-								{
-									$proxy_authorization=$authorization_value;
-									$authenticated=1;
-									break;
-								}
-								return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".$this->response_status." ".$this->response_message));
-						}
-						break;
-					default:
-						return($this->raiseError("Could not process the SASL ".($proxy ? "proxy " : "")."authentication step: ".$sasl->error));
-				}
-			}
-		}
-		return("");
-	}
+  function Authenticate(&$headers, $proxy, &$proxy_authorization, &$user, &$password, &$realm, &$workstation)
+  {
+    if($proxy)
+    {
+      $authenticate_header="proxy-authenticate";
+      $authorization_header="Proxy-Authorization";
+      $authenticate_status="407";
+      $authentication_mechanism=$this->proxy_authentication_mechanism;
+    }
+    else
+    {
+      $authenticate_header="www-authenticate";
+      $authorization_header="Authorization";
+      $authenticate_status="401";
+      $authentication_mechanism=$this->authentication_mechanism;
+    }
+    if(IsSet($headers[$authenticate_header]))
+    {
+      if(function_exists("class_exists")
+      && !class_exists("sasl_client_class"))
+        return($this->raiseError("the SASL client class needs to be loaded to be able to authenticate".($proxy ? " with the proxy server" : "")." and access this site"));
+      if(GetType($headers[$authenticate_header])=="array")
+        $authenticate=$headers[$authenticate_header];
+      else
+        $authenticate=array($headers[$authenticate_header]);
+      for($response="", $mechanisms=array(),$m=0;$m<count($authenticate);$m++)
+      {
+        $mechanism=$this->Tokenize($authenticate[$m]," ");
+        $response=$this->Tokenize("");
+        if(strlen($authentication_mechanism))
+        {
+          if(!strcmp($authentication_mechanism,$mechanism))
+          {
+            $mechanisms[]=$mechanism;
+            break;
+          }
+        }
+        else
+          $mechanisms[]=$mechanism;
+      }
+      $sasl=new sasl_client_class;
+      if(IsSet($user))
+        $sasl->SetCredential("user",$user);
+      if(IsSet($password))
+        $sasl->SetCredential("password",$password);
+      if(IsSet($realm))
+        $sasl->SetCredential("realm",$realm);
+      if(IsSet($workstation))
+        $sasl->SetCredential("workstation",$workstation);
+      $sasl->SetCredential("uri",$this->request_uri);
+      $sasl->SetCredential("method",$this->request_method);
+      $sasl->SetCredential("session",$this->session);
+      do
+      {
+        $status=$sasl->Start($mechanisms,$message,$interactions);
+      }
+      while($status==SASL_INTERACT);
+      switch($status)
+      {
+        case SASL_CONTINUE:
+          break;
+        case SASL_NOMECH:
+          return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".(strlen($authentication_mechanism) ? "authentication mechanism ".$authentication_mechanism." may not be used: " : "").$sasl->error));
+        default:
+          return($this->raiseError("Could not start the SASL ".($proxy ? "proxy " : "")."authentication client: ".$sasl->error));
+      }
+      for(;;)
+      {
+        if(strlen($error=$this->ReadReplyBody($body,$this->file_buffer_length)))
+          return($error);
+        if(strlen($body)==0)
+          break;
+      }
+      $authorization_value=$sasl->mechanism.(IsSet($message) ? " ".($sasl->encode_response ? base64_encode($message) : $message) : "");
+      $request_arguments=$this->request_arguments;
+      $arguments=$request_arguments;
+      $arguments["Headers"][$authorization_header]=$authorization_value;
+      if(!$proxy
+      && strlen($proxy_authorization))
+        $arguments["Headers"]["Proxy-Authorization"]=$proxy_authorization;
+      if(strlen($error=$this->Close())
+      || strlen($error=$this->Open($arguments)))
+        return($this->raiseError($error));
+      $authenticated=0;
+      if(IsSet($message))
+      {
+        if(strlen($error=$this->SendRequest($arguments))
+        || strlen($error=$this->ReadReplyHeadersResponse($headers)))
+          return($this->raiseError($error));
+        if(!IsSet($headers[$authenticate_header]))
+          $authenticate=array();
+        elseif(GetType($headers[$authenticate_header])=="array")
+          $authenticate=$headers[$authenticate_header];
+        else
+          $authenticate=array($headers[$authenticate_header]);
+        for($mechanism=0;$mechanism<count($authenticate);$mechanism++)
+        {
+          if(!strcmp($this->Tokenize($authenticate[$mechanism]," "),$sasl->mechanism))
+          {
+            $response=$this->Tokenize("");
+            break;
+          }
+        }
+        switch($this->response_status)
+        {
+          case $authenticate_status:
+            break;
+          case "301":
+          case "302":
+          case "303":
+          case "307":
+            return($this->redirect($headers));
+          default:
+            if(intval($this->response_status/100)==2)
+            {
+              if($proxy)
+                $proxy_authorization=$authorization_value;
+              $authenticated=1;
+              break;
+            }
+            if($proxy
+            && !strcmp($this->response_status,"401"))
+            {
+              $proxy_authorization=$authorization_value;
+              $authenticated=1;
+              break;
+            }
+            return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".$this->response_status." ".$this->response_message));
+        }
+      }
+      for(;!$authenticated;)
+      {
+        do
+        {
+          $status=$sasl->Step($response,$message,$interactions);
+        }
+        while($status==SASL_INTERACT);
+        switch($status)
+        {
+          case SASL_CONTINUE:
+            $authorization_value=$sasl->mechanism.(IsSet($message) ? " ".($sasl->encode_response ? base64_encode($message) : $message) : "");
+            $arguments=$request_arguments;
+            $arguments["Headers"][$authorization_header]=$authorization_value;
+            if(!$proxy
+            && strlen($proxy_authorization))
+              $arguments["Headers"]["Proxy-Authorization"]=$proxy_authorization;
+            if(strlen($error=$this->SendRequest($arguments))
+            || strlen($error=$this->ReadReplyHeadersResponse($headers)))
+              return($this->raiseError($error));
+            switch($this->response_status)
+            {
+              case $authenticate_status:
+                if(GetType($headers[$authenticate_header])=="array")
+                  $authenticate=$headers[$authenticate_header];
+                else
+                  $authenticate=array($headers[$authenticate_header]);
+                for($response="",$mechanism=0;$mechanism<count($authenticate);$mechanism++)
+                {
+                  if(!strcmp($this->Tokenize($authenticate[$mechanism]," "),$sasl->mechanism))
+                  {
+                    $response=$this->Tokenize("");
+                    break;
+                  }
+                }
+                for(;;)
+                {
+                  if(strlen($error=$this->ReadReplyBody($body,$this->file_buffer_length)))
+                    return($error);
+                  if(strlen($body)==0)
+                    break;
+                }
+                $this->state="Connected";
+                break;
+              case "301":
+              case "302":
+              case "303":
+              case "307":
+                return($this->redirect($headers));
+              default:
+                if(intval($this->response_status/100)==2)
+                {
+                  if($proxy)
+                    $proxy_authorization=$authorization_value;
+                  $authenticated=1;
+                  break;
+                }
+                if($proxy
+                && !strcmp($this->response_status,"401"))
+                {
+                  $proxy_authorization=$authorization_value;
+                  $authenticated=1;
+                  break;
+                }
+                return($this->raiseError(($proxy ? "proxy " : "")."authentication error: ".$this->response_status." ".$this->response_message));
+            }
+            break;
+          default:
+            return($this->raiseError("Could not process the SASL ".($proxy ? "proxy " : "")."authentication step: ".$sasl->error));
+        }
+      }
+    }
+    return("");
+  }
 
   function readReplyHeaders(&$headers)
   {
@@ -1566,106 +1566,106 @@ class HttpClient {
       }
       $body .= $chunk;
     } while (strlen($chunk) > 0 && $this->lastChunkRead == false &&
-             ($this->content_length > $numBytesRead || !$this->contentLengthGivenInHeader));
+            ($this->content_length > $numBytesRead || !$this->contentLengthGivenInHeader));
     return $body;
   }
 
-	function SaveCookies(&$cookies, $domain='', $secure_only=0, $persistent_only=0)
-	{
-		$now=gmdate("Y-m-d H-i-s");
-		$cookies=array();
-		for($secure_cookies=0,Reset($this->cookies);$secure_cookies<count($this->cookies);Next($this->cookies),$secure_cookies++)
-		{
-			$secure=Key($this->cookies);
-			if(!$secure_only
-			|| $secure)
-			{
-				for($cookie_domain=0,Reset($this->cookies[$secure]);$cookie_domain<count($this->cookies[$secure]);Next($this->cookies[$secure]),$cookie_domain++)
-				{
-					$domain_pattern=Key($this->cookies[$secure]);
-					$match=strlen($domain)-strlen($domain_pattern);
-					if(strlen($domain)==0
-					|| ($match>=0
-					&& !strcmp($domain_pattern,substr($domain,$match))
-					&& ($match==0
-					|| $domain_pattern[0]=="."
-					|| $domain[$match-1]==".")))
-					{
-						for(Reset($this->cookies[$secure][$domain_pattern]),$path_part=0;$path_part<count($this->cookies[$secure][$domain_pattern]);Next($this->cookies[$secure][$domain_pattern]),$path_part++)
-						{
-							$path=Key($this->cookies[$secure][$domain_pattern]);
-							for(Reset($this->cookies[$secure][$domain_pattern][$path]),$cookie=0;$cookie<count($this->cookies[$secure][$domain_pattern][$path]);Next($this->cookies[$secure][$domain_pattern][$path]),$cookie++)
-							{
-								$cookie_name=Key($this->cookies[$secure][$domain_pattern][$path]);
-								$expires=$this->cookies[$secure][$domain_pattern][$path][$cookie_name]["expires"];
-								if((!$persistent_only
-								&& strlen($expires)==0)
-								|| (strlen($expires)
-								&& strcmp($now,$expires)<0))
-									$cookies[$secure][$domain_pattern][$path][$cookie_name]=$this->cookies[$secure][$domain_pattern][$path][$cookie_name];
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	function SavePersistentCookies(&$cookies, $domain='', $secure_only=0)
-	{
-		$this->SaveCookies($cookies, $domain, $secure_only, 1);
-	}
-
-	function GetPersistentCookies(&$cookies, $domain='', $secure_only=0)
-	{
-		$this->SavePersistentCookies($cookies, $domain, $secure_only);
-	}
-
-	function RestoreCookies($cookies, $clear=1)
-	{
-		$new_cookies=($clear ? array() : $this->cookies);
-		for($secure_cookies=0, Reset($cookies); $secure_cookies<count($cookies); Next($cookies), $secure_cookies++)
-		{
-			$secure=Key($cookies);
-			if(GetType($secure)!="integer")
-				return($this->raiseError("invalid cookie secure value type (".serialize($secure).")"));
-			for($cookie_domain=0,Reset($cookies[$secure]);$cookie_domain<count($cookies[$secure]);Next($cookies[$secure]),$cookie_domain++)
-			{
-				$domain_pattern=Key($cookies[$secure]);
-				if(GetType($domain_pattern)!="string")
-					return($this->raiseError("invalid cookie domain value type (".serialize($domain_pattern).")"));
-				for(Reset($cookies[$secure][$domain_pattern]),$path_part=0;$path_part<count($cookies[$secure][$domain_pattern]);Next($cookies[$secure][$domain_pattern]),$path_part++)
-				{
-					$path=Key($cookies[$secure][$domain_pattern]);
-					if(GetType($path)!="string"
-					|| strcmp(substr($path, 0, 1), "/"))
-						return($this->raiseError("invalid cookie path value type (".serialize($path).")"));
-					for(Reset($cookies[$secure][$domain_pattern][$path]),$cookie=0;$cookie<count($cookies[$secure][$domain_pattern][$path]);Next($cookies[$secure][$domain_pattern][$path]),$cookie++)
-					{
-						$cookie_name = key($cookies[$secure][$domain_pattern][$path]);
-						$expires = $cookies[$secure][$domain_pattern][$path][$cookie_name]["expires"];
-						$value = $cookies[$secure][$domain_pattern][$path][$cookie_name]["value"];
-            $expirationPattern = '/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/';
-						if (gettype($expires) != "string" ||
-                (strlen($expires) &&
-                 !preg_match($expirationPattern, $expires))) {
-							$this->raiseError("invalid cookie expiry value type (" . serialize($expires) . ")");
+  function SaveCookies(&$cookies, $domain='', $secure_only=0, $persistent_only=0)
+  {
+    $now=gmdate("Y-m-d H-i-s");
+    $cookies=array();
+    for($secure_cookies=0,Reset($this->cookies);$secure_cookies<count($this->cookies);Next($this->cookies),$secure_cookies++)
+    {
+      $secure=Key($this->cookies);
+      if(!$secure_only
+      || $secure)
+      {
+        for($cookie_domain=0,Reset($this->cookies[$secure]);$cookie_domain<count($this->cookies[$secure]);Next($this->cookies[$secure]),$cookie_domain++)
+        {
+          $domain_pattern=Key($this->cookies[$secure]);
+          $match=strlen($domain)-strlen($domain_pattern);
+          if(strlen($domain)==0
+          || ($match>=0
+          && !strcmp($domain_pattern,substr($domain,$match))
+          && ($match==0
+          || $domain_pattern[0]=="."
+          || $domain[$match-1]==".")))
+          {
+            for(Reset($this->cookies[$secure][$domain_pattern]),$path_part=0;$path_part<count($this->cookies[$secure][$domain_pattern]);Next($this->cookies[$secure][$domain_pattern]),$path_part++)
+            {
+              $path=Key($this->cookies[$secure][$domain_pattern]);
+              for(Reset($this->cookies[$secure][$domain_pattern][$path]),$cookie=0;$cookie<count($this->cookies[$secure][$domain_pattern][$path]);Next($this->cookies[$secure][$domain_pattern][$path]),$cookie++)
+              {
+                $cookie_name=Key($this->cookies[$secure][$domain_pattern][$path]);
+                $expires=$this->cookies[$secure][$domain_pattern][$path][$cookie_name]["expires"];
+                if((!$persistent_only
+                && strlen($expires)==0)
+                || (strlen($expires)
+                && strcmp($now,$expires)<0))
+                  $cookies[$secure][$domain_pattern][$path][$cookie_name]=$this->cookies[$secure][$domain_pattern][$path][$cookie_name];
+              }
             }
-						$new_cookies[$secure][$domain_pattern][$path][$cookie_name]=array(
-							"name"=>$cookie_name,
-							"value"=>$value,
-							"domain"=>$domain_pattern,
-							"path"=>$path,
-							"expires"=>$expires,
-							"secure"=>$secure
-						);
-					}
-				}
-			}
-		}
-		$this->cookies=$new_cookies;
-		return("");
-	}
+          }
+        }
+      }
+    }
+  }
+
+  function SavePersistentCookies(&$cookies, $domain='', $secure_only=0)
+  {
+    $this->SaveCookies($cookies, $domain, $secure_only, 1);
+  }
+
+  function GetPersistentCookies(&$cookies, $domain='', $secure_only=0)
+  {
+    $this->SavePersistentCookies($cookies, $domain, $secure_only);
+  }
+
+  function RestoreCookies($cookies, $clear=1)
+  {
+    $new_cookies=($clear ? array() : $this->cookies);
+    for($secure_cookies=0, Reset($cookies); $secure_cookies<count($cookies); Next($cookies), $secure_cookies++)
+    {
+      $secure=Key($cookies);
+      if(GetType($secure)!="integer")
+        return($this->raiseError("invalid cookie secure value type (".serialize($secure).")"));
+      for($cookie_domain=0,Reset($cookies[$secure]);$cookie_domain<count($cookies[$secure]);Next($cookies[$secure]),$cookie_domain++)
+      {
+        $domain_pattern=Key($cookies[$secure]);
+        if(GetType($domain_pattern)!="string")
+          return($this->raiseError("invalid cookie domain value type (".serialize($domain_pattern).")"));
+        for(Reset($cookies[$secure][$domain_pattern]),$path_part=0;$path_part<count($cookies[$secure][$domain_pattern]);Next($cookies[$secure][$domain_pattern]),$path_part++)
+        {
+          $path=Key($cookies[$secure][$domain_pattern]);
+          if(GetType($path)!="string"
+          || strcmp(substr($path, 0, 1), "/"))
+            return($this->raiseError("invalid cookie path value type (".serialize($path).")"));
+          for(Reset($cookies[$secure][$domain_pattern][$path]),$cookie=0;$cookie<count($cookies[$secure][$domain_pattern][$path]);Next($cookies[$secure][$domain_pattern][$path]),$cookie++)
+          {
+            $cookie_name = key($cookies[$secure][$domain_pattern][$path]);
+            $expires = $cookies[$secure][$domain_pattern][$path][$cookie_name]["expires"];
+            $value = $cookies[$secure][$domain_pattern][$path][$cookie_name]["value"];
+            $expirationPattern = '/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/';
+            if (gettype($expires) != "string" ||
+                (strlen($expires) &&
+                !preg_match($expirationPattern, $expires))) {
+              $this->raiseError("invalid cookie expiry value type (" . serialize($expires) . ")");
+            }
+            $new_cookies[$secure][$domain_pattern][$path][$cookie_name]=array(
+              "name"=>$cookie_name,
+              "value"=>$value,
+              "domain"=>$domain_pattern,
+              "path"=>$path,
+              "expires"=>$expires,
+              "secure"=>$secure
+            );
+          }
+        }
+      }
+    }
+    $this->cookies=$new_cookies;
+    return("");
+  }
 
   // NOTE: These low-level PHP functions (fsockopen, fread, feof, etc) have been wrapped,
   // below, to allow us to better test this HttpClient class (by sub-classing and stubbing out
@@ -1707,10 +1707,10 @@ class HttpClient {
 #      having it all tangled up in the base HttpClient class as a series of if-else statements.
 class HttpClientUsingCurl extends HttpClient {
 
-	function dataAccessError($error, $check_connection = 0) {
+  function dataAccessError($error, $check_connection = 0) {
     $this->state = "Disconnected";
     throw new HttpConnectionError($error);
-	}
+  }
 
   function open($arguments) {
     if ($this->state != "Disconnected") $this->raiseError("Already connected");
