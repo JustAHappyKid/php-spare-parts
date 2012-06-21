@@ -1,6 +1,10 @@
 <?php
 
+namespace MyPHPLibs\WebClient;
+
 require_once dirname(__FILE__) . '/types.php';
+
+use \Exception, \InvalidArgumentException;
 
 class NetworkError extends Exception {}
 class HttpConnectionError extends NetworkError {}

@@ -2,7 +2,7 @@
 
 require_once 'web-browser.php';
 
-use MyPHPLibs\Test, MyPHPLibs\WebBrowsing\WebBrowser;
+use \MyPHPLibs\Test, \MyPHPLibs\WebClient\WebBrowser, \MyPHPLibs\WebClient\HttpResponse;
 
 class WebBrowserTests extends Test\TestHarness {
 

@@ -3,7 +3,7 @@
 require_once 'form.php';
 require_once 'html-parsing.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\WebBrowsing;
+use \MyPHPLibs\Test, \MyPHPLibs\WebClient;
 
 class InputFormTests extends Test\TestHarness {
 
@@ -19,7 +19,7 @@ class InputFormTests extends Test\TestHarness {
     $prefix->setAttribute('onchange', 'alert("quotes should be escaped!");');
     $f->addSection('name', array($prefix, $yername));
     $f->addSubmitButton('Submit it!');
-    $xp = WebBrowsing\htmlSoupToXPathObject($f->render());
+    $xp = WebClient\htmlSoupToXPathObject($f->render());
     $this->assertNodeExists($xp, "//h1[text()='What is your name?']");
     $this->assertNodeExists($xp, "//form/fieldset[@id='name']//label[text()='Salutation']");
     $this->assertNodeExists($xp,
@@ -39,13 +39,13 @@ class InputFormTests extends Test\TestHarness {
                                  new TextLineInput('ln', 'Last Name')));
     $f->validate(array('fn' => '', 'ln' => 'Potter'));
     assertFalse($f->isValid());
-    $xp = WebBrowsing\htmlSoupToXPathObject($f->render());
+    $xp = WebClient\htmlSoupToXPathObject($f->render());
     assertFalse($f->isValid());
     $this->assertNodeExists($xp, "//form//input[@name='fn' and @value='']");
     $this->assertErrorMessageForFieldIsPresent($xp, 'fn', 'First Name');
     $f->validate(array('hehe' => 'haha', 'fn' => '', 'ln' => ''));
     assertEqual('haha', $f->getValue('hehe'));
-    $xp = WebBrowsing\htmlSoupToXPathObject($f->render());
+    $xp = WebClient\htmlSoupToXPathObject($f->render());
     assertFalse($f->isValid());
     $this->assertNodeExists($xp, "//form//input[@name='ln' and @value='']");
     $this->assertErrorMessageForFieldIsPresent($xp, 'fn', 'First Name');
@@ -81,7 +81,7 @@ class InputFormTests extends Test\TestHarness {
     $f->addSection('name', array($prefix, $yername, $likeit));
     $f->addSubmitButton('Submit');
     $f->setDefaultValues(array('prefix' => 'R', 'n' => 'Chuck', 'like' => true));
-    $xp = WebBrowsing\htmlSoupToXPathObject($f->render());
+    $xp = WebClient\htmlSoupToXPathObject($f->render());
     $this->assertNodeExists($xp,
       "//select[@name='prefix']/option[@value='R' and @selected='selected']");
     $this->assertNodeExists($xp, "//input[@name='n' and @value='Chuck']");
@@ -120,7 +120,7 @@ class InputFormTests extends Test\TestHarness {
   }
 
   private function renderFormAndAssertNodeExists($f, $q) {
-    $xp = WebBrowsing\htmlSoupToXPathObject($f->render());
+    $xp = WebClient\htmlSoupToXPathObject($f->render());
     $this->assertNodeExists($xp, $q);
   }
 

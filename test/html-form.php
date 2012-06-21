@@ -1,7 +1,7 @@
 <?php
 
 require_once 'html-form.php';
-use \MyPHPLibs\WebBrowsing\HtmlForm;
+use \MyPHPLibs\WebClient\HtmlForm;
 
 function testParsingForm() {
   $formHtml = '

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\WebBrowsing;
+namespace MyPHPLibs\WebClient;
 
 use \Exception, \DOMDocument, \DOMXPath;
 

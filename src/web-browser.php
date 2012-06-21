@@ -1,11 +1,11 @@
 <?php
 
-namespace MyPHPLibs\WebBrowsing;
+namespace MyPHPLibs\WebClient;
 
 require_once dirname(__FILE__) . '/http-client.php';
 require_once dirname(__FILE__) . '/html-parsing.php';
 
-use \HttpClient, \HttpResponse;
+use \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HttpResponse;
 
 class WebBrowser extends HttpClient {
   protected $lastResponse;
