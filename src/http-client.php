@@ -5,6 +5,7 @@ require_once dirname(__FILE__) . '/types.php';
 class NetworkError extends Exception {}
 class HttpConnectionError extends NetworkError {}
 class HostNameResolutionError extends NetworkError {}
+class HttpProtocolError extends Exception {}
 
 class HttpClientRedirect extends Exception {
   public $location, $statusCode;
@@ -22,6 +23,8 @@ class HttpClient {
   protected function notice($message) {}
   protected function warn($message) {}
 
+  const defaultChunkSize = 1024;
+
 	var $host_name="";
 	var $host_port=0;
 	var $proxy_host_name="";
@@ -31,7 +34,7 @@ class HttpClient {
 
 	var $protocol="http";
 	var $request_method="GET";
-	var $user_agent='HttpClient (PHP class from php-missing-libs)';
+	var $user_agent = 'HttpClient (PHP class from my-php-libs)';
 	var $authentication_mechanism="";
 	var $user;
 	var $password;
@@ -59,7 +62,6 @@ class HttpClient {
 	var $timeout=0;
 	var $data_timeout=0;
 	var $debug=0;
-	var $debug_response_body=1;
 	var $support_cookies=1;
 	var $cookies=array();
 	var $error="";
@@ -82,13 +84,13 @@ class HttpClient {
 	private $content_length=0;
 	private $response="";
 	private $read_response=0;
-	private $read_length=0;
+	//private $numBytesRead = 0;
 	private $request_host="";
 	private $next_token="";
 	private $redirection_level=0;
 	private $chunked=0;
-	private $remaining_chunk=0;
-	private $last_chunk_read=0;
+	private $bytesLeftForChunk = 0;
+	private $lastChunkRead = false;
 	private $months=array(
 		"Jan"=>"01",
 		"Feb"=>"02",
@@ -131,12 +133,7 @@ class HttpClient {
     $this->open($arguments);
     $this->sendRequest($arguments);
     try {
-      $body = "";
-      $chunk = null;
-      do {
-        $chunk = $this->readReplyBody(1024);
-        $body .= $chunk;
-      } while (strlen($chunk) > 0);
+      $body = $this->readReplyBody();
       $this->close();
       $this->currentLocation = $url;
       $response = new HttpResponse($body);
@@ -272,49 +269,58 @@ class HttpClient {
 		return(1);
 	}
 
-	function ReadChunkSize()
-	{
-		if($this->remaining_chunk==0)
-		{
-			$debug=$this->debug;
-			if(!$this->debug_response_body)
-				$this->debug=0;
-			$line=$this->readLine();
-			$this->debug=$debug;
-			if(GetType($line)!="string")
-				return($this->raiseError("4 could not read chunk start: ".$this->error));
-			$this->remaining_chunk=hexdec($line);
-		}
-		return("");
-	}
+  private function readChunkSize() {
+    $line = $this->readLine();
+    if (gettype($line) != 'string') {
+      return $this->raiseError("Could not read chunk start: " . $this->error);
+    } else if (strlen($line) == 0) {
+      throw new HttpProtocolError("Got empty-string when attempting to read size of chunk");
+    }
+    $chunkSize = hexdec($line);
+    if ($chunkSize == 0 && $line != '0') {
+      throw new HttpProtocolError("Received invalid chunk size: $line");
+    }
+    return $chunkSize;
+  }
 
-  function readBytes($length) {
+  private function readBytes($length) {
+    if (!is_integer($length)) throw new InvalidArgumentException("\$length must be an integer");
+    if ($length < 1) throw new InvalidArgumentException("\$length must be at least 1 (one)");
     if ($this->chunked) {
-      for ($bytes = "", $remaining = $length; $remaining;) {
-        if(strlen($this->ReadChunkSize()))
-          return "";
-        if ($this->remaining_chunk == 0) {
-          $this->last_chunk_read = 1;
-          break;
+      $bytes = ""; $remaining = $length;
+      while ($remaining > 0) {
+        if ($this->bytesLeftForChunk == 0) {
+          $chunkSize = $this->readChunkSize();
+          if ($chunkSize == 0) {
+            $this->lastChunkRead = true;
+            break;
+          }
+          $this->bytesLeftForChunk = $chunkSize;
         }
-        $bytesToAskFor = min($this->remaining_chunk, $remaining);
+        $bytesToAskFor = min($this->bytesLeftForChunk, $remaining);
         $chunk = @ $this->fread($this->connection, $bytesToAskFor);
         $numBytesRead = strlen($chunk);
         if ($numBytesRead == 0) {
-          $this->dataAccessError("it was not possible to read data chunk from the HTTP server");
+          $this->dataAccessError("Unable to read data chunk from the server");
         }
         $this->debug("Read bytes: " . $chunk);
         $bytes .= $chunk;
-        $this->remaining_chunk -= $numBytesRead;
+        $this->bytesLeftForChunk -= $numBytesRead;
         $remaining -= $numBytesRead;
-        if ($this->remaining_chunk == 0) {
+        if ($this->bytesLeftForChunk == 0) {
           if ($this->feof($this->connection)) {
-            $this->raiseError("Reached end-of-file while attempting to read the " .
-                              "end-of-data-chunk mark from the HTTP server");
+            throw new HttpProtocolError("Reached end-of-file while attempting to read the " .
+                                        "end-of-data-chunk mark from the HTTP server");
           }
           $data = @ $this->fread($this->connection, 2);
+          # This is a peculiar case, but sometimes the first 'fread' call only returns one byte,
+          # despite the fact there is another one available in the stream...
+          if (strlen($data) == 1) $data .= @ $this->fread($this->connection, 1);
           if ($data != "\r\n") {
-            $this->notice("It was not possible to read end-of-data-chunk from the HTTP server");
+            $this->warn("Expected to get carriage-return-newline (\\r\\n) sequence for " .
+              "end-of-chunk, but got the following content: " . $data);
+            throw new HttpProtocolError("It was not possible to read carriage-return-newline " .
+              "sequence expected after data chunk");
           }
         }
       }
@@ -333,9 +339,9 @@ class HttpClient {
     return $bytes;
   }
 
-  function endOfInput() {
+  private function endOfInput() {
     if ($this->chunked) {
-      return $this->last_chunk_read;
+      return $this->lastChunkRead;
     } else {
       return $this->feof($this->connection);
     }
@@ -1155,8 +1161,7 @@ class HttpClient {
             "expires" => $expires, "secure" => $secure);
   }
 
-  function readReplyHeadersResponse(&$headers)
-  {
+  function readReplyHeadersResponse(&$headers) {
     $headers = array();
     switch ($this->state) {
       case "Disconnected":
@@ -1169,8 +1174,9 @@ class HttpClient {
         $this->raiseError("Cannot get request headers in the current connection " .
                           "state, '{$this->state}'");
     }
-    $this->content_length = $this->read_length = $this->read_response = $this->remaining_chunk = 0;
-    $this->content_length_set = $this->chunked = $this->last_chunk_read = $chunked = 0;
+    $this->content_length = $this->read_response = $this->bytesLeftForChunk = 0;
+    $this->contentLengthGivenInHeader = $this->lastChunkRead = false;
+    $this->chunked = $chunked = 0;
     $this->connection_close = 0;
 
     $line = $this->readLine();
@@ -1197,7 +1203,7 @@ class HttpClient {
       {
         case "content-length":
           $this->content_length=intval($headers[$name]);
-          $this->content_length_set=1;
+          $this->contentLengthGivenInHeader = true;
           break;
         case "transfer-encoding":
           $encoding = $this->Tokenize($value, "; \t");
@@ -1258,7 +1264,7 @@ class HttpClient {
     }
     $this->state = "GotReplyHeaders";
     $this->chunked = $chunked;
-    if ($this->content_length_set) $this->connection_close = 0;
+    if ($this->contentLengthGivenInHeader) $this->connection_close = 0;
     $this->response_headers = $headers;
   }
 
@@ -1526,9 +1532,9 @@ class HttpClient {
     }
   }
 
-  function readReplyBody($length) {
+  private function readReplyBody() {
     $chunk = "";
-    switch($this->state) {
+    switch ($this->state) {
       case "Disconnected":
         $this->raiseError("Connection was not yet established");
       case "Connected":
@@ -1541,14 +1547,23 @@ class HttpClient {
       default:
         $this->raiseError("Can not get request body in the current connection state");
     }
-    if($this->content_length_set)
-      $length=min($this->content_length-$this->read_length,$length);
-    if ($length > 0 && !$this->endOfInput() && ($chunk=$this->readBytes($length))=="") {
-      if(strlen($this->error))
-        return($this->raiseError("4 could not get the request reply body: ".$this->error));
-    }
-    $this->read_length+=strlen($chunk);
-    return $chunk;
+    $body = "";
+    $chunk = "";
+    $numBytesRead = 0;
+    do {
+      $chunkSize = self::defaultChunkSize;
+      if ($this->contentLengthGivenInHeader) {
+        $chunkSize = min($this->content_length - $numBytesRead, $chunkSize);
+      }
+      $chunk = $this->readBytes($chunkSize);
+      $numBytesRead += strlen($chunk);
+      if ($chunkSize > 0 && !$this->endOfInput() && $chunk == "") {
+        $this->raiseError("Could not read the reply body");
+      }
+      $body .= $chunk;
+    } while (strlen($chunk) > 0 && $this->lastChunkRead == false &&
+             ($this->content_length > $numBytesRead || !$this->contentLengthGivenInHeader));
+    return $body;
   }
 
 	function SaveCookies(&$cookies, $domain='', $secure_only=0, $persistent_only=0)
