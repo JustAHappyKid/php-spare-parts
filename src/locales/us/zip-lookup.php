@@ -5,14 +5,14 @@ namespace MyPHPLibs\Locales\US;
 require_once dirname(dirname(dirname(__FILE__))) . '/web-browser.php';
 require_once dirname(__FILE__) . '/address.php';
 
-use \MyPHPLibs\WebBrowsing\WebBrowser;
+use \MyPHPLibs\WebClient\WebBrowser;
 
 function lookupZipCode($addr, WebBrowser $client) {
   $vars = array('mode' => 0,
                 'tAddress' => $addr['street1'], 'tApt' => $addr['street2'],
                 'tCity' => $addr['city'], 'sState' => $addr['state'],
                 'zip' => $addr['zip5']);
-  $client->follow_redirect = true;
+  $client->followRedirects(true);
   $response = $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
   $errNode = current($client->findMatchingNodes("//p[@id='nonDeliveryMsg']"));
   $z5node = current($client->findMatchingNodes("//div[@id='result-list']//span[@class='zip']"));

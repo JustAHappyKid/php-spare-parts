@@ -76,7 +76,7 @@ class TestHttpClientHandles30xRedirectResponsesProperly extends Test\TestHarness
 
   function setUp() {
     $this->client = new WebBrowserForTesting;
-    $this->client->follow_redirect = true;
+    $this->client->followRedirects(true);
   }
 
   function testCurrentLocationFieldIsSetUponRedirect() {

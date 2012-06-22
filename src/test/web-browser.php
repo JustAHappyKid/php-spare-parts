@@ -4,7 +4,7 @@ namespace MyPHPLibs\Test;
 
 require_once dirname(dirname(__FILE__)) . '/web-browser.php';
 
-use \MyPHPLibs\WebClient\WebBrowser;
+use \Exception, \Closure, \MyPHPLibs\WebClient\WebBrowser, \MyPHPLibs\WebClient\HttpRequest;
 
 # This sub-class of WebBrowser (and, in turn, HttpClient) is for testing purposes.
 # It's not only used for testing the functionality of the WebBrowser and HttpClient
@@ -19,7 +19,7 @@ class WebBrowserForTesting extends WebBrowser {
   protected $mockResponse;
   protected $numBytesSent = 0;
 
-  public function setNextMockResponse($lines) {
+  public function setNextMockResponse(Array $lines) {
     $this->mockResponse = implode("\r\n", $lines);
   }
 
@@ -27,24 +27,35 @@ class WebBrowserForTesting extends WebBrowser {
     $this->mockResponses[$method][$url] = $lines;
   }
 
-  protected function sendRequest($args) {
-    $method = $args['RequestMethod'];
-    $url = $args["Protocol"] . '://' . $args["HostName"] . $args['RequestURI'];
-    if (isset($this->mockResponses[$method][$url])) {
-      $this->setNextMockResponse($this->mockResponses[$method][$url]);
+  public function addHookForURL($method, $url, Closure $hook) {
+    $this->mockResponses[$method][$url] = $hook;
+  }
+
+  protected function sendRequest(HttpRequest $req) {
+    $method = $req->method;
+    $url = $req->protocol . '://' . $req->hostName . $req->relativeURI;
+    $resp = @ $this->mockResponses[$method][$url];
+    if ($resp) {
+      if (is_array($resp)) {
+        $this->setNextMockResponse($this->mockResponses[$method][$url]);
+      } else if ($resp instanceof Closure) {
+        $this->setNextMockResponse($resp($req));
+      } else {
+        throw new Exception('Expected array or Closure');
+      }
     } else if (empty($this->mockResponse)) {
       fail('WebBrowserForTesting->sendRequest invoked but no "mock response" is prepared ' .
            'for method ' . $method . ' and URL ' . $url);
     }
-    parent::sendRequest($args);
+    parent::sendRequest($req);
   }
 
-  protected function open($args) {
+  protected function open(HttpRequest $req) {
     $this->numBytesSent = 0;
     $this->requestLine = null;
     $this->headersSent = array();
     $this->finishedSendingHeaders = false;
-    parent::open($args);
+    parent::open($req);
   }
 
   function putLine($line) {
