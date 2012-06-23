@@ -2,7 +2,7 @@
 
 namespace MyPHPLibs\Locales\US;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/web-browser.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/web-client/web-browser.php';
 require_once dirname(__FILE__) . '/address.php';
 
 use \MyPHPLibs\WebClient\WebBrowser;

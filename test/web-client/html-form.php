@@ -1,6 +1,6 @@
 <?php
 
-require_once 'html-form.php';
+require_once 'web-client/html-form.php';
 use \MyPHPLibs\WebClient\HtmlForm;
 
 function testParsingForm() {

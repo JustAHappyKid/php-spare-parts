@@ -2,7 +2,7 @@
 
 namespace MyPHPLibs\Test;
 
-require_once dirname(dirname(__FILE__)) . '/web-browser.php';
+require_once dirname(dirname(__FILE__)) . '/web-client/web-browser.php';
 
 use \Exception, \Closure, \MyPHPLibs\WebClient\WebBrowser, \MyPHPLibs\WebClient\HttpRequest;
 

@@ -1,7 +1,7 @@
 <?php
 
 require_once 'form.php';
-require_once 'html-parsing.php';
+require_once 'web-client/html-parsing.php';
 
 use \MyPHPLibs\Test, \MyPHPLibs\WebClient;
 

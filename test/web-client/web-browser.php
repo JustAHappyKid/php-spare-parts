@@ -1,6 +1,6 @@
 <?php
 
-require_once 'web-browser.php';
+require_once 'web-client/web-browser.php';
 
 use \MyPHPLibs\Test, \MyPHPLibs\WebClient\WebBrowser, \MyPHPLibs\WebClient\HttpResponse;
 
