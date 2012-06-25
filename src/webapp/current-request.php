@@ -2,6 +2,8 @@
 
 namespace MyPHPLibs\Webapp\CurrentRequest;
 
+require_once dirname(__FILE__) . '/../url.php';   # makeUrlQuery
+
 function isPostRequest() {
   return strtolower($_SERVER['REQUEST_METHOD']) == 'post';
 }
@@ -20,6 +22,10 @@ function getURL() {
 
 function getPath() {
   return current(explode('?', $_SERVER['REQUEST_URI']));
+}
+
+function getLocationWithModifiedQuery($paramsToModify) {
+  return getPath() . makeUrlQuery(array_merge($_GET, $paramsToModify));
 }
 
 function isSecureHttpConnection() {
