@@ -1,13 +1,14 @@
 <?php
 
 require_once 'url.php';
+use \MyPHPLibs\URL;
 
 function testTakingPartsOfURL() {
   $url = 'http://tabcollab.net/tabs/nada-surf/inside-of-love';
-  assertEqual('tabcollab.net', takeDomain($url));
-  assertEqual('/tabs/nada-surf/inside-of-love', takePath($url));
+  assertEqual('tabcollab.net', URL\takeDomain($url));
+  assertEqual('/tabs/nada-surf/inside-of-love', URL\takePath($url));
   assertEqual('/index.cfm',
-    takePath('https://long.house.gov/index.cfm?sectionid=58&sectiontree=3,58'));
+    URL\takePath('https://long.house.gov/index.cfm?sectionid=58&sectiontree=3,58'));
 }
 
 function testConstructUrlFromRelativeLocation() {
@@ -27,22 +28,22 @@ function testConstructUrlFromRelativeLocation() {
     array('http://cocktailsail.com', 'path/to/', 'http://cocktailsail.com/path/to/'));
   foreach ($cases as $case) {
     $expected = $case[2];
-    $actual = constructUrlFromRelativeLocation($case[0], $case[1]);
+    $actual = URL\constructUrlFromRelativeLocation($case[0], $case[1]);
     if ($actual != $expected) {
       fail("Expected to get URL $expected but got $actual");
     }
   }
 
   assertEqual('https://tabcollab.net/add-tab',
-    constructUrlFromRelativeLocation('http://tabcollab.net/', 'add-tab', $secure = true));
+    URL\constructUrlFromRelativeLocation('http://tabcollab.net/', 'add-tab', $secure = true));
   assertEqual('http://tabcollab.net/add-tab',
-    constructUrlFromRelativeLocation('https://tabcollab.net/', 'add-tab', $secure = false));
+    URL\constructUrlFromRelativeLocation('https://tabcollab.net/', 'add-tab', $secure = false));
   assertEqual('https://cocktailsail.com/yummy/treat',
-    constructUrlFromRelativeLocation('https://cocktailsail.com/yummy/stuff', 'treat',
-                                     $secure = null));
+    URL\constructUrlFromRelativeLocation('https://cocktailsail.com/yummy/stuff', 'treat',
+                                         $secure = null));
 
   try {
-    constructUrlFromRelativeLocation('http://example.org/', null);
+    URL\constructUrlFromRelativeLocation('http://example.org/', null);
     fail('constructUrlFromRelativeLocation should raise exception when one of its parameters ' .
          'is not a string');
   } catch (InvalidArgumentException $e) {
@@ -51,8 +52,8 @@ function testConstructUrlFromRelativeLocation() {
 }
 
 function testReadQueryFromURI() {
-  assertEqual(array(), readQueryFromURI('/path/without/query'));
-  assertEqual(array(), readQueryFromURI('/path/without-query/but-with-question-mark?'));
+  assertEqual(array(), URL\readQueryFromURI('/path/without/query'));
+  assertEqual(array(), URL\readQueryFromURI('/path/without-query/but-with-question-mark?'));
 }
 
 function testTitleToUrlComponent() {
@@ -61,6 +62,6 @@ function testTitleToUrlComponent() {
     'over Government-Schooled children' => 'over-government-schooled-children',
     "Stan's big day" => 'stans-big-day');
   foreach ($cases as $in => $out) {
-    assertEqual($out, titleToUrlComponent($in));
+    assertEqual($out, URL\titleToUrlComponent($in));
   }
 }

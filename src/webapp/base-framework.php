@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/../http.php';          # messageForStatusCode
 require_once dirname(__FILE__) . '/../url.php';           # constructUrlFromRelativeLocation
 require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnection
 
-use \Exception, \MyPHPLibs\Webapp\CurrentRequest;
+use \Exception, \MyPHPLibs\Webapp\CurrentRequest, \MyPHPLibs\URL;
 
 abstract class FrontController {
 
@@ -255,7 +255,7 @@ abstract class FrontController {
   protected function redirectResponse($path, $statusCode, $referrerInfo) {
     $currentUrl = CurrentRequest\getURL();
     $this->info("Redirecting from " . $currentUrl . " to location " . $path . $referrerInfo);
-    $url = \constructUrlFromRelativeLocation($currentUrl, $path);
+    $url = URL\constructUrlFromRelativeLocation($currentUrl, $path);
     $r = new ResponseObj;
     $r->statusCode = $statusCode;
     $r->addHeader('Location', $url);

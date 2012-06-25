@@ -1,6 +1,10 @@
 <?php
 
+namespace MyPHPLibs\URL;
+
 require_once dirname(__FILE__) . '/file-path.php';
+
+use \InvalidArgumentException;
 
 function takeScheme($url) { return takeUrlPart($url, 'scheme'); }
 function takeDomain($url) { return takeUrlPart($url, 'host');   }
