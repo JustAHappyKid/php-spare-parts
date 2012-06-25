@@ -4,6 +4,8 @@ namespace MyPHPLibs\Webapp\CurrentRequest;
 
 require_once dirname(__FILE__) . '/../url.php';   # makeUrlQuery
 
+use \Exception;
+
 function isPostRequest() {
   return strtolower($_SERVER['REQUEST_METHOD']) == 'post';
 }
