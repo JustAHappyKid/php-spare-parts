@@ -20,4 +20,18 @@ class WebBrowserTests extends Test\TestHarness {
     assertEqual('http://example.org/sub-page', $nodes[0]->getAttribute('src'));
     // XXX: And then...?
   }
+
+  function testFollowingMetaTagRefresh() {
+    $this->wb->addMockResponse('GET', 'http://test.org/from',
+      array('HTTP/1.1 200 OK', 'Content-Type: text/html', '', '
+        <html>
+          <head><meta http-equiv="refresh" content="0; url=http://test.org/to"></head>
+          <body><p>You should have been redirected.</p></body>
+        </html>'));
+    $this->wb->addMockResponse('GET', 'http://test.org/to',
+      array('HTTP/1.1 200 OK', 'Content-Type: text/html', '',
+            '<html><body><p>Yeah, you found it!</p></body></html>'));
+    $this->wb->get('http://test.org/from');
+    assertEqual('http://test.org/to', $this->wb->currentLocation);
+  }
 }
