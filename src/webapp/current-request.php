@@ -4,7 +4,7 @@ namespace MyPHPLibs\Webapp\CurrentRequest;
 
 require_once dirname(__FILE__) . '/../url.php';   # makeUrlQuery
 
-use \Exception;
+use \Exception, \MyPHPLibs\URL;
 
 function isPostRequest() {
   return strtolower($_SERVER['REQUEST_METHOD']) == 'post';
@@ -27,7 +27,7 @@ function getPath() {
 }
 
 function getLocationWithModifiedQuery($paramsToModify) {
-  return getPath() . makeUrlQuery(array_merge($_GET, $paramsToModify));
+  return getPath() . URL\makeUrlQuery(array_merge($_GET, $paramsToModify));
 }
 
 function isSecureHttpConnection() {

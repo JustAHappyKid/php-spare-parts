@@ -23,3 +23,10 @@ function testIsSecureHttpConnection() {
   $_SERVER['HTTPS'] = 'on';
   assertTrue(CurrentRequest\isSecureHttpConnection());
 }
+
+function testGetLocationWithModifiedQuery() {
+  $_SERVER['REQUEST_URI'] = '/path/to/sumthing';
+  $_GET = array('a' => '1', 'b' => '2');
+  assertEqual('/path/to/sumthing?a=1&b=b&c=c',
+    CurrentRequest\getLocationWithModifiedQuery(array('b' => 'b', 'c' => 'c')));
+}
