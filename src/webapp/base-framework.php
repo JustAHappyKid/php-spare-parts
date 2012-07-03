@@ -245,7 +245,7 @@ abstract class FrontController {
   private function checkForRedirectDueToExtraCrapOnURI() {
     $uri = $_SERVER['REQUEST_URI'];
     if (strstr($uri, '#')) return current(explode('#', $uri));
-    $crap = array('%20', '%22', '%3e', '%5d', '&quot;', ')', '.', ',', '_', '"', "'");
+    $crap = array('%20', '%22', '%3e', '%5d', '&quot;', ')', ']', '.', ',', '_', '"', "'");
     foreach ($crap as $c) {
       if (endsWith($uri, $c)) return substr($uri, 0, (0 - strlen($c)));
     }
