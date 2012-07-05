@@ -1,10 +1,10 @@
 <?php
 
-require_once dirname(__FILE__) . '/form.php';
+require_once dirname(__FILE__) . '/webapp/forms.php';
 require_once dirname(__FILE__) . '/locales/us/address.php'; # getStatesMap
-require_once dirname(__FILE__) . '/locales/us/forms.php';   # ZipCodeInput
+require_once dirname(__FILE__) . '/locales/us/forms.php';   # ZipCodeField
 
-use \MyPHPLibs\Locales\US;
+use \MyPHPLibs\Locales\US, \MyPHPLibs\Webapp\Forms;
 
 function getCountriesMapForSelectField() {
   return array("" => 'Choose a country', "US" => "UNITED STATES", "CA" => "CANADA",
@@ -84,15 +84,15 @@ function getCountriesMapForSelectField() {
                "ZM" => "ZAMBIA", "ZW" => "ZIMBABWE");
 }
 
-class CountrySelectInput extends SelectInput {
+class CountrySelectField extends Forms\SelectField {
   function __construct($name, $label) {
     return parent::__construct($name, $label, getCountriesMapForSelectField());
   }
 }
-function newCountrySelectInput($name, $label) {
-  return new CountrySelectInput($name, $label); }
+function newCountrySelectField($name, $label) {
+  return new CountrySelectField($name, $label); }
 
-class StateOrProvinceInput extends TextLineInput {
+class StateOrProvinceField extends Forms\BasicTextField {
   public function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
     if ($submittedValues['country'] == 'US') {
       $states = US\getStatesMap($includeMilitaryPseudoStates = true, $includeTerritories = true);
@@ -109,10 +109,10 @@ class StateOrProvinceInput extends TextLineInput {
     return array();
   }
 }
-function newStateOrProvinceInput($name, $label) {
-  return new StateOrProvinceInput($name, $label); }
+function newStateOrProvinceField($name, $label) {
+  return new StateOrProvinceField($name, $label); }
 
-class ZipOrPostalCodeInput extends US\ZipCodeInput {
+class ZipOrPostalCodeField extends US\ZipCodeField {
 
   private $lastFourRequired = false;
 
@@ -152,5 +152,5 @@ class ZipOrPostalCodeInput extends US\ZipCodeInput {
     }
   }
 }
-function newZipOrPostalCodeInput($name, $label) {
-  return new ZipOrPostalCodeInput($name, $label); }
+function newZipOrPostalCodeField($name, $label) {
+  return new ZipOrPostalCodeField($name, $label); }

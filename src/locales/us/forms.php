@@ -2,18 +2,18 @@
 
 namespace MyPHPLibs\Locales\US;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/form.php'; # TextLineInput, xxx
-require_once dirname(__FILE__) . '/address.php';                # getStatesMap
+require_once dirname(dirname(dirname(__FILE__))) . '/webapp/forms.php'; # Forms\...
+require_once dirname(__FILE__) . '/address.php';                        # getStatesMap
 
-use \TextLineInput;
+use \MyPHPLibs\Webapp\Forms;
 
 # --
 # -- States
 # --
 
-function newStateSelectInput($name, $label, $includeMilitaryPseudoStates = true,
+function newStateSelectField($name, $label, $includeMilitaryPseudoStates = true,
                              $includeTerritories = true) {
-  return newSelectInput($name, $label,
+  return Forms\newSelectField($name, $label,
     getStatesMapForSelectField($includeMilitaryPseudoStates, $includeTerritories));
 }
 
@@ -30,7 +30,7 @@ function getStatesMapForSelectField($includeMilitaryPseudoStates = true,
 # -- ZIP codes
 # --
 
-class NineDigitZipCodeInput extends TextLineInput {
+class NineDigitZipCodeField extends Forms\BasicTextField {
 
   private $lastFourRequired;
   public $zip5 = '', $zip4 = '';
@@ -90,11 +90,11 @@ class NineDigitZipCodeInput extends TextLineInput {
   }
 }
 
-function newNineDigitZipCodeInput($name, $label, $lastFourRequired) {
-  return new NineDigitZipCodeInput($name, $label, $lastFourRequired);
+function newNineDigitZipCodeField($name, $label, $lastFourRequired) {
+  return new NineDigitZipCodeField($name, $label, $lastFourRequired);
 }
 
-class ZipCodeInput extends TextLineInput {
+class ZipCodeField extends Forms\BasicTextField {
 
   private $lastFourRequired;
   //public $zip5 = '', $zip4 = '';
@@ -125,6 +125,6 @@ class ZipCodeInput extends TextLineInput {
   }
 }
 
-function newZipCodeInput($name, $label, $lastFourRequired) {
-  return new ZipCodeInput($name, $label, $lastFourRequired);
+function newZipCodeField($name, $label, $lastFourRequired) {
+  return new ZipCodeField($name, $label, $lastFourRequired);
 }

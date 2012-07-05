@@ -1,21 +1,22 @@
 <?php
 
-require_once 'form.php';
+require_once 'webapp/forms.php';
 require_once 'web-client/html-parsing.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\WebClient;
+use \MyPHPLibs\Test, \MyPHPLibs\WebClient, \MyPHPLibs\Webapp\Forms, \MyPHPLibs\Webapp\Forms\Form;
 
-class InputFormTests extends Test\TestHarness {
+class FormsAPITests extends Test\TestHarness {
 
   function setUp() {
     $_SERVER['REQUEST_URI'] = '/some/path';
   }
 
   function testBasicRendering() {
-    $f = new InputForm('post');
+    $f = new Form('post');
     $f->setHeader('What is your name?');
-    $prefix = new SelectInput('prefix', 'Salutation', array('Mr' => 'Mister', 'Mrs' => 'Misses'));
-    $yername = new TextLineInput('yername', 'Your name');
+    $prefix = new Forms\SelectField('prefix', 'Salutation',
+      array('Mr' => 'Mister', 'Mrs' => 'Misses'));
+    $yername = new Forms\BasicTextField('yername', 'Your name');
     $prefix->setAttribute('onchange', 'alert("quotes should be escaped!");');
     $f->addSection('name', array($prefix, $yername));
     $f->addSubmitButton('Submit it!');
@@ -33,10 +34,10 @@ class InputFormTests extends Test\TestHarness {
   }
 
   function testBasicValidation() {
-    $f = new InputForm('post');
+    $f = new Form('post');
     $f->addHiddenInput('hehe', 'haha');
-    $f->addSection('name', array(new TextLineInput('fn', 'First Name'),
-                                 new TextLineInput('ln', 'Last Name')));
+    $f->addSection('name', array(new Forms\BasicTextField('fn', 'First Name'),
+                                 new Forms\BasicTextField('ln', 'Last Name')));
     $f->validate(array('fn' => '', 'ln' => 'Potter'));
     assertFalse($f->isValid());
     $xp = WebClient\htmlSoupToXPathObject($f->render());
@@ -53,31 +54,31 @@ class InputFormTests extends Test\TestHarness {
   }
 
   function testValidationSucceedsWhenOptionalFieldsAreBlank() {
-    $f = new InputForm('post');
-    $f->addSection('name', array(newTextLineInput('txt', 'Text'),
-                                 newPasswordInput('pass', 'Password'),
-                                 newEmailAddressInput('email', 'Email'),
-                                 newDateTimeInput('datetime', 'Date/time'),
-                                 newDollarAmountInput('amount', 'Amount')));
+    $f = new Form('post');
+    $f->addSection('name', array(Forms\newBasicTextField('txt', 'Text'),
+                                 Forms\newPasswordField('pass', 'Password'),
+                                 Forms\newEmailAddressField('email', 'Email'),
+                                 Forms\newDateTimeField('datetime', 'Date/time'),
+                                 Forms\newDollarAmountField('amount', 'Amount')));
     $f->setOptionalFields(array('txt', 'pass', 'email', 'datetime', 'amount'));
     $f->validate(array('txt' => '', 'pass' => '', 'email' => '', 'datetime' => '', 'amount' => ''));
     assertTrue($f->isValid());
   }
 
   function testHiddenInputsAreNotRequiredToHaveAValue() {
-    $f = new InputForm('post');
+    $f = new Form('post');
     $f->addHiddenInput('ohnothing', '');
-    $f->addSection('name', array(new TextLineInput('name', 'Name')));
+    $f->addSection('name', array(new Forms\BasicTextField('name', 'Name')));
     $f->validate(array('name' => 'Fred'));
     assertTrue($f->isValid());
   }
 
   function testDefaultValues() {
-    $f = new InputForm('post');
-    $prefix = new SelectInput('prefix', 'Prefix', array('Mr' => 'Mister', 'Mrs' => 'Misses',
-                                                        'R' => 'Revered'));
-    $yername = new TextLineInput('n', 'Your name');
-    $likeit = new CheckboxInput('like', 'Do you like it?', false);
+    $f = new Form('post');
+    $prefix = new Forms\SelectField('prefix', 'Prefix',
+      array('Mr' => 'Mister', 'Mrs' => 'Misses', 'R' => 'Revered'));
+    $yername = new Forms\BasicTextField('n', 'Your name');
+    $likeit = Forms\newCheckboxField('like', 'Do you like it?', false);
     $f->addSection('name', array($prefix, $yername, $likeit));
     $f->addSubmitButton('Submit');
     $f->setDefaultValues(array('prefix' => 'R', 'n' => 'Chuck', 'like' => true));
@@ -89,18 +90,18 @@ class InputFormTests extends Test\TestHarness {
   }
 
   function testCheckboxRetainsValue() {
-    $f = new InputForm('post');
-    $f->addSection('checkbox-test', array(newCheckboxInput('checkit', 'Check me!', false)));
+    $f = new Form('post');
+    $f->addSection('checkbox-test', array(Forms\newCheckboxField('checkit', 'Check me!', false)));
     $f->addSubmitButton('Go');
     $f->validate(array('checkit' => 'on'));
     $this->renderFormAndAssertNodeExists($f, "//input[@name='checkit' and @checked]");
   }
 
   function testMultiCheckboxInput() {
-    $f = new InputForm('post');
+    $f = new Form('post');
     $f->addSection('multicheckbox-test', array(
-      newMultiCheckboxInput('boxes', 'Check some',
-                            array(1 => 'Not checked', 2 => 'Checked by default'))));
+      Forms\newMultiCheckboxField('boxes', 'Check some',
+                                  array(1 => 'Not checked', 2 => 'Checked by default'))));
     $f->setDefaultValues(array('boxes' => array(2)));
     $f->validate(array('boxes' => array(2 => 'on')));
     assertEqual(array(2), $f->getValue('boxes'));
@@ -111,9 +112,9 @@ class InputFormTests extends Test\TestHarness {
   }
 
   function testEmailAddressInput() {
-    $f = new InputForm('post');
+    $f = new Form('post');
     $f->addSection('name', array(
-      newEmailAddressInput('email', 'Email')->allowNameAndAddressFormat()));
+      Forms\newEmailAddressField('email', 'Email')->allowNameAndAddressFormat()));
     $f->validate(array('email' => 'Joe Patty <joey@tabcollab.net>'));
     assertTrue($f->isValid());
     assertEqual('Joe Patty <joey@tabcollab.net>', $f->getValue('email'));

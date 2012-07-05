@@ -40,7 +40,7 @@ class PhoneFormInputTests extends Test\TestHarness {
   }
 
   private function validateViaPhoneNumberInput($v) {
-    $input = US\newPhoneNumberInput('phoneNum', 'Phone number');
+    $input = US\newPhoneNumberField('phoneNum', 'Phone number');
     return $input->validate(array('phoneNum' => $v));
   }
 }

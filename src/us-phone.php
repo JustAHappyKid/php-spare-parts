@@ -2,8 +2,8 @@
 
 namespace MyPHPLibs\Locales\US;
 
-require_once dirname(__FILE__) . '/form.php';
-use \TextLineInput;
+require_once dirname(__FILE__) . '/webapp/forms.php';
+use \MyPHPLibs\Webapp\Forms\BasicTextField;
 
 class InvalidPhoneNumber extends \InvalidArgumentException {}
 
@@ -39,7 +39,7 @@ class PhoneNumber {
   }
 }
 
-class PhoneNumberInput extends TextLineInput {
+class PhoneNumberField extends BasicTextField {
   public function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
     try {
       $pn = PhoneNumber::fromText($trimmedValue);
@@ -51,6 +51,6 @@ class PhoneNumberInput extends TextLineInput {
   }
 }
 
-function newPhoneNumberInput($name, $label) {
-  return new PhoneNumberInput($name, $label);
+function newPhoneNumberField($name, $label) {
+  return new PhoneNumberField($name, $label);
 }

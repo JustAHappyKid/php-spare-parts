@@ -1,7 +1,9 @@
 <?php
 
-require_once dirname(__FILE__) . '/types.php';
-require_once dirname(__FILE__) . '/validation.php';
+namespace MyPHPLibs\Webapp\Forms;
+
+require_once dirname(dirname(__FILE__)) . '/types.php';
+require_once dirname(dirname(__FILE__)) . '/validation.php';
 
 use \InvalidArgumentException, \MyPHPLibs\Validation;
 
@@ -14,7 +16,7 @@ abstract class BaseFormContainer {
   private $validated = false;
 
   public function addSection($name, $nodes = array()) {
-    $section = new InputFormSection($name, $nodes);
+    $section = new FormSection($name, $nodes);
     $this->nodes []= $section;
     return $section;
   }
@@ -23,12 +25,12 @@ abstract class BaseFormContainer {
     $this->nodes []= $html;
   }
 
-  public function addInput(InputFormField $input) {
-    $this->nodes []= $input;
+  public function addField(Field $f) {
+    $this->nodes []= $f;
   }
 
-  public function addInputs(Array $inputs) {
-    foreach ($inputs as $i) $this->nodes []= $i;
+  public function addFields(Array $fs) {
+    foreach ($fs as $f) $this->nodes []= $f;
   }
 
   public function addHiddenInput($name, $value) {
@@ -145,7 +147,7 @@ abstract class BaseFormContainer {
 
   public function findFieldByName($name) {
     foreach ($this->nodes as $n) {
-      if ($n instanceof InputFormField) {
+      if ($n instanceof Field) {
         if ($n->name == $name) return $n;
       } else if (!is_string($n)) {
         if (!is_object($n)) {
@@ -158,7 +160,7 @@ abstract class BaseFormContainer {
     return null;
   }
 
-  public function wrapField(InputFormField $field) {
+  public function wrapField(Field $field) {
     $attrs = $field->containerClass() ? (' class="' . $field->containerClass() . '"') : '';
      return "<li" . $attrs . "><label>{$field->label}</label>" .
       $field->renderInputHtml() . "</li>";
@@ -171,7 +173,7 @@ abstract class BaseFormContainer {
   }
 }
 
-class InputForm extends BaseFormContainer {
+class Form extends BaseFormContainer {
 
   protected $id = null, $method, $header, $successMessage, $cssClass = 'new-form';
 
@@ -258,7 +260,7 @@ class InputForm extends BaseFormContainer {
   }
 }
 
-class InputFormSection extends BaseFormContainer {
+class FormSection extends BaseFormContainer {
 
   private $id, $header = '';
 
@@ -278,7 +280,7 @@ class InputFormSection extends BaseFormContainer {
   }
 }
 
-class RadioButtonSetInput extends InputFormField {
+class RadioButtonSet extends Field {
   protected $options, $defaultValue;
   function __construct($name, $label, $options) {
     parent::__construct($name, $label);
@@ -300,10 +302,10 @@ class RadioButtonSetInput extends InputFormField {
     return "<ul style=\"list-style-type: none; list-style-position: inside;\">$html</ul>";
   }
 }
-function newRadioButtonSetInput($name, $label, $options) {
-  return new RadioButtonSetInput($name, $label, $options); }
+function newRadioButtonSet($name, $label, $options) {
+  return new RadioButtonSet($name, $label, $options); }
 
-class SelectInput extends InputFormField {
+class SelectField extends Field {
 
   private $options, $defaultValue;
 
@@ -326,10 +328,10 @@ class SelectInput extends InputFormField {
     return "<select" . $this->attrsHtml() . ">\n" . $optionsHtml . "</select>\n";
   }
 }
-function newSelectInput($name, $label, $options) {
-  return new SelectInput($name, $label, $options); }
+function newSelectField($name, $label, $options) {
+  return new SelectField($name, $label, $options); }
 
-class TextLineInput extends InputFormField {
+class BasicTextField extends Field {
 
   public function placeholder($txt) {
     $this->attributes['placeholder'] = $txt;
@@ -346,17 +348,17 @@ class TextLineInput extends InputFormField {
     return "<input" . $this->attrsHtml() ." />";
   }
 }
-function newTextLineInput($name, $label) { return new TextLineInput($name, $label); }
+function newBasicTextField($name, $label) { return new BasicTextField($name, $label); }
 
-class PasswordInput extends TextLineInput {
+class PasswordField extends BasicTextField {
   public function renderInputHtml() {
     $this->attributes['type'] = 'password';
     return "<input" . $this->attrsHtml() ." />";
   }
 }
-function newPasswordInput($name, $label) { return new PasswordInput($name, $label); }
+function newPasswordField($name, $label) { return new PasswordField($name, $label); }
 
-class EmailAddressInput extends TextLineInput {
+class EmailAddressField extends BasicTextField {
   private $allowExtendedFormat = false;
   public function allowNameAndAddressFormat() {
     $this->allowExtendedFormat = true;
@@ -371,9 +373,9 @@ class EmailAddressInput extends TextLineInput {
     }
   }
 }
-function newEmailAddressInput($name, $label) { return new EmailAddressInput($name, $label); }
+function newEmailAddressField($name, $label) { return new EmailAddressField($name, $label); }
 
-class WebAddressInput extends TextLineInput {
+class WebAddressField extends BasicTextField {
   public function validate(Array $submittedValues) {
     $errs = parent::validate($submittedValues);
     $v = $this->getTrimmedValue($submittedValues);
@@ -388,9 +390,9 @@ class WebAddressInput extends TextLineInput {
     }
   }
 }
-function newWebAddressInput($name, $label) { return new WebAddressInput($name, $label); }
+function newWebAddressField($name, $label) { return new WebAddressField($name, $label); }
 
-class DateTimeInput extends TextLineInput {
+class DateTimeField extends BasicTextField {
   protected function formatString() { return '%Y-%m-%d %H:%M:%S'; }
   protected function errMsg() {
     return "Please provide a valid date and time for the {$this->nameForValidation}.";
@@ -405,9 +407,9 @@ class DateTimeInput extends TextLineInput {
     }
   }
 }
-function newDateTimeInput($name, $label) { return new DateTimeInput($name, $label); }
+function newDateTimeField($name, $label) { return new DateTimeField($name, $label); }
 
-class DateInput extends DateTimeInput {
+class DateField extends DateTimeField {
   function __construct($name, $label) {
     $this->setClass('date');
     parent::__construct($name, $label);
@@ -417,9 +419,9 @@ class DateInput extends DateTimeInput {
     return "Please provide a valid date for the {$this->nameForValidation}.";
   }
 }
-function newDateInput($name, $label) { return new DateInput($name, $label); }
+function newDateField($name, $label) { return new DateField($name, $label); }
 
-class DollarAmountInput extends TextLineInput {
+class DollarAmountField extends BasicTextField {
   function __construct($name, $label) {
     $this->setClass('dollar-amount');
     parent::__construct($name, $label);
@@ -443,9 +445,9 @@ class DollarAmountInput extends TextLineInput {
     }
   }
 }
-function newDollarAmountInput($name, $label) { return new DollarAmountInput($name, $label); }
+function newDollarAmountField($name, $label) { return new DollarAmountField($name, $label); }
 
-class TextAreaInput extends InputFormField {
+class TextArea extends Field {
   protected $value = '';
   public function setValue($v) { $this->value = $v; return $this; }
   public function renderInputHtml() {
@@ -455,9 +457,9 @@ class TextAreaInput extends InputFormField {
     return 'textarea';
   }
 }
-function newTextAreaInput($name, $label) { return new TextAreaInput($name, $label); }
+function newTextArea($name, $label) { return new TextArea($name, $label); }
 
-class CheckboxInput extends InputFormField {
+class CheckboxField extends Field {
   function __construct($name, $label, $checked) {
     parent::__construct($name, $label);
     $this->attributes['type'] = 'checkbox';
@@ -466,8 +468,8 @@ class CheckboxInput extends InputFormField {
   }
   public function setValue($v) { $this->setChecked(!empty($v)); return $this; }
   public function getValue() { return at($this->attributes, 'checked') != null; }
-  # XXX: This InputFormField instance should not hard-code "<li>" as the field container type,
-  #      but it was a necessary hack due to the fact that this CheckboxInput renders its
+  # XXX: This Field instance should not hard-code "<li>" as the field container type,
+  #      but it was a necessary hack due to the fact that this CheckboxField renders its
   #      <input/> tag logically *before* its <label>.
   public function render() {
     return '<li class="checkbox">' . $this->renderInputHtml() .
@@ -483,10 +485,10 @@ class CheckboxInput extends InputFormField {
     }
   }
 }
-function newCheckboxInput($name, $label, $checked) {
-  return new CheckboxInput($name, $label, $checked); }
+function newCheckboxField($name, $label, $checked) {
+  return new CheckboxField($name, $label, $checked); }
 
-class MultiCheckboxInput extends InputFormField {
+class MultiCheckboxField extends Field {
   protected $options, $defaultValue, $checked;
   function __construct($name, $label, $options) {
     parent::__construct($name, $label);
@@ -516,10 +518,10 @@ class MultiCheckboxInput extends InputFormField {
     return $this->checked;
   }
 }
-function newMultiCheckboxInput($name, $label, $options) {
-  return new MultiCheckboxInput($name, $label, $options); }
+function newMultiCheckboxField($name, $label, $options) {
+  return new MultiCheckboxField($name, $label, $options); }
 
-class HiddenInput extends InputFormField {
+class HiddenInput extends Field {
   private $value;
   function __construct($name, $value) {
     $this->attributes['type'] = "hidden";
@@ -540,7 +542,7 @@ class HiddenInput extends InputFormField {
 }
 function newHiddenInput($name, $value) { return new HiddenInput($name, $value); }
 
-abstract class InputFormField {
+abstract class Field {
 
   public $name, $label, $optional, $cleanedValue;
   protected $attributes = array(), $shouldMatch = array();
