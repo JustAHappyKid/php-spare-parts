@@ -136,6 +136,7 @@ class HttpClient {
     try {
       $body = $this->readReplyBody();
       $this->close();
+      echo "setting currentLocation to $url\n";
       $this->currentLocation = $url;
       $response = new HttpResponse($body);
       $response->url = $url;
@@ -1051,8 +1052,18 @@ class HttpClient {
       $this->debug("Putting following request line: {$openingRequestLine}");
       $this->putLine($openingRequestLine);
       $this->debug("Putting following headers...");
+
+      $headers = array_merge($headers, array(
+        //("Host: www.scottbrown.senate.gov"),
+        //("User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:13.0) Gecko/20100101 Firefox/13.0.1"),
+        ("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+        ("Accept-Encoding: gzip, deflate"),
+        ("Accept-Language: en-us,en;q=0.5")));
+      //$this->putLine("Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3");
+
       for ($header = 0; $header < count($headers); $header++) {
         $this->debug("  " . $headers[$header]);
+        echo("  " . $headers[$header] . "\n");
         $this->putLine($headers[$header]);
       }
       $this->putLine("");
@@ -1682,6 +1693,100 @@ class HttpClient {
 
   protected function socket_get_status($conn) {
     return socket_get_status($conn);
+  }
+}
+
+# XXX: This HttpClient implementation is not ready for use, but is an attempt at factoring
+#      out the curl-based method of HTTP communication into a separate class, rather than
+#      having it all tangled up in the base HttpClient class as a series of if-else statements.
+class HttpClientUsingCurl extends HttpClient {
+
+  function dataAccessError($error, $check_connection = 0) {
+    $this->state = "Disconnected";
+    throw new HttpConnectionError($error);
+  }
+
+  function open($arguments) {
+    if ($this->state != "Disconnected") $this->raiseError("Already connected");
+    if(IsSet($arguments["HostName"]))
+      $this->host_name=$arguments["HostName"];
+    if(IsSet($arguments["HostPort"]))
+      $this->remotePort=$arguments["HostPort"];
+    if(IsSet($arguments["ProxyHostName"]))
+      $this->proxy_host_name=$arguments["ProxyHostName"];
+    if(IsSet($arguments["ProxyHostPort"]))
+      $this->proxy_remotePort=$arguments["ProxyHostPort"];
+    if(IsSet($arguments["SOCKSHostName"]))
+      $this->socks_host_name=$arguments["SOCKSHostName"];
+    if(IsSet($arguments["SOCKSHostPort"]))
+      $this->socks_remotePort=$arguments["SOCKSHostPort"];
+    if(IsSet($arguments["Protocol"]))
+      $this->protocol=$arguments["Protocol"];
+    switch (strtolower($this->protocol)) {
+      case "http":
+        $defaultPort = 80;
+        break;
+      case "https":
+        $defaultPort = 443;
+        break;
+      default:
+        $this->raiseError("Invalid connection protocol specified");
+    }
+    if (strlen($this->proxy_host_name) == 0) {
+      if(strlen($this->host_name) == 0)
+        $this->raiseError("No hostname specified");
+      $host_name = $this->host_name;
+      $remotePort = ($this->remotePort ? $this->remotePort : $defaultPort);
+      $server_type = 'HTTP';
+    } else {
+      $host_name=$this->proxy_host_name;
+      $remotePort=$this->proxy_remotePort;
+      $server_type = 'HTTP proxy';
+    }
+    $ssl = (strtolower($this->protocol)=="https" && strlen($this->proxy_host_name)==0);
+    if ($ssl && strlen($this->socks_host_name))
+      $this->raiseError('Establishing SSL connections via SOCKS server not yet supported');
+    $this->debug("Connecting to " . $this->host_name);
+    $error=(($this->connection=curl_init($this->protocol."://".$this->host_name.($remotePort==$defaultPort ? "" : ":".strval($remotePort))."/")) ? "" : "Could not initialize a CURL session");
+    if (strlen($error) == 0) {
+      if(IsSet($arguments["SSLCertificateFile"]))
+        curl_setopt($this->connection,CURLOPT_SSLCERT,$arguments["SSLCertificateFile"]);
+      if(IsSet($arguments["SSLCertificatePassword"]))
+        curl_setopt($this->connection,CURLOPT_SSLCERTPASSWD,$arguments["SSLCertificatePassword"]);
+      if(IsSet($arguments["SSLKeyFile"]))
+        curl_setopt($this->connection,CURLOPT_SSLKEY,$arguments["SSLKeyFile"]);
+      if(IsSet($arguments["SSLKeyPassword"]))
+        curl_setopt($this->connection,CURLOPT_SSLKEYPASSWD,$arguments["SSLKeyPassword"]);
+    }
+    if (strlen($error)) { $this->raiseError($error); }
+    $this->state = "Connected";
+    $this->session = md5(uniqid(""));
+  }
+
+  function readLine() {
+    $eol = strpos($this->response, "\n", $this->read_response);
+    $data = $eol ?
+      substr($this->response, $this->read_response, $eol+1-$this->read_response) : "";
+    $this->read_response += strlen($data);
+  }
+
+  function readBytes($length) {
+    $bytes = substr($this->response, $this->read_response,
+                    min($length, strlen($this->response) - $this->read_response));
+    $this->read_response += strlen($bytes);
+    if (strlen($bytes) > 0) $this->debug("Read bytes: " . $bytes);
+    return $bytes;
+  }
+
+  function endOfInput() {
+    return $this->read_response >= strlen($this->response);
+  }
+
+  function disconnect() {
+    $this->debug("Disconnected from " . $this->host_name);
+    curl_close($this->connection);
+    $this->response = "";
+    $this->state = "Disconnected";
   }
 }
 
