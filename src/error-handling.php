@@ -159,10 +159,14 @@ function presentErrorReport($briefDetail, $fullReport) {
     if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
       echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
     } else if (defined('ADMIN_EMAIL')) {
-      echo "<p>Sorry, something went wrong.  Our team has been notified of the problem, but " .
-        "it would be helpful if you <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and " .
-        "tell us what you were doing that led to this failure.  We'll do our best to get " .
-        "this fixed ASAP!</p>\n";
+      echo '<div style="color: #700; background-color: #fcc; padding: 0 0.9em;
+                        border: 0.1em solid #daa; border-radius: 0.2em;
+                        max-width: 40em; margin: 3em auto;">' .
+        "<p><strong>Sorry, something went wrong.</strong></p> " .
+        "<p>Our team has been notified of the problem, but it would be helpful if you
+           <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and tell us what you
+           were doing just before and leading up to this failure.  We'll do our best
+           to get this fixed ASAP!</p></div>\n";
       mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
     } else {
       echo "<p>Uh-oh -- something went wrong, and DEVELOPMENT_MODE is off and ADMIN_EMAIL is " .
