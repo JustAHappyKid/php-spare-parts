@@ -64,7 +64,6 @@ class HttpClient {
   var $proxy_request_password;
   var $proxy_request_realm;
   var $proxy_request_workstation;
-  var $request_body="";
   //var $request_arguments = array();
   var $timeout=0;
   var $data_timeout=0;
@@ -784,8 +783,8 @@ class HttpClient {
       $this->raiseError("Invalid request URI given");
     }
     if (empty($req->headers)) $req->headers = array();
-    $body_length=0;
-    $this->request_body="";
+    $bodyLength = 0;
+    $requestBody = "";
     $getBody = true;
     if ($this->requestMethod == "POST") {
       if (isset($req->postParams) && !is_array($req->postParams)) {
@@ -811,10 +810,10 @@ class HttpClient {
             $headers="--".$boundary."\r\nContent-Disposition: form-data; name=\"".$input."\"\r\n\r\n";
             $data=$values[$input];
             $post_parts[]=array("HEADERS"=>$headers,"DATA"=>$data);
-            $body_length+=strlen($headers)+strlen($data)+strlen("\r\n");
+            $bodyLength+=strlen($headers)+strlen($data)+strlen("\r\n");
           }
         }
-        $body_length+=strlen("--".$boundary."--\r\n");
+        $bodyLength+=strlen("--".$boundary."--\r\n");
         $files=(IsSet($arguments["PostFiles"]) ? $arguments["PostFiles"] : array());
         Reset($files);
         $end=(GetType($input=Key($files))!="string");
@@ -834,7 +833,7 @@ class HttpClient {
           else
             $data=$definition["DATA"];
           $post_parts[$part]["DATA"]=$data;
-          $body_length+=strlen($headers)+$definition["Content-Length"]+strlen("\r\n");
+          $bodyLength+=strlen($headers)+$definition["Content-Length"]+strlen("\r\n");
           Next($files);
           $end=(GetType($input=Key($files))!="string");
         }
@@ -843,14 +842,14 @@ class HttpClient {
         foreach ($req->postParams as $k => $value) {
           if (is_array($value)) {
             foreach ($value as $v) {
-              $this->request_body .= urlencode($k) . "=" . urlencode($v);
+              $requestBody .= urlencode($k) . "=" . urlencode($v);
             }
           } else {
-            $this->request_body .= urlencode($k) . "=" . urlencode($value);
+            $requestBody .= urlencode($k) . "=" . urlencode($value);
           }
-          $this->request_body .= "&";
+          $requestBody .= "&";
         }
-        $this->request_body = substr($this->request_body, 0, -1); # Remove trailing ampersand
+        $requestBody = substr($requestBody, 0, -1); # Remove trailing ampersand
         $req->headers["Content-Type"] = "application/x-www-form-urlencoded" .
           (isset($req->charSet) ? ("; charset=" . $req->charSet) : "");
         $getBody = false;
@@ -860,15 +859,15 @@ class HttpClient {
     /* XXX: Re-implement/re-enable support for this...
     if ($getBody && (isset($arguments["Body"]) || isset($arguments["BodyStream"]))) {
       if(IsSet($arguments["Body"]))
-        $this->request_body=$arguments["Body"];
+        $requestBody=$arguments["Body"];
       else
       {
         $stream=$arguments["BodyStream"];
-        $this->request_body="";
+        $requestBody="";
         for($part=0; $part<count($stream); $part++)
         {
           if(IsSet($stream[$part]["Data"]))
-            $this->request_body.=$stream[$part]["Data"];
+            $requestBody.=$stream[$part]["Data"];
           elseif(IsSet($stream[$part]["File"]))
           {
             if (!($file = @fopen($stream[$part]["File"],"rb"))) {
@@ -880,7 +879,7 @@ class HttpClient {
                 $this->fclose($file);
                 $this->raiseError("Could not read body stream file " . $stream[$part]["File"]);
               }
-              $this->request_body .= $block;
+              $requestBody .= $block;
             }
             $this->fclose($file);
           }
@@ -943,8 +942,8 @@ class HttpClient {
     }
     $openingRequestLine = $this->requestMethod . " " . $relativeURI . " " .
       "HTTP/" . $this->httpProtocolVersion;
-    if ($body_length || ($body_length = strlen($this->request_body))) {
-      $req->headers["Content-Length"] = $body_length;
+    if ($bodyLength || ($bodyLength = strlen($requestBody))) {
+      $req->headers["Content-Length"] = $bodyLength;
     }
     $hostHeaderSet = false;
     $headers = array();
@@ -985,10 +984,10 @@ class HttpClient {
       $this->putLine($headers[$header]);
     }
     $this->putLine("");
-    if (strlen($this->request_body) > 0) {
-      $this->debug("Putting following request body: " . $this->request_body);
-      $this->putData($this->request_body);
-    } else if ($body_length) {
+    if (strlen($requestBody) > 0) {
+      $this->debug("Putting following request body: " . $requestBody);
+      $this->putData($requestBody);
+    } else if ($bodyLength) {
       for ($part = 0; $part < count($post_parts); $part++) {
         $this->putData($post_parts[$part]["HEADERS"]);
         $this->putData($post_parts[$part]["DATA"]);
