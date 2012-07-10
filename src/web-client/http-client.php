@@ -31,7 +31,7 @@ class HttpClient {
 
   var $hostName = null;
   var $remotePort = 0;
-  var $proxy_host_name="";
+  var $proxyHostName = null;
   var $proxy_remotePort=80;
   var $socks_host_name = '';
   var $socks_remotePort = 1080;
@@ -84,7 +84,7 @@ class HttpClient {
   public $currentLocation = null;
 
   # Configuration attributes
-  private $followRedirects = false, $redirectionLimit = 5;
+  private $followRedirects = false, $redirectionLimit = 5, $redirectionLevel = 0;
 
   # private variables
   private $state="Disconnected";
@@ -95,7 +95,6 @@ class HttpClient {
   //private $numBytesRead = 0;
   private $hostForRequest = null;
   private $next_token="";
-  private $redirection_level=0;
   private $chunked=0;
   private $bytesLeftForChunk = 0;
   private $lastChunkRead = false;
@@ -145,14 +144,15 @@ class HttpClient {
       }
       return $response;
     } catch (HttpClientRedirect $e) {
-      $this->redirection_level++;
-      if ($this->redirection_level > $this->redirectionLimit) {
-        $this->raiseError("The 'redirectionLimit' of {$this->redirectionLimit} was exceeded");
+      $this->redirectionLevel++;
+      if ($this->redirectionLevel > $this->redirectionLimit) {
+        throw new HttpProtocolError("The 'redirectionLimit' of {$this->redirectionLimit} " .
+                                    "was exceeded");
       }
       $this->info('Redirecting to ' . $e->location);
       $this->close();
       $response = $this->get($e->location);
-      $this->redirection_level--;
+      $this->redirectionLevel;
       return $response;
     }
   }
@@ -162,7 +162,7 @@ class HttpClient {
     while (substr($line, -1, 1) != "\n") {
       if ($this->feof($this->connection)) {
         $this->dataAccessError("Reached end-of-file (end of data stream) when attempting " .
-                              "to read another line");
+                               "to read another line");
       }
       $data = $this->fgets($this->connection, 100);
       if ($data === false || strlen($data) == 0) {
@@ -180,39 +180,26 @@ class HttpClient {
     return substr($line, 0, -$charsToTrim);
   }
 
-  function putLine($line)
-  {
-    $this->debug("C $line");
-    if(!fputs($this->connection,$line."\r\n"))
-    {
+  function putLine($line) {
+    $this->debug("putLine: $line");
+    if (!$this->fputs($this->connection,$line."\r\n")) {
       $this->dataAccessError("it was not possible to send a line to the HTTP server");
-      return(0);
     }
-    return(1);
   }
 
-  function PutData(&$data)
-  {
-    if(strlen($data))
-    {
-      $this->debug("C $data");
-      if(!fputs($this->connection,$data))
-      {
+  function putData($data) {
+    if (strlen($data) > 0) {
+      $this->debug("putData: $data");
+      if (!$this->fputs($this->connection, $data)) {
         $this->dataAccessError("it was not possible to send data to the HTTP server");
-        return(0);
       }
     }
-    return(1);
   }
 
-  function FlushData()
-  {
-    if(!fflush($this->connection))
-    {
+  function flushData() {
+    if (!fflush($this->connection)) {
       $this->dataAccessError("it was not possible to send data to the HTTP server");
-      return(0);
     }
-    return(1);
   }
 
   private function readChunkSize() {
@@ -362,7 +349,7 @@ class HttpClient {
         $version = 5;
         $methods = 1;
         $method = 0;
-        if(!fputs($this->connection, chr($version).chr($methods).chr($method)))
+        if(!$this->fputs($this->connection, chr($version).chr($methods).chr($method)))
           $error = $this->dataAccessError($send_error);
         else
         {
@@ -377,7 +364,7 @@ class HttpClient {
                         ' port ' . $remotePort . '...');
             $command = 1;
             $address_type = 1;
-            if(!fputs($this->connection, chr($version).chr($command)."\x00".chr($address_type).pack('Nn', ip2long($host_ip), $remotePort)))
+            if(!$this->fputs($this->connection, chr($version).chr($command)."\x00".chr($address_type).pack('Nn', ip2long($host_ip), $remotePort)))
               $error = $this->dataAccessError($send_error);
             else
             {
@@ -406,7 +393,7 @@ class HttpClient {
           }
         }
         if (strlen($error)) {
-          fclose($this->connection);
+          $this->fclose($this->connection);
           $this->raiseError($error);
         }
       }
@@ -477,7 +464,7 @@ class HttpClient {
 
     /* TODO: Re-implement support for proxying...
     if(IsSet($arguments["ProxyHostName"]))
-      $this->proxy_host_name=$arguments["ProxyHostName"];
+      $this->proxyHostName=$arguments["ProxyHostName"];
     if(IsSet($arguments["ProxyHostPort"]))
       $this->proxy_remotePort=$arguments["ProxyHostPort"];
     if(IsSet($arguments["SOCKSHostName"]))
@@ -497,23 +484,23 @@ class HttpClient {
         throw new InvalidArgumentException("Invalid connection protocol " .
                                            "({$this->protocol}) specified");
     }
-    if (empty($this->proxy_host_name)) {
+    if (empty($this->proxyHostName)) {
       if (empty($this->hostName)) throw new InvalidArgumentException("No hostname specified");
       $hostName = $this->hostName;
       $remotePort = ($this->remotePort ? $this->remotePort : $defaultPort);
       $server_type = 'HTTP';
     } else {
-      $hostName = $this->proxy_host_name;
+      $hostName = $this->proxyHostName;
       $remotePort=$this->proxy_remotePort;
       $server_type = 'HTTP proxy';
     }
-    $ssl = (strtolower($this->protocol)=="https" && strlen($this->proxy_host_name)==0);
+    $ssl = (strtolower($this->protocol)=="https" && strlen($this->proxyHostName)==0);
     if ($ssl && strlen($this->socks_host_name))
       $this->raiseError('Establishing SSL connections via SOCKS server not yet supported');
     //$this->use_curl=($ssl && $this->prefer_curl && function_exists("curl_init"));
     $this->debug("Connecting to " . $this->hostName);
     $error = "";
-    if (strlen($this->proxy_host_name) &&
+    if (strlen($this->proxyHostName) &&
         (IsSet($arguments["SSLCertificateFile"]) || IsSet($arguments["SSLCertificateFile"]))) {
       $error = "establishing SSL connections using certificates or private keys via non-SSL proxies is not supported";
     } else {
@@ -890,12 +877,12 @@ class HttpClient {
             while(!$this->feof($file))
             {
               if (gettype($block = @$this->fread($file,$this->file_buffer_length)) != "string") {
-                fclose($file);
+                $this->fclose($file);
                 $this->raiseError("Could not read body stream file " . $stream[$part]["File"]);
               }
               $this->request_body .= $block;
             }
-            fclose($file);
+            $this->fclose($file);
           }
           else {
             $this->raiseError("Invalid file or data body stream element at position " . $part);
@@ -942,32 +929,20 @@ class HttpClient {
     elseif(IsSet($this->workstation))
       $this->request_workstation=$this->workstation; */
 
-    if ($this->proxy_host_name)
+    if (empty($this->proxyHostName)) {
       $relativeURI = $this->relativeURI;
-    else {
+    } else {
       if (strtolower($this->protocol) == 'http') {
         $defaultPort = 80;
       } else if (strtolower($this->protocol) == 'https') {
-          $defaultPort = 443;
+        $defaultPort = 443;
       }
       $relativeURI = strtolower($this->protocol) . "://" . $this->hostName .
         (($this->remotePort == 0 || $this->remotePort == $defaultPort) ?
             "" : (":" . $this->remotePort)) . $this->relativeURI;
     }
-    if ($this->use_curl) {
-      throw new Exception("Support for curl presently disabled");
-      /*
-      $version = (is_array($v = curl_version()) ?
-        (isset($v["version"]) ? $v["version"] : "0.0.0") :
-        (ereg("^libcurl/([0-9]+\\.[0-9]+\\.[0-9]+)",$v,$m) ? $m[1] : "0.0.0"));
-      $curl_version = 100000 * intval($this->tokenize($version,".")) +
-                      1000 * intval($this->tokenize(".")) + intval($this->tokenize(""));
-      $protocolVersion = ($curl_version < 713002 ? "1.0" : $this->httpProtocolVersion);
-      */
-    }
-    else
-      $protocolVersion = $this->httpProtocolVersion;
-    $openingRequestLine = $this->requestMethod . " " . $relativeURI . " HTTP/" . $protocolVersion;
+    $openingRequestLine = $this->requestMethod . " " . $relativeURI . " " .
+      "HTTP/" . $this->httpProtocolVersion;
     if ($body_length || ($body_length = strlen($this->request_body))) {
       $req->headers["Content-Length"] = $body_length;
     }
@@ -1001,86 +976,40 @@ class HttpClient {
         $headers []= $cookieHeader;
       }
     }
-    if($this->use_curl)
-    {
-      if($body_length
-      && strlen($this->request_body)==0)
-      {
-        for($request_body="",$success=1,$part=0;$part<count($post_parts);$part++)
-        {
-          $request_body.=$post_parts[$part]["HEADERS"].$post_parts[$part]["DATA"];
-          if(IsSet($post_parts[$part]["FILENAME"]))
-          {
-            if (!($file=@fopen($post_parts[$part]["FILENAME"],"rb"))) {
-              $this->raiseError("Could not open upload file " . $post_parts[$part]["FILENAME"]);
-            }
-            while(!$this->feof($file))
-            {
-              if (GetType($block=@$this->fread($file,$this->file_buffer_length))!="string") {
-                $this->raiseError("Could not read upload file");
-              }
-              $request_body.=$block;
-            }
-            fclose($file);
-            if(!$success)
-              break;
-          }
-          $request_body.="\r\n";
-        }
-        $request_body.="--".$boundary."--\r\n";
-      }
-      else
-        $request_body=$this->request_body;
-      curl_setopt($this->connection,CURLOPT_HEADER,1);
-      curl_setopt($this->connection,CURLOPT_RETURNTRANSFER,1);
-      if($this->timeout)
-        curl_setopt($this->connection,CURLOPT_TIMEOUT,$this->timeout);
-      curl_setopt($this->connection,CURLOPT_SSL_VERIFYPEER,0);
-      curl_setopt($this->connection,CURLOPT_SSL_VERIFYHOST,0);
-      $request = $openingRequestLine . "\r\n" . implode("\r\n", $headers) .
-        "\r\n\r\n" . $request_body;
-      curl_setopt($this->connection,CURLOPT_CUSTOMREQUEST,$request);
-      $this->debug("C " . $request);
-      if(!($success=(strlen($this->response=curl_exec($this->connection))!=0)))
-      {
-        $error = curl_error($this->connection);
-        $this->raiseError("Could not execute the request".(strlen($error) ? ": ".$error : ""));
-      }
+
+    $this->debug("Putting following request line: {$openingRequestLine}");
+    $this->putLine($openingRequestLine);
+    $this->debug("Putting following headers...");
+    for ($header = 0; $header < count($headers); $header++) {
+      $this->debug("  " . $headers[$header]);
+      $this->putLine($headers[$header]);
     }
-    else {
-      $this->debug("Putting following request line: {$openingRequestLine}");
-      $this->putLine($openingRequestLine);
-      $this->debug("Putting following headers...");
-      for ($header = 0; $header < count($headers); $header++) {
-        $this->debug("  " . $headers[$header]);
-        $this->putLine($headers[$header]);
-      }
-      $this->putLine("");
-      if (strlen($this->request_body) > 0) {
-        $this->debug("Putting following request body: " . $this->request_body);
-        $this->PutData($this->request_body);
-      } else if ($body_length) {
-        for ($part = 0; $part < count($post_parts); $part++) {
-          $this->PutData($post_parts[$part]["HEADERS"]);
-          $this->PutData($post_parts[$part]["DATA"]);
-          if (isset($post_parts[$part]["FILENAME"])) {
-            if (!($file = @fopen($post_parts[$part]["FILENAME"],"rb"))) {
-              $this->raiseError("Could not open upload file " . $post_parts[$part]["FILENAME"]);
-            }
-            while (!$this->feof($file)) {
-              if (!is_string($block = @$this->fread($file, $this->file_buffer_length))) {
-                $this->raiseError("Could not read upload file");
-              }
-              $this->PutData($block);
-            }
-            fclose($file);
+    $this->putLine("");
+    if (strlen($this->request_body) > 0) {
+      $this->debug("Putting following request body: " . $this->request_body);
+      $this->putData($this->request_body);
+    } else if ($body_length) {
+      for ($part = 0; $part < count($post_parts); $part++) {
+        $this->putData($post_parts[$part]["HEADERS"]);
+        $this->putData($post_parts[$part]["DATA"]);
+        if (isset($post_parts[$part]["FILENAME"])) {
+          if (!($file = @fopen($post_parts[$part]["FILENAME"],"rb"))) {
+            $this->raiseError("Could not open upload file " . $post_parts[$part]["FILENAME"]);
           }
-          $this->putLine("");
+          while (!$this->feof($file)) {
+            if (!is_string($block = @$this->fread($file, $this->file_buffer_length))) {
+              $this->raiseError("Could not read upload file");
+            }
+            $this->putData($block);
+          }
+          $this->fclose($file);
         }
-        $this->putLine("--" . $boundary . "--");
+        $this->putLine("");
       }
-      $this->FlushData();
+      $this->putLine("--" . $boundary . "--");
     }
+    $this->flushData();
+
     $this->state = "RequestSent";
   }
 
@@ -1475,7 +1404,7 @@ class HttpClient {
     }
   }
 
-  private function readReplyBody() {
+  protected function readReplyBody() {
     $chunk = "";
     switch ($this->state) {
       case "Disconnected":
@@ -1662,6 +1591,10 @@ class HttpClient {
     return $timeout ?
       @fsockopen($hostname, $port, $errno, $error, $timeout) :
       @fsockopen($hostname, $port, $errno, $error);
+  }
+
+  protected function fputs($conn, $data) {
+    return fputs($conn, $data);
   }
 
   protected function fgets($conn, $length) {

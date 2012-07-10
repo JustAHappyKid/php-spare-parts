@@ -5,6 +5,46 @@ require_once 'test/web-browser.php';
 use \MyPHPLibs\Test, \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HostNameResolutionError,
   \MyPHPLibs\WebClient\HttpConnectionError;
 
+# ----------------------------------------------------------------------------------------------
+# - Test HTTP request is properly constructed and sent
+# ----------------------------------------------------------------------------------------------
+
+class ToTestSendingHttpRequest extends HttpClient {
+  public $sentData = '';
+  protected function fputs($conn, $data) {
+    $this->sentData .= $data;
+    return strlen($data);
+  }
+  protected function readReplyBody() {
+    $this->response_status = 200;
+  }
+  protected function gethostbyname($domain) { return '12.34.56.78'; }
+  protected function fsockopen($hostname, $port, &$errno, &$errstr, $timeout = null) {
+    return "whatever"; }
+  function flushData() {}
+  protected function fclose($handle) { }
+}
+
+function testSendingBasicRequest() {
+  $c = new ToTestSendingHttpRequest;
+  $c->get('http://example.org/just/some-file.htm');
+  $lines = array_map('trim', explode("\n", $c->sentData));
+  $reqLine = $lines[0];
+  assertEqual("GET /just/some-file.htm HTTP/1.1", $reqLine);
+  $headerLines = array_filter(array_slice($lines, 1), function($l) { return $l != ""; });
+  $headers = array();
+  foreach ($headerLines as $ln) {
+    list($name, $value) = explode(':', $ln);
+    $headers[strtolower($name)] = trim($value);
+  }
+  assertTrue(isset($headers['host']), 'Request should have a Host header');
+  assertEqual('example.org', $headers['host']);
+}
+
+# ----------------------------------------------------------------------------------------------
+# - Misc. tests
+# ----------------------------------------------------------------------------------------------
+
 # Note, our mock-client class extends from the WebBrowser class (which in turn extends from
 # the HttpClient class), to allow for broader testing purposes; so, we use a sub-class of the
 # WebBrowser for testing what is properly the functionality of the HttpClient, but it
