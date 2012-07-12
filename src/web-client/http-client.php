@@ -144,9 +144,10 @@ class HttpClient {
       return $response;
     } catch (HttpClientRedirect $e) {
       $this->redirectionLevel++;
+      echo "redirectionLevel: {$this->redirectionLevel}\n";
       if ($this->redirectionLevel > $this->redirectionLimit) {
-        throw new HttpProtocolError("The 'redirectionLimit' of {$this->redirectionLimit} " .
-                                    "was exceeded");
+        $this->httpProtocolError("The 'redirectionLimit' of {$this->redirectionLimit} " .
+                                 "was exceeded");
       }
       $this->info('Redirecting to ' . $e->location);
       $this->close();
@@ -181,7 +182,7 @@ class HttpClient {
 
   function putLine($line) {
     $this->debug("putLine: $line");
-    if (!$this->fputs($this->connection,$line."\r\n")) {
+    if (!$this->fputs($this->connection, "$line\r\n")) {
       $this->dataAccessError("it was not possible to send a line to the HTTP server");
     }
   }
@@ -206,11 +207,11 @@ class HttpClient {
     if (gettype($line) != 'string') {
       return $this->raiseError("Could not read chunk start: " . $this->error);
     } else if (strlen($line) == 0) {
-      throw new HttpProtocolError("Got empty-string when attempting to read size of chunk");
+      $this->httpProtocolError("Got empty-string when attempting to read size of chunk");
     }
     $chunkSize = hexdec($line);
     if ($chunkSize == 0 && $line != '0') {
-      throw new HttpProtocolError("Received invalid chunk size: $line");
+      $this->httpProtocolError("Received invalid chunk size: $line");
     }
     return $chunkSize;
   }
@@ -241,8 +242,8 @@ class HttpClient {
         $remaining -= $numBytesRead;
         if ($this->bytesLeftForChunk == 0) {
           if ($this->feof($this->connection)) {
-            throw new HttpProtocolError("Reached end-of-file while attempting to read the " .
-                                        "end-of-data-chunk mark from the HTTP server");
+            $this->httpProtocolError("Reached end-of-file while attempting to read the " .
+                                     "end-of-data-chunk mark from the HTTP server");
           }
           $data = @ $this->fread($this->connection, 2);
           # This is a peculiar case, but sometimes the first 'fread' call only returns one byte,
@@ -251,8 +252,8 @@ class HttpClient {
           if ($data != "\r\n") {
             $this->warn("Expected to get carriage-return-newline (\\r\\n) sequence for " .
               "end-of-chunk, but got the following content: " . $data);
-            throw new HttpProtocolError("It was not possible to read carriage-return-newline " .
-              "sequence expected after data chunk");
+            $this->httpProtocolError("It was not possible to read carriage-return-newline " .
+                                     "sequence expected after data chunk");
           }
         }
       }
@@ -1560,7 +1561,7 @@ class HttpClient {
     throw new Exception($msg);
   }
 
-  function dataAccessError($error, $check_connection = 0) {
+  private function dataAccessError($error, $check_connection = 0) {
     if (function_exists("socket_get_status")) {
       $status = $this->socket_get_status($this->connection);
       if ($status["timed_out"]) {
@@ -1576,6 +1577,12 @@ class HttpClient {
     }
     $this->state = "Disconnected";
     throw new HttpConnectionError($error);
+  }
+
+  private function httpProtocolError($msg) {
+    $this->fclose($this->connection);
+    $this->state = "Disconnected";
+    throw new HttpProtocolError($msg);
   }
 
   # NOTE: These low-level PHP functions (fsockopen, fread, feof, etc) have been wrapped,
