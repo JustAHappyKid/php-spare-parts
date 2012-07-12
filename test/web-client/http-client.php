@@ -2,8 +2,8 @@
 
 require_once 'test/web-browser.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HostNameResolutionError,
-  \MyPHPLibs\WebClient\HttpConnectionError;
+use \MyPHPLibs\Test, \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HttpResponse,
+  \MyPHPLibs\WebClient\HostNameResolutionError, \MyPHPLibs\WebClient\HttpConnectionError;
 
 # ----------------------------------------------------------------------------------------------
 # - Test HTTP request is properly constructed and sent
@@ -15,8 +15,11 @@ class ToTestSendingHttpRequest extends HttpClient {
     $this->sentData .= $data;
     return strlen($data);
   }
-  protected function readReplyBody() {
-    $this->response_status = 200;
+  protected function readResponse() {
+    $r = new HttpResponse;
+    $r->statusCode = 200;
+    $r->content = 'Hey!';
+    return $r;
   }
   protected function gethostbyname($domain) { return '12.34.56.78'; }
   protected function fsockopen($hostname, $port, &$errno, &$errstr, $timeout = null) {

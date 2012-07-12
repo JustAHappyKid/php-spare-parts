@@ -72,8 +72,8 @@ class HttpClient {
   var $cookies=array();
   var $error="";
   //var $exclude_address="";
-  var $response_status="";
-  var $response_message="";
+  //var $response_status="";
+  //var $response_message="";
   var $file_buffer_length=8000;
   var $force_multipart_form_post=0;
 
@@ -132,19 +132,19 @@ class HttpClient {
     $this->open($req);
     $this->sendRequest($req);
     try {
-      $body = $this->readReplyBody();
+      // $body = $this->readReplyBody();
+      $response = $this->readResponse();
       $this->close();
       $this->currentLocation = $url;
-      $response = new HttpResponse($body);
-      $response->url = $url;
-      $response->statusCode = $this->response_status;
+      //$response = new HttpResponse($body);
+      //$response->url = $url;
+      //$response->statusCode = $this->response_status;
       if ($response->statusCode != 200) {
         $this->notice('Got non-200 response code: ' . $response->statusCode);
       }
       return $response;
     } catch (HttpClientRedirect $e) {
       $this->redirectionLevel++;
-      echo "redirectionLevel: {$this->redirectionLevel}\n";
       if ($this->redirectionLevel > $this->redirectionLimit) {
         $this->httpProtocolError("The 'redirectionLimit' of {$this->redirectionLimit} " .
                                  "was exceeded");
@@ -1032,7 +1032,7 @@ class HttpClient {
             "expires" => $expires, "secure" => $secure);
   }
 
-  function readReplyHeadersResponse(&$headers) {
+  function readResponseStatusAndHeaders() {
     $headers = array();
     switch ($this->state) {
       case "Disconnected":
@@ -1055,11 +1055,12 @@ class HttpClient {
     if (!preg_match($statusLineRegex, strtolower($line), $matches)) {
       $this->raiseError("Received an unexpected HTTP response status: $line");
     }
-    $this->response_status = $matches[1];
-    $this->response_message = $matches[2];
+    $statusCode = (int) $matches[1];
+    $XXXstatusMessage = $matches[2];
 
     for ($line = $this->readLine(); $line != ''; $line = $this->readLine()) {
       $parts = array_map('trim', explode(':', $line, 2));
+      if (count($parts) != 2) $this->httpProtocolError("Read illegal header line: $line");
       $name = strtolower($parts[0]);
       $value = $parts[1];
       if (isset($headers[$name])) {
@@ -1070,8 +1071,7 @@ class HttpClient {
       } else {
         $headers[$name] = $value;
       }
-      switch($name)
-      {
+      switch ($name) {
         case "content-length":
           $this->content_length=intval($headers[$name]);
           $this->contentLengthGivenInHeader = true;
@@ -1136,10 +1136,10 @@ class HttpClient {
     $this->state = "GotReplyHeaders";
     $this->chunked = $chunked;
     if ($this->contentLengthGivenInHeader) $this->connection_close = 0;
-    $this->response_headers = $headers;
+    return array($statusCode, $headers);
   }
 
-  private function redirect(&$headers) {
+  private function redirect($headers) {
     if (!$this->followRedirects) {
       $this->info("Not following 30x redirect because 'followRedirects' flag is off");
     } else {
@@ -1381,30 +1381,35 @@ class HttpClient {
   }
 */
 
-  function readReplyHeaders(&$headers) {
-    $this->readReplyHeadersResponse($headers);
+  function readAndHandleResponseHeader() {
+    list($statusCode, $headers) = $this->readResponseStatusAndHeaders();
     $proxy_authorization = "";
-    while (!strcmp($this->response_status, "100")) {
+    // while (!strcmp($this->response_status, "100")) {
+    while ($statusCode == 100) {
       $this->state = "RequestSent";
-      $this->readReplyHeadersResponse($headers);
+      // $this->readResponseStatusAndHeaders($headers);
+      list($statusCode, $headers) = $this->readResponseStatusAndHeaders();
     }
-    switch ($this->response_status) {
-      case "301": case "302": case "303": case "307":
-        $this->redirect($headers);
-        break;
-      case "407":
-        $this->raiseError("HTTP authentication not yet supported");
-        /*if(strlen($error=$this->authenticate($headers, 1, $proxy_authorization, $this->proxy_request_user, $this->proxy_request_password, $this->proxy_request_realm, $this->proxy_request_workstation)))
-          return($error);
+    if (in_array($statusCode, array(301, 302, 303, 307))) {
+      $this->redirect($headers);
+    } else if ($statusCode == 407) {
+      $this->raiseError("HTTP authentication not yet supported");
+      /*$this->authenticate($headers, 1, $proxy_authorization, $this->proxy_request_user,
+          $this->proxy_request_password, $this->proxy_request_realm,
+          $this->proxy_request_workstation)))
         if(strcmp($this->response_status,"401"))
           return("");*/
-      case "401":
-        $this->raiseError("HTTP authentication not yet supported");
-        /*return($this->authenticate($headers, 0, $proxy_authorization, $this->request_user, $this->request_password, $this->request_realm, $this->request_workstation));*/
+    } else if ($statusCode == 401) {
+      $this->raiseError("HTTP authentication not yet supported");
+      /*return($this->authenticate($headers, 0, $proxy_authorization,
+          $this->request_user, $this->request_password, $this->request_realm,
+          $this->request_workstation));*/
     }
+    return array($statusCode, $headers);
   }
 
-  protected function readReplyBody() {
+  protected function readResponse() {
+    $response = new HttpResponse;
     $chunk = "";
     switch ($this->state) {
       case "Disconnected":
@@ -1412,7 +1417,7 @@ class HttpClient {
       case "Connected":
         $this->raiseError("Request was not yet sent");
       case "RequestSent":
-        $this->readReplyHeaders($headers);
+        list($response->statusCode, $response->headers) = $this->readAndHandleResponseHeader();
         break;
       case "GotReplyHeaders":
         break;
@@ -1435,7 +1440,9 @@ class HttpClient {
       $body .= $chunk;
     } while (strlen($chunk) > 0 && $this->lastChunkRead == false &&
             ($this->content_length > $numBytesRead || !$this->contentLengthGivenInHeader));
-    return $body;
+    // return $body;
+    $response->content = $body;
+    return $response;
   }
 
   private function cookieEncode($value, $name) {
@@ -1636,8 +1643,8 @@ class HttpRequest {
 }
 
 class HttpResponse {
-  public $url, $statusCode, $content;
-  function __construct($content) {
+  public $url, $statusCode, $headers, $content;
+  function __construct($content = null) {
     //$this->statusCode = $statusCode;
     $this->content = $content;
   }
