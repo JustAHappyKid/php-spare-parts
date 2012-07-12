@@ -10,6 +10,7 @@ class NetworkError extends Exception {}
 class HttpConnectionError extends NetworkError {}
 class HostNameResolutionError extends NetworkError {}
 class HttpProtocolError extends Exception {}
+class TooManyRedirects extends HttpProtocolError {}
 
 class HttpClientRedirect extends Exception {
   public $location, $statusCode;
@@ -83,10 +84,10 @@ class HttpClient {
   public $currentLocation = null;
 
   # Configuration attributes
-  private $followRedirects = false, $redirectionLimit = 5, $redirectionLevel = 0;
+  private $followRedirects = false, $redirectionLimit = 5;
 
   # private variables
-  private $state="Disconnected";
+  private $state = "Disconnected";
   private $connection=0;
   private $content_length=0;
   private $response="";
@@ -119,7 +120,7 @@ class HttpClient {
     return $this->makeRequest($url, $req);
   }
 
-  protected function makeRequest($url, HttpRequest $req /*$extraArguments = null*/) {
+  protected function makeRequest($url, HttpRequest $req, $redirectionLevel = 0) {
     if (strstr($url, ' ')) {
       $this->warn("Escaping space characters in following URL: $url");
       $url = str_replace(' ', '%20', $url);
@@ -144,15 +145,15 @@ class HttpClient {
       }
       return $response;
     } catch (HttpClientRedirect $e) {
-      $this->redirectionLevel++;
-      if ($this->redirectionLevel > $this->redirectionLimit) {
-        $this->httpProtocolError("The 'redirectionLimit' of {$this->redirectionLimit} " .
-                                 "was exceeded");
+      if ($redirectionLevel >= $this->redirectionLimit) {
+        $this->closeConnection();
+        throw new TooManyRedirects("The 'redirectionLimit' of {$this->redirectionLimit} " .
+                                   "was exceeded");
       }
       $this->info('Redirecting to ' . $e->location);
       $this->close();
-      $response = $this->get($e->location);
-      $this->redirectionLevel;
+      // $response = $this->get($e->location);
+      $response = $this->makeRequest($e->location, new HttpRequest('GET'), $redirectionLevel + 1);
       return $response;
     }
   }
@@ -1587,9 +1588,13 @@ class HttpClient {
   }
 
   private function httpProtocolError($msg) {
+    $this->closeConnection();
+    throw new HttpProtocolError($msg);
+  }
+
+  private function closeConnection() {
     $this->fclose($this->connection);
     $this->state = "Disconnected";
-    throw new HttpProtocolError($msg);
   }
 
   # NOTE: These low-level PHP functions (fsockopen, fread, feof, etc) have been wrapped,

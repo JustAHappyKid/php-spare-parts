@@ -3,7 +3,8 @@
 require_once 'test/web-browser.php';
 
 use \MyPHPLibs\Test, \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HttpResponse,
-  \MyPHPLibs\WebClient\HostNameResolutionError, \MyPHPLibs\WebClient\HttpConnectionError;
+  \MyPHPLibs\WebClient\HostNameResolutionError, \MyPHPLibs\WebClient\HttpConnectionError,
+  \MyPHPLibs\WebClient\TooManyRedirects;
 
 # ----------------------------------------------------------------------------------------------
 # - Test HTTP request is properly constructed and sent
@@ -147,6 +148,26 @@ class TestHttpClientHandles30xRedirectResponsesProperly extends Test\TestHarness
       array('HTTP/1.1 200 OK', 'Content-Type: text/plain', '', 'yup'));
     $this->client->get('http://site.com/pub/relative-redirect');
     assertEqual('http://site.com/pub/also-in-pub-dir', $this->client->currentLocation);
+  }
+
+  function testRedirectLimitFunctionsProperly() {
+    for ($i = 1; $i <= 4; ++$i) {
+      $this->client->addMockResponse('GET', "http://test.com/page-$i",
+        array('HTTP/1.1 302 Found', 'Location: http://test.com/page-' . ($i + 1), '', ''));
+    }
+    $this->client->addMockResponse('GET', 'http://test.com/page-5',
+      array('HTTP/1.1 200 OK', 'Content-Type: text/plain', '', 'hey'));
+    $this->client->followRedirects(true, 2);
+    try {
+      $r1 = $this->client->get("http://test.com/page-1");
+      fail("HttpClient's redirect-limit should have been breached");
+    } catch (TooManyRedirects $_) { }
+
+    # And, we want to assert the redirection-limit is not breached here; it shouldn't
+    # be as long as the HttpClient properly "resets" its "count" of redirects at the
+    # beginning of each request.
+    $r2 = $this->client->get("http://test.com/page-4");
+    assertEqual('hey', $r2->content);
   }
 }
 
