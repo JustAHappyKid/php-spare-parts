@@ -186,6 +186,16 @@ function testDefaultValueForCheckboxInput() {
   assertTrue(!empty($vs['c3']));
 }
 
+function testNoValueIsSubmittedForNamelessCheckbox() {
+  $form = new HtmlForm('
+    <form>
+      <input type="checkbox" onclick="toggleSomething();" />
+    </form>');
+  $vs = $form->getDefaultValuesToSubmit();
+  assertFalse(array_key_exists('', $vs));
+  assertTrue(count($vs) === 0);
+}
+
 function testOptionSelectedAttributeDoesNotNeedExplicitValue() {
   $formHtml = '<form> <select name="whatever"> <option value="value1">V1</option>
     <option value="Value2" selected>V2</option> </select> </form>';

@@ -162,7 +162,7 @@ class HtmlForm {
     }
     foreach ($this->allFields as $field) {
       $name = $field->name;
-      if (in_array($field->type, $fieldTypesToSubmit)) $values[$name] = $field->value;
+      if ($name && in_array($field->type, $fieldTypesToSubmit)) $values[$name] = $field->value;
       if ($field->isSubmitButton()) {
         $submitButtons []= $field;
         if (is_string($submitButton) && $name == $submitButton) {
