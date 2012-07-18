@@ -5,7 +5,7 @@ namespace MyPHPLibs\Webapp\Forms;
 require_once dirname(dirname(__FILE__)) . '/types.php';
 require_once dirname(dirname(__FILE__)) . '/validation.php';
 
-use \InvalidArgumentException, \MyPHPLibs\Validation;
+use \Exception, \InvalidArgumentException, \MyPHPLibs\Validation;
 
 abstract class BaseFormContainer {
 
@@ -15,7 +15,7 @@ abstract class BaseFormContainer {
   //private $defaultValues = array();
   private $validated = false;
 
-  public function addSection($name, $nodes = array()) {
+  public function addSection($name, Array $nodes = array()) {
     $section = new FormSection($name, $nodes);
     $this->nodes []= $section;
     return $section;
@@ -81,7 +81,14 @@ abstract class BaseFormContainer {
   public function renderNodes() {
     $html = '';
     foreach ($this->nodes as $n) {
-      $html .= is_string($n) ? $n : $n->render($this);
+      if (is_object($n)) {
+        $html .= $n->render($this);
+      } else if (is_string($n)) {
+        $html .= $n;
+      } else {
+        throw new Exception("Expected node to be renderable object or string, " .
+                            "but got type " . gettype($n));
+      } 
     }
     return $html;
   }
