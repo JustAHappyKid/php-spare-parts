@@ -89,7 +89,7 @@ class HttpClient {
   # private variables
   private $state = "Disconnected";
   private $connection=0;
-  private $content_length=0;
+  private $contentLength, $contentLengthGivenInHeader;
   private $response="";
   private $read_response=0;
   //private $numBytesRead = 0;
@@ -103,6 +103,11 @@ class HttpClient {
     "Oct" => "10", "Nov" => "11", "Dec" => "12");
   private $session='';
   private $connection_close=0;
+
+  # To be sure no non-existent/renamed/deprecated properties are set...
+  function __set($name, $value) {
+    throw new InvalidArgumentException("HttpClient has no property '$name'");
+  }
 
   public function followRedirects($follow, $limit = null) {
     $this->followRedirects = $follow;
@@ -1046,7 +1051,7 @@ class HttpClient {
         $this->raiseError("Cannot get request headers in the current connection " .
                           "state, '{$this->state}'");
     }
-    $this->content_length = $this->read_response = $this->bytesLeftForChunk = 0;
+    $this->contentLength = $this->read_response = $this->bytesLeftForChunk = 0;
     $this->contentLengthGivenInHeader = $this->lastChunkRead = false;
     $this->chunked = $chunked = 0;
     $this->connection_close = 0;
@@ -1074,7 +1079,7 @@ class HttpClient {
       }
       switch ($name) {
         case "content-length":
-          $this->content_length=intval($headers[$name]);
+          $this->contentLength=intval($headers[$name]);
           $this->contentLengthGivenInHeader = true;
           break;
         case "transfer-encoding":
@@ -1431,7 +1436,7 @@ class HttpClient {
     do {
       $chunkSize = self::defaultChunkSize;
       if ($this->contentLengthGivenInHeader) {
-        $chunkSize = min($this->content_length - $numBytesRead, $chunkSize);
+        $chunkSize = min($this->contentLength - $numBytesRead, $chunkSize);
       }
       $chunk = $this->readBytes($chunkSize);
       $numBytesRead += strlen($chunk);
@@ -1440,7 +1445,7 @@ class HttpClient {
       }
       $body .= $chunk;
     } while (strlen($chunk) > 0 && $this->lastChunkRead == false &&
-            ($this->content_length > $numBytesRead || !$this->contentLengthGivenInHeader));
+            ($this->contentLength > $numBytesRead || !$this->contentLengthGivenInHeader));
     // return $body;
     $response->content = $body;
     return $response;
