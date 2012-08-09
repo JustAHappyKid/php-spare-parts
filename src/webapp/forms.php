@@ -563,8 +563,8 @@ abstract class Field {
     $this->label = $label;
   }
 
-  public function setAttribute($attr, $js) {
-    $this->attributes[$attr] = $js;
+  public function setAttribute($attr, $value) {
+    $this->attributes[$attr] = $value;
     return $this;
   }
 
