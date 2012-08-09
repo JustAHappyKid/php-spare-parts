@@ -93,8 +93,12 @@ function newCountrySelectField($name, $label) {
   return new CountrySelectField($name, $label); }
 
 class StateOrProvinceField extends Forms\BasicTextField {
+
+  private $countryField;
+  public function setAssociatedCountryField($name) { $this->countryField = $name; return $this; }
+
   public function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
-    if ($submittedValues['country'] == 'US') {
+    if ($this->countryField && $submittedValues[$this->countryField] == 'US') {
       $states = US\getStatesMap($includeMilitaryPseudoStates = true, $includeTerritories = true);
       foreach ($states as $abbr => $name) {
         $upper = strtoupper($trimmedValue);
