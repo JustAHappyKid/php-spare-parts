@@ -20,7 +20,8 @@ function lookupZipCode($addr, WebBrowser $client) {
     $err = $errNode->textContent;
     if (stristr($err, 'We were unable to process your request')) {
       throw new UnableToProcessRequest;
-    } else if (stristr($err, 'not recognized by the US Postal Service')) {
+    } else if (stristr($err, "not recognized by the US Postal Service") ||
+               stristr($err, "this address wasn't found")) {
       throw new AddressNotRecognized;
     } else {
       throw new ZipCodeLookupError("Did not recognize following error message given by " .
