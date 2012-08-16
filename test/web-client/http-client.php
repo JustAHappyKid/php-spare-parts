@@ -96,6 +96,13 @@ class HttpClientTests extends Test\TestHarness {
     assertEqual($body, $r->content);
   }
 
+  function testContentLengthHeaderWithValueOfZeroDoesNotBreakThings() {
+    $this->client->setNextMockResponse(array(
+      'HTTP/1.1 200 OK', 'Content-Type: text/html', 'Content-Length: 0', '', ''));
+    $r = $this->client->get('http://somecrummysite.com/');
+    assertEqual('', $r->content);
+  }
+
   function testCookieHeaderDoesNotHaveTrailingSemicolon() {
     $header = array('HTTP/1.1 200 OK', 'Content-Type: text/html',
                     'Set-Cookie: cookie1=abc123;path=/', 'Set-Cookie: c2=987zyx;path=/', '');

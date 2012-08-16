@@ -224,9 +224,9 @@ class HttpClient {
 
   private function readBytes($length) {
     if (!is_integer($length)) throw new InvalidArgumentException("\$length must be an integer");
-    if ($length < 1) throw new InvalidArgumentException("\$length must be at least 1 (one)");
+    $bytes = "";
     if ($this->chunked) {
-      $bytes = ""; $remaining = $length;
+      $remaining = $length;
       while ($remaining > 0) {
         if ($this->bytesLeftForChunk == 0) {
           $chunkSize = $this->readChunkSize();
@@ -263,7 +263,7 @@ class HttpClient {
           }
         }
       }
-    } else {
+    } else if ($length > 0) {
       $bytes = @ $this->fread($this->connection, $length);
       if (strlen($bytes)) {
         $this->debug("Read bytes: " . $bytes);
