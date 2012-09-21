@@ -276,13 +276,13 @@ class FormSection extends BaseFormContainer {
     $this->nodes = $nodes;
   }
 
-  public function addHeader($markup) {
+  public function setHeader($markup) {
     $this->header = $markup;
   }
 
   public function render() {
     return "<fieldset id=\"{$this->id}\" class=\"form-section\">\n" .
-      $this->header .
+      "<h2>" . $this->header . "</h2>\n" .
       "\n<ol>\n" . parent::render() . "\n</ol></fieldset>\n";
   }
 }
