@@ -77,12 +77,20 @@ function errorHandler($errno, $errstr, $errfile, $errline) {
 
 function exceptionHandler($exception) {
 
-  function hash_to_str($h) {
-    $str = "";
-    foreach ($h as $k => $v) {
-      $str .= "  $k: " . print_r($v, true) . "\n";
+  function renderGlobalVar($name, $value) {
+    $str = '$' . $name . ': ';
+    if ($value === null) {
+      $str .= 'null';
+    } else if (is_array($value) && count($value) == 0) {
+      $str .= 'empty';
+    } else if (is_array($value)) {
+      $lines = array();
+      foreach ($value as $k => $v) $lines []= "  $k: " . print_r($v, true);
+      $str .= implode("\n", $lines);
+    } else {
+      $str .= 'unexpected value of type ' . gettype($value) . '!';
     }
-    return substr($str, 0, -1);
+    return $str;
   }
 
   // We'll wrap this whole function in a try block.  If an exception gets
@@ -115,13 +123,20 @@ function exceptionHandler($exception) {
         "Referring URL: " .
           (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] :
           "(no referrer or referrer not reported)") . "\n\n" .
-        "\$_SERVER: \n" . hash_to_str($_SERVER) . "\n\n" .
-        "\$_POST: \n" . hash_to_str($_POST) . "\n\n" .
-        "\$_GET: \n" . hash_to_str($_GET) . "\n\n" .
-        "\$_COOKIE: \n" . hash_to_str($_COOKIE) . "\n\n" .
+        renderGlobalVar('_SERVER',  $_SERVER)  . "\n\n" .
+        renderGlobalVar('_POST',    $_POST)    . "\n\n" .
+        renderGlobalVar('_GET',     $_GET)     . "\n\n" .
+        renderGlobalVar('_COOKIE',  $_COOKIE)  . "\n\n" .
+        renderGlobalVar('_SESSION', $_SESSION) . "\n\n" .
+        /*
+        "\$_SERVER: \n" . renderHash($_SERVER) . "\n\n" .
+        "\$_POST: \n" . renderHash($_POST) . "\n\n" .
+        "\$_GET: \n" . renderHash($_GET) . "\n\n" .
+        "\$_COOKIE: \n" . renderHash($_COOKIE) . "\n\n" .
         (isset($_SESSION) ? 
-          ("\$_SESSION: \n" . hash_to_str($_SESSION)) :
+          ("\$_SESSION: \n" . renderHash($_SESSION)) :
           "\$_SESSION is not set.") . "\n\n" .
+        */
         "IP Address: " . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ?
           $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']) .
           "\n\n";
@@ -135,7 +150,8 @@ function exceptionHandler($exception) {
     exit();
   } catch (Exception $e) {
     exit("UH-OH!  An exception was raised from within the exception " .
-      "handler!  The exception's message follows:\n" . $e->getMessage());
+      "handler!  Exception's details follow:\n" .
+      $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
   }
 }
 
