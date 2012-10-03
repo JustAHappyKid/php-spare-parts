@@ -177,29 +177,6 @@ abstract class FrontController {
     }
   }
 
-/*
-  protected function renderAndOutputPage($page) {
-
-    $response = new ResponseObj;
-    $response->statusCode = 200;
-
-    // XXX: Is this right???
-    $response->contentType = $page->contentType;
-    
-    if ($page->layout) {
-      $smarty = createSmartyInstance();
-      $smarty->assign('page', $page);
-      $smarty->assign('successfulLogin', at($_SESSION, 'successfulLogin'));
-      unset($_SESSION['successfulLogin']);
-      $response->content = $smarty->fetch($page->layout);
-    } else {
-      $response->content = $page->body;
-    }
-
-    return $response;
-  }
-*/
-
   protected function getDefaultPageForRequest() {
     $page = new HtmlPage;
     $page->currentLocation = $_SERVER['REQUEST_URI'];

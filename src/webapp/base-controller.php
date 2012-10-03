@@ -10,19 +10,6 @@ use \MyPHPLibs\Webapp\CurrentRequest;
 
 class Controller {
   public $user;
-  //public $docRoot, $page, $cmd, $user;
-
-  /*
-  function __construct($page) {
-    $this->docRoot = pathJoin(WEBAPP_DIR, 'doc-root');
-    $this->page = $page;
-    //$this->setStyleFiles(array('/styles/common.css', '/styles/main.css'));
-    $this->smarty = createSmartyInstance();
-    If (!$this->checkForLoginViaKey()) {
-      $this->loadUserFromSession();
-    }
-  }
-  */
 
   function dispatch($context) {
     $this->context = $context;
