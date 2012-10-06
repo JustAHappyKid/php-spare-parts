@@ -127,16 +127,9 @@ function exceptionHandler($exception) {
         renderGlobalVar('_POST',    $_POST)    . "\n\n" .
         renderGlobalVar('_GET',     $_GET)     . "\n\n" .
         renderGlobalVar('_COOKIE',  $_COOKIE)  . "\n\n" .
-        renderGlobalVar('_SESSION', $_SESSION) . "\n\n" .
-        /*
-        "\$_SERVER: \n" . renderHash($_SERVER) . "\n\n" .
-        "\$_POST: \n" . renderHash($_POST) . "\n\n" .
-        "\$_GET: \n" . renderHash($_GET) . "\n\n" .
-        "\$_COOKIE: \n" . renderHash($_COOKIE) . "\n\n" .
         (isset($_SESSION) ? 
           ("\$_SESSION: \n" . renderHash($_SESSION)) :
           "\$_SESSION is not set.") . "\n\n" .
-        */
         "IP Address: " . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ?
           $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']) .
           "\n\n";
