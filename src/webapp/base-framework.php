@@ -25,7 +25,7 @@ abstract class FrontController {
 
     $this->configureAndStartSession();
 
-    $referrerInfo = " (referrer is " .
+    $referrerInfo = "(referrer is " .
       (empty($_SERVER['HTTP_REFERER']) ? "unknown" : $_SERVER['HTTP_REFERER']) . ")";
     $this->info("Incoming HTTP" . (CurrentRequest\isSecureHttpConnection() ? "S" : "") .
       " request: {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']} $referrerInfo");
@@ -46,7 +46,7 @@ abstract class FrontController {
     $this->outputHttpResponse($response);
 
     $this->info("Served {$response->statusCode} response for path {$_SERVER['REQUEST_URI']} to " .
-         "remote address {$_SERVER['REMOTE_ADDR']} $referrerInfo");
+      "remote address {$_SERVER['REMOTE_ADDR']} $referrerInfo");
   }
 
   private function outputHttpResponse($response) {
