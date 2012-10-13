@@ -115,13 +115,20 @@ abstract class FrontController {
     $p = preg_replace('@/$@', '', $origPath);
     $unconsumedPathComponents = array();
     $actionsDir = pathJoin($this->webappDir, 'actions');
-    $actionPath = pathJoin($actionsDir, $p . '.php');
-    while ($p != '' && $p != '.' && !file_exists($actionPath)) {
+    $defaultPath = pathJoin($actionsDir, $p . '.php');
+    $indexPath = pathJoin($actionsDir, $p, 'index.php');
+    while ($p != '' && $p != '.' && !file_exists($defaultPath) && !file_exists($indexPath)) {
       array_unshift($unconsumedPathComponents, basename($p));
       $p = dirname($p);
-      $actionPath = pathJoin($actionsDir, $p . '.php');
+      $defaultPath = pathJoin($actionsDir, $p . '.php');
+      $indexPath = pathJoin($actionsDir, $p, 'index.php');
     }
-    if (!file_exists($actionPath)) $actionPath = pathJoin($actionsDir, $origPath, 'index.php');
+    if (file_exists($defaultPath) && file_exists($indexPath)) {
+      throw new Exception("Found two files having the same route in actions directory: " .
+                          "$defaultPath and $indexPath");
+    }
+    $actionPath = file_exists($defaultPath) ? $defaultPath : $indexPath;
+    //if (!file_exists($actionPath)) $actionPath = pathJoin($actionsDir, $origPath, 'index.php');
     if (file_exists($actionPath)) {
 
       $pathComponents = explode('/', preg_replace('@/$@', '', $origPath));

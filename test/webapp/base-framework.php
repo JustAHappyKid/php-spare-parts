@@ -30,6 +30,12 @@ class BaseFrameworkTests extends TestHarness {
     } catch (Exception $_) { /* that's what we're looking for! */ }
   }
 
+  function testCaseWhereDirectoryIsMirroredByFileOfSameName() {
+    $r = $this->mockRequest('GET', '/dir1/dir2/');
+    assertTrue(strstr($r->content, 'Welcome to the index of dir2') != false,
+      'Expected to reach the action in file dir1/dir2/index.php');
+  }
+
   private function mockRequest($method, $uri) {
     $_SERVER['HTTP_HOST'] = 'test.net';
     $_SERVER['REQUEST_METHOD'] = $method;
