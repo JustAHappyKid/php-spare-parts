@@ -138,6 +138,7 @@ abstract class FrontController {
 
       // XXX: This bit is necessary for testing purposes -- so no classes will end up getting
       //      redefined. :o/
+      $actionPath = realpath($actionPath);
       $funcOrClass = at($this->requiredActions, $actionPath) ?
         $this->requiredActions[$actionPath] : require $actionPath;
       $this->requiredActions[$actionPath] = $funcOrClass;
