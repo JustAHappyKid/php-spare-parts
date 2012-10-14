@@ -305,22 +305,6 @@ abstract class FrontController {
 
   protected function checkForRelocatedResource() { return null; }
 
-  private function getControllerName($controllersDir, $pathParts) {
-    $name = null;
-    if ($this->requestedPath == '/') {
-      $name = 'FrontPage';
-      require_once pathJoin($controllersDir, 'front-page.php');
-    } else {
-      $name = $pathParts[0];
-      if (is_file(pathJoin($controllersDir, $name . '.php'))) {
-        require_once pathJoin($controllersDir, $name . '.php');
-      } else {
-        $name = null;
-      }
-    }
-    return $name;
-  }
-
   private function setCommandAndRequestedPath() {
     # Strip "/index.php" if it prefixes the URI, and remove any slashes from
     # the beginning and/or end of the URI; then, split on slashes to create an
