@@ -146,7 +146,6 @@ abstract class FrontController {
       $requestedPath = current(explode('?', $_SERVER['REQUEST_URI']));
       if (!endsWith($requestedPath, '/')) {
         $routedTo = withoutSuffix(substr($actionPath, strlen($actionsDir)), '.php');
-        //if ((is_callable($funcOrClass) && $routedTo != $requestedPath) ||
         if ((is_callable($funcOrClass) && basename($routedTo) == 'index') ||
             (is_string($funcOrClass) && class_exists($funcOrClass) &&
              $routedTo == $requestedPath)) {
@@ -159,8 +158,10 @@ abstract class FrontController {
       }
 
       $page = $this->getDefaultPageForRequest();
+      $result = null;
       if (is_callable($funcOrClass)) {
-        $r = $funcOrClass($context);
+        $result = $funcOrClass($context);
+        /*
         if ($r instanceof HtmlPage) {
           $page = $r;
         } else if (is_string($r)) {
@@ -168,17 +169,28 @@ abstract class FrontController {
         } else {
           throw new Exception("Action gave result not of type HtmlPage nor string");
         }
+        */
       } else if (class_exists($funcOrClass)) {
         $controller = new $funcOrClass($page);
-        //$controller->systemEmailAddr = $this->getSystemEmailAddr();
         if (method_exists($controller, 'init')) $controller->init();
-        $content = $controller->dispatch($context);
-        if (!empty($content)) $page->body = $content;
+        $result = $controller->dispatch($context);
+        //if (!empty($content)) $page->body = $content;
       } else {
         throw new Exception("Action file '$actionPath' did not return a callable/function or " .
                             "a class name");
       }
-      return $this->renderAndOutputPage($page);
+      if ($result instanceof ResponseObj) {
+        return $result;
+      } else if ($result instanceof HtmlPage) {
+        return $this->renderAndOutputPage($result);
+      } else if (is_string($result) || empty($result)) {
+        if (!empty($result)) $page->body = $result;
+        return $this->renderAndOutputPage($page);
+      } else {
+        throw new Exception("Expected action to return null, a string, an object of type " .
+                            "HtmlPage, or an object of type ResponseObj, but got the " .
+                            "following: " . asString($result));
+      }
     } else {
       return null;
     }
