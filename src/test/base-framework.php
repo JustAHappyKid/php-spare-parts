@@ -109,7 +109,7 @@ function runTestMethods($className) {
   $methodsRun = 0;
   foreach ($methods as $m) {
     $methodName = $m->getName();
-    if ($methodName != 'setUp') {
+    if ($methodName != 'setUp' && $methodName != 'tearDown') {
       $t->setUp();
       $t->$methodName();
       $t->tearDown();
