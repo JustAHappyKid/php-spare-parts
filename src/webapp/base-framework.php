@@ -148,7 +148,7 @@ abstract class FrontController {
         $routedTo = withoutSuffix(substr($actionPath, strlen($actionsDir)), '.php');
         if ((is_callable($funcOrClass) && basename($routedTo) == 'index') ||
             (is_string($funcOrClass) && class_exists($funcOrClass) &&
-             $routedTo == $requestedPath)) {
+             ($routedTo == $requestedPath || $routedTo == "$requestedPath/index"))) {
           if (!in_array(strtolower($_SERVER['REQUEST_METHOD']), array('get', 'head'))) {
             throw new Exception("Attempting redirect for request other than GET or HEAD");
           }
