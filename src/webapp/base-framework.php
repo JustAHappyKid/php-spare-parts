@@ -107,9 +107,8 @@ abstract class FrontController {
     $pathCleaned = preg_replace('@/{2,}@', '/', $_SERVER['REQUEST_URI']);
     if ($pathCleaned != $_SERVER['REQUEST_URI']) throw new DoRedirect($pathCleaned);
   }
-  
+
   private function dispatchToAction() {
-    //$fname = substr($_SERVER['REQUEST_URI'], 1) . '.php';
     $pathAndQuery = substr($_SERVER['REQUEST_URI'], 1);
     $origPath = urldecode(current(explode('?', $pathAndQuery)));
     $p = preg_replace('@/$@', '', $origPath);
@@ -128,7 +127,6 @@ abstract class FrontController {
                           "$defaultPath and $indexPath");
     }
     $actionPath = file_exists($defaultPath) ? $defaultPath : $indexPath;
-    //if (!file_exists($actionPath)) $actionPath = pathJoin($actionsDir, $origPath, 'index.php');
     if (file_exists($actionPath)) {
 
       $pathComponents = explode('/', preg_replace('@/$@', '', $origPath));
@@ -162,15 +160,6 @@ abstract class FrontController {
       $result = null;
       if (is_callable($funcOrClass)) {
         $result = $funcOrClass($context);
-        /*
-        if ($r instanceof HtmlPage) {
-          $page = $r;
-        } else if (is_string($r)) {
-          $page->body = $r;
-        } else {
-          throw new Exception("Action gave result not of type HtmlPage nor string");
-        }
-        */
       } else if (class_exists($funcOrClass)) {
         $controller = new $funcOrClass($page);
         if (method_exists($controller, 'init')) $controller->init();
