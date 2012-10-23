@@ -379,6 +379,10 @@ class EmailAddressField extends BasicTextField {
       return array();
     }
   }
+  public function renderInputHtml() {
+    $this->attributes['type'] = 'email';
+    return "<input" . $this->attrsHtml() ." />";
+  }
 }
 function newEmailAddressField($name, $label) { return new EmailAddressField($name, $label); }
 
