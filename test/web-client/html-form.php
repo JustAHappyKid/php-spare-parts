@@ -453,3 +453,14 @@ function testAttemptingToSubmitFormUsingNonButtonInput() {
     $form->getDefaultValuesToSubmit($form->fields['no-btn']);
   } catch (InvalidArgumentException $_) { /* That's what we're hoping for. */ }
 }
+
+function testRecognizingDefaultValueForInputWithTypeEmail() {
+  $form = new HtmlForm('
+    <form action="/contact" method="post">
+      <div>Email: <input name="e" type="email" value="fred@cracker.com" /></div>
+      <div><input type="submit" value="G-g-go" /></div>
+    </form>');
+  $values = $form->getDefaultValuesToSubmit();
+  assertTrue(isset($values['e']));
+  assertEqual('fred@cracker.com', $values['e']);
+}

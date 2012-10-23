@@ -152,8 +152,7 @@ class HtmlForm {
       throw new InvalidArgumentException("\$submitButton parameter must be an HtmlButtonField " .
         "instance or a string containing the name of the button to use for form submission");
     }
-    $fieldTypesToSubmit = array('text', 'password', 'textarea', 'checkbox', 'radio', 'select',
-                                'hidden');
+    $submitTypes = array('image', 'submit');
     $values = array();
     $submitButtons = array();
     $submitButtonObj = null;
@@ -162,7 +161,7 @@ class HtmlForm {
     }
     foreach ($this->allFields as $field) {
       $name = $field->name;
-      if ($name && in_array($field->type, $fieldTypesToSubmit)) $values[$name] = $field->value;
+      if ($name && !in_array($field->type, $submitTypes)) $values[$name] = $field->value;
       if ($field->isSubmitButton()) {
         $submitButtons []= $field;
         if (is_string($submitButton) && $name == $submitButton) {
