@@ -2,6 +2,8 @@
 
 namespace MyPHPLibs\ErrorHandling;
 
+require_once dirname(__FILE__) . '/types.php';
+
 use \Exception;
 
 function initErrorHandling() {
@@ -81,8 +83,8 @@ function exceptionHandler($exception) {
   # but it will give a completely cryptic and unrelated error message (or at
   # least that was the case at one point in time, with older versions of PHP).
   try {
-    constructErrorReport($exception);
-    presentErrorReport($exception->getMessage(), $body);
+    $report = constructErrorReport($exception);
+    presentErrorReport($report);
     exit();
   } catch (Exception $e) {
     exit("UH-OH!  An exception was raised from within the exception " .
@@ -141,25 +143,30 @@ function constructErrorReport($exception) {
       "IP Address: " . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ?
         $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
   }
+
+  return $body;
 }
 
 /**
- * This function will simply display the given error to the user, and depending
- * on whether or not the server is configured as a "production" instance, will
+ * If PHP is running in command-line (CLI) mode, this function will simply output
+ * the provided error report; otherwise (when presumably being accessed as a web
+ * script), this function will display an appropriate error to the user, and
+ * depending on how PHP is configured (the value of 'display_errors'), will
  * display the error using either a "user-friendly" error page or a
- * "developer-friendly" error page.  In either case, if the ERROR_EMAIL constant
+ * "developer-friendly" error page.  In either case, if the ADMIN_EMAIL constant
  * is set, an email containing the error report will be sent to the address
  * specified by that constant.
  */
-function presentErrorReport($briefDetail, $fullReport) {
+function presentErrorReport($fullReport) {
   if (php_sapi_name() == 'cli') {
-    # TODO: Shouldn't we still send an email if DEVELOPMENT_MODE is off and ADMIN_EMAIL is set,
+    # TODO: Shouldn't we still send an email if ADMIN_EMAIL is set,
     #       even if we're running under the CLI??
     echo "\n$fullReport\n\n";
   } else {
     header('Content-Type: text/html; charset=utf-8');
     header('Content-Disposition: inline');
-    if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+    $displayErrors = readBoolFromStr(ini_get('display_errors'));
+    if ($displayErrors) {
       echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
     } else if (defined('ADMIN_EMAIL')) {
       echo '<div style="color: #700; background-color: #fcc; padding: 0 0.9em;
@@ -172,8 +179,8 @@ function presentErrorReport($briefDetail, $fullReport) {
            to get this fixed ASAP!</p></div>\n";
       mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
     } else {
-      echo "<p>Uh-oh -- something went wrong, and DEVELOPMENT_MODE is off and ADMIN_EMAIL is " .
-        "not defined!</p>\n";
+      echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and " .
+        "ADMIN_EMAIL is not defined!</p>\n";
     }
   }
 }
