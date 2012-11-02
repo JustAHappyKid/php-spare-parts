@@ -6,7 +6,9 @@ require_once dirname(__FILE__) . '/types.php';
 
 use \Exception;
 
-function initErrorHandling() {
+function initErrorHandling($sendReportsTo) {
+  global $__MyPHPLibs_ErrorHandling_sendReportsTo;
+  $__MyPHPLibs_ErrorHandling_sendReportsTo = $sendReportsTo;
   ini_set('docref_root', null);
   ini_set('docref_ext', null);
   set_error_handler('\\MyPHPLibs\\ErrorHandling\\errorHandler');
@@ -146,14 +148,17 @@ function constructErrorReport($exception) {
  * script), this function will display an appropriate error to the user, and
  * depending on how PHP is configured (the value of 'display_errors'), will
  * display the error using either a "user-friendly" error page or a
- * "developer-friendly" error page.  In either case, if the ADMIN_EMAIL constant
- * is set, an email containing the error report will be sent to the address
- * specified by that constant.
+ * "developer-friendly" error page.
+ *
+ * If an email address has been configured for error reports, an appropriate
+ * email will be sent there.
  */
 function presentErrorReport($fullReport) {
+  global $__MyPHPLibs_ErrorHandling_sendReportsTo;
+  $sendReportTo = $__MyPHPLibs_ErrorHandling_sendReportsTo;
   if (php_sapi_name() == 'cli') {
-    # TODO: Shouldn't we still send an email if ADMIN_EMAIL is set,
-    #       even if we're running under the CLI??
+    # TODO: Shouldn't we still send an email if $__MyPHPLibs_ErrorHandling_sendReportsTo
+    #       is set, even if we're running under the CLI??
     echo "\n$fullReport\n\n";
   } else {
     header('Content-Type: text/html; charset=utf-8');
@@ -161,19 +166,19 @@ function presentErrorReport($fullReport) {
     $displayErrors = readBoolFromStr(ini_get('display_errors'));
     if ($displayErrors) {
       echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
-    } else if (defined('ADMIN_EMAIL')) {
+    } else if ($sendReportTo) {
       echo '<div style="color: #700; background-color: #fcc; padding: 0 0.9em;
                         border: 0.1em solid #daa; border-radius: 0.2em;
                         max-width: 40em; margin: 3em auto;">' .
         "<p><strong>Sorry, something went wrong.</strong></p> " .
         "<p>Our team has been notified of the problem, but it would be helpful if you
-           <a href=\"mailto:" . ADMIN_EMAIL . "\">email us</a> and tell us what you
+           <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
            were doing just before and leading up to this failure.  We'll do our best
            to get this fixed ASAP!</p></div>\n";
-      mail(ADMIN_EMAIL, "PHP Error Report", $fullReport);
+      mail($sendReportTo, "PHP Error Report", $fullReport);
     } else {
-      echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and " .
-        "ADMIN_EMAIL is not defined!</p>\n";
+      echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and no email " .
+        "address was configured (via initErrorHandling) for receiving error reports!</p>\n";
     }
   }
 }
