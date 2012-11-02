@@ -76,6 +76,22 @@ function errorHandler($errno, $errstr, $errfile, $errline) {
 }
 
 function exceptionHandler($exception) {
+  # We'll wrap this whole function in a try block.  If an exception gets
+  # thrown from our *exception handler*, PHP will prevent the infinite loop,
+  # but it will give a completely cryptic and unrelated error message (or at
+  # least that was the case at one point in time, with older versions of PHP).
+  try {
+    constructErrorReport($exception);
+    presentErrorReport($exception->getMessage(), $body);
+    exit();
+  } catch (Exception $e) {
+    exit("UH-OH!  An exception was raised from within the exception " .
+      "handler!  Exception's details follow:\n" .
+      $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
+  }
+}
+
+function constructErrorReport($exception) {
 
   function renderGlobalVar($name, $value) {
     $str = '$' . $name . ': ';
@@ -93,62 +109,39 @@ function exceptionHandler($exception) {
     return $str;
   }
 
-  // We'll wrap this whole function in a try block.  If an exception gets
-  // thrown from our *exception handler*, PHP will prevent the infinite loop,
-  // but it will give a completely cryptic and unrelated error message.
-  try {
+  $body =
+    "A thrown " . get_class($exception) . " went uncaught;" .
+    " details follow...\n\n" .
+    "Message: " . $exception->getMessage() . "\n\n" .
+    "The exception occurred in file " . $exception->getFile() .
+    " on line " . $exception->getLine() . ".\n\n" .
+    "Stack trace:\n" . $exception->getTraceAsString() . "\n\n" .
+    "Time: " . date('r') . "\n\n";
 
-    // -------------------------------------------------------------------------
-    // - Begin Error Detail Message --------------------------------------------
-    // -------------------------------------------------------------------------
-
-    $body =
-      "A thrown " . get_class($exception) . " went uncaught;" .
-      " details follow...\n\n" .
-      "Message: " . $exception->getMessage() . "\n\n" .
-      "The exception occurred in file " . $exception->getFile() .
-      " on line " . $exception->getLine() . ".\n\n" .
-      "Stack trace:\n" . $exception->getTraceAsString() . "\n\n" .
-      "Time: " . date('r') . "\n\n";
-
-    if (empty($_SERVER['REQUEST_METHOD'])) {
-      $body .= "This PHP instance did not seem to be invoked via an HTTP request, " .
-        "as \$_SERVER['REQUEST_METHOD'] is empty.";
-    } else {
-      $body .=
-        "Request Method: " . $_SERVER['REQUEST_METHOD'] . "\n\n" .
-        "URL: http" .
-          ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') ? 's' : '') .
-          '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n" .
-        "Referring URL: " .
-          (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] :
-          "(no referrer or referrer not reported)") . "\n\n" .
-        renderGlobalVar('_SERVER',  $_SERVER)  . "\n\n" .
-        renderGlobalVar('_POST',    $_POST)    . "\n\n" .
-        renderGlobalVar('_GET',     $_GET)     . "\n\n" .
-        renderGlobalVar('_COOKIE',  $_COOKIE)  . "\n\n" .
-        (isset($_SESSION) ? 
-          //("\$_SESSION: \n" . renderHash($_SESSION)) :
-          renderGlobalVar('_SESSION', $_SESSION) :
-          "\$_SESSION is not set.") . "\n\n" .
-        "IP Address: " . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ?
-          $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']) .
-          "\n\n";
-    }
-
-    // -------------------------------------------------------------------------
-    // - End Error Detail Message --------------------------------------------
-    // -------------------------------------------------------------------------
-
-    presentErrorReport($exception->getMessage(), $body);
-    exit();
-  } catch (Exception $e) {
-    exit("UH-OH!  An exception was raised from within the exception " .
-      "handler!  Exception's details follow:\n" .
-      $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
+  if (empty($_SERVER['REQUEST_METHOD'])) {
+    $body .= "This PHP instance did not seem to be invoked via an HTTP request, " .
+      "as \$_SERVER['REQUEST_METHOD'] is empty.";
+  } else {
+    $body .=
+      "Request Method: " . $_SERVER['REQUEST_METHOD'] . "\n\n" .
+      "URL: http" .
+        ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') ? 's' : '') .
+        '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n" .
+      "Referring URL: " .
+        (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] :
+        "(no referrer or referrer not reported)") . "\n\n" .
+      renderGlobalVar('_SERVER',  $_SERVER)  . "\n\n" .
+      renderGlobalVar('_POST',    $_POST)    . "\n\n" .
+      renderGlobalVar('_GET',     $_GET)     . "\n\n" .
+      renderGlobalVar('_COOKIE',  $_COOKIE)  . "\n\n" .
+      (isset($_SESSION) ? 
+        //("\$_SESSION: \n" . renderHash($_SESSION)) :
+        renderGlobalVar('_SESSION', $_SESSION) :
+        "\$_SESSION is not set.") . "\n\n" .
+      "IP Address: " . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ?
+        $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
   }
 }
-
 
 /**
  * This function will simply display the given error to the user, and depending
