@@ -43,37 +43,30 @@ function errorHandler($errno, $errstr, $errfile, $errline) {
     E_ERROR           => 'StandardPhpError',
     E_WARNING         => 'StandardPhpWarning',
     E_NOTICE          => 'StandardPhpNotice',
-    //E_PARSE           => "Parsing Error",
-    //E_CORE_ERROR      => "Core Error",
-    //E_CORE_WARNING    => "Core Warning",
-    //E_COMPILE_ERROR   => "Compile Error",
-    //E_COMPILE_WARNING => "Compile Warning",
     E_USER_ERROR      => 'UserLevelPhpError',
     E_USER_WARNING    => 'UserLevelPhpWarning',
-    E_USER_NOTICE     => 'UserLevelPhpNotice'
-  );
+    E_USER_NOTICE     => 'UserLevelPhpNotice');
 
-  // XXX: I had to turn this off, as it was causing my web interface to
-  //      render improperly.  I'm not sure why, however; and I'm also not even
-  //      sure why we want the output buffer(s) to be cleared...
+  // XXX: This was causing problems at one point or another...
+  //      Do we need/want it?
   // Clear any output buffers that have been set
   //while (ob_get_level()) {
   //  ob_end_clean();
   //}
 
-  // If PHP is configured to ignore errors of the type that we've been passed,
-  // we'll ignore the error.
+  # If PHP is configured to ignore errors of the type that we've been passed,
+  # we'll ignore the error.
   if (!($errno & error_reporting())) {
     return;
-  }
-
-  $exceptionClass = isset($errorTypes[$errno]) ?
-    ('\\MyPHPLibs\\ErrorHandling\\' . $errorTypes[$errno]) : null;
-  $errMsg = htmlspecialchars_decode($errstr);
-  if ($exceptionClass) {
-    throw new $exceptionClass($errMsg);
   } else {
-    throw new Exception($errMsg);
+    $exceptionClass = isset($errorTypes[$errno]) ?
+      ('\\MyPHPLibs\\ErrorHandling\\' . $errorTypes[$errno]) : null;
+    $errMsg = htmlspecialchars_decode($errstr);
+    if ($exceptionClass) {
+      throw new $exceptionClass($errMsg);
+    } else {
+      throw new Exception($errMsg);
+    }
   }
 }
 
