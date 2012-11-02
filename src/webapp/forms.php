@@ -394,7 +394,7 @@ class WebAddressField extends BasicTextField {
       return $errs;
     } else if ($v != '' && !Validation\isValidWebAddr($v)) {
       return array("Please provide a complete URL for the {$this->nameForValidation}, " .
-                  "including the \"http://\" prefix.");
+                   "including the \"http://\" prefix.");
     } else {
       $this->cleanedValue = $v;
       return array();
