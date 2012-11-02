@@ -86,7 +86,7 @@ function exceptionHandler($exception) {
     } else if (is_array($value)) {
       $lines = array();
       foreach ($value as $k => $v) $lines []= "  $k: " . print_r($v, true);
-      $str .= implode("\n", $lines);
+      $str .= "\n" . implode("\n", $lines);
     } else {
       $str .= 'unexpected value of type ' . gettype($value) . '!';
     }
