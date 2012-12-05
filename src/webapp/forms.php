@@ -648,7 +648,12 @@ abstract class Field {
     $errs = $this->validateWhenNotEmpty($submittedValues, $v);
     if (count($errs) == 0) {
       foreach ($this->customValidations as $validateFunc) {
-        $errs = array_merge($errs, $validateFunc($this, $v));
+        $newErrs = $validateFunc($this, $v);
+        if (!is_array($newErrs)) {
+          throw new InvalidArgumentException('Validation function must return an array ' .
+            'containing validation errors, or an empty array if validation was successful');
+        }
+        $errs = array_merge($errs, $newErrs);
       }
     }
     return $errs;
