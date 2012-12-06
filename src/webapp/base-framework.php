@@ -74,10 +74,7 @@ abstract class FrontController {
     if (!in_array(strtolower($reqMethod), array('get', 'head', 'post'))) {
       $this->notice("Resource {$this->requestedPath} was requested using unsupported " .
                     "method $reqMethod");
-      $r = new ResponseObj;
-      $r->statusCode = 405; # "Method Not Allowed"
-      $r->content = '405, Method Not Allowed';
-      return $r;
+      return $this->simpleTextResponse(405, 'Method Not Allowed');
     }
     $r = null;
     try {
@@ -89,6 +86,9 @@ abstract class FrontController {
       $r = $this->handlePageNotFound($referrerInfo);
     } catch (PageNotFound $_) {
       $r = $this->handlePageNotFound($referrerInfo);
+    } catch (MaliciousRequestException $e) {
+      $this->warn("Detected malicious request: " . $e->getMessage());
+      $r = $this->simpleTextResponse(400, "go on, get");
     }
     if (strtolower($reqMethod) == 'head') $r->content = '';
     return $r;
@@ -211,22 +211,16 @@ abstract class FrontController {
   }
 
   protected function get404Response() {
-    $response = new ResponseObj;
-    $response->statusCode = 404;
-    $response->contentType = 'text/html';
-    $response->content = "<html> <body> <p>Sorry, we've got none of that.</p> </body> </html>";
-    return $response;
+    return $this->simpleTextResponse(404, "Sorry, we've got none of that.");
   }
 
-  /*
-  protected function getBasePageObject($cls = null) {
-    $page = $cls ? new $cls : new HtmlPage;
-    $page->currentLocation = $_SERVER['REQUEST_URI'];
-    $page->contentType = 'text/html; charset=utf-8';
-    $page->currentYear = strftime('%Y');
-    return $page;
+  protected function simpleTextResponse($code, $content) {
+    $response = new ResponseObj;
+    $response->statusCode = $code;
+    $response->contentType = 'text/plain';
+    $response->content = $content;
+    return $response;
   }
-  */
 
   private function checkForRedirectDueToExtraCrapOnURI() {
     $uri = $_SERVER['REQUEST_URI'];
