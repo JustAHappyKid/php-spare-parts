@@ -125,9 +125,9 @@ class ZipOrPostalCodeField extends US\ZipCodeField {
     $this->label = $label;
   }
 
-  public function setDefaultValue($v) { throw new Exception('Not implemented!'); }
-  public function required($_)        { throw new Exception('Not implemented!'); }
-  public function addValidation($_)   { throw new Exception('Not implemented!'); }
+  public function setDefaultValue($v1, $v2) { throw new Exception('Not implemented!'); }
+  public function required($_)              { throw new Exception('Not implemented!'); }
+  public function addValidation($_)         { throw new Exception('Not implemented!'); }
 
   public function validate(Array $submittedValues) {
     $v = $this->getTrimmedValue($submittedValues);
