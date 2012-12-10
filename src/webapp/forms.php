@@ -482,7 +482,7 @@ class CheckboxField extends Field {
   # XXX: This Field instance should not hard-code "<li>" as the field container type,
   #      but it was a necessary hack due to the fact that this CheckboxField renders its
   #      <input/> tag logically *before* its <label>.
-  public function render() {
+  public function render(BaseFormContainer $f) {
     return '<li class="checkbox">' . $this->renderInputHtml() .
       '<label>' . $this->label . '</label></li>';
   }
@@ -543,7 +543,7 @@ class HiddenInput extends Field {
   public function renderInputHtml() {
     return "<input" . $this->attrsHtml() ." />";
   }
-  public function render() {
+  public function render(BaseFormContainer $f) {
     return $this->renderInputHtml();
   }
   public function validate(Array $submittedValues) {
