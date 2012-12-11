@@ -32,22 +32,35 @@ class ErrorHandlerInvokedException extends Exception {
   }
 }
 
-class StandardPhpError extends ErrorHandlerInvokedException {}
-class StandardPhpWarning extends ErrorHandlerInvokedException {}
-class StandardPhpNotice extends ErrorHandlerInvokedException {}
-class UserLevelPhpError extends ErrorHandlerInvokedException {}
-class UserLevelPhpWarning extends ErrorHandlerInvokedException {}
-class UserLevelPhpNotice extends ErrorHandlerInvokedException {}
+class Error      extends ErrorHandlerInvokedException {}
+class Warning    extends ErrorHandlerInvokedException {}
+class Notice     extends ErrorHandlerInvokedException {}
+class Deprecated extends ErrorHandlerInvokedException {}
+
+class StandardPhpError    extends Error {}
+class StandardPhpWarning  extends Warning {}
+class StandardPhpNotice   extends Notice {}
+class UserLevelPhpError   extends Error {}
+class UserLevelPhpWarning extends Warning {}
+class UserLevelPhpNotice  extends Notice {}
+class StrictStandard      extends ErrorHandlerInvokedException {}
+class RecoverableError    extends Error {}
+class PhpDeprecated       extends Deprecated {}
+class UserDeprecated      extends Deprecated {}
 
 function errorHandler($errno, $errstr, $errfile, $errline) {
 
   $errorTypes = array(
-    E_ERROR           => 'StandardPhpError',
-    E_WARNING         => 'StandardPhpWarning',
-    E_NOTICE          => 'StandardPhpNotice',
-    E_USER_ERROR      => 'UserLevelPhpError',
-    E_USER_WARNING    => 'UserLevelPhpWarning',
-    E_USER_NOTICE     => 'UserLevelPhpNotice');
+    E_ERROR             => 'StandardPhpError',
+    E_WARNING           => 'StandardPhpWarning',
+    E_NOTICE            => 'StandardPhpNotice',
+    E_USER_ERROR        => 'UserLevelPhpError',
+    E_USER_WARNING      => 'UserLevelPhpWarning',
+    E_USER_NOTICE       => 'UserLevelPhpNotice',
+    E_STRICT            => 'StrictStandard',
+    E_RECOVERABLE_ERROR => 'RecoverableError',
+    E_DEPRECATED        => 'PhpDeprecated',
+    E_USER_DEPRECATED   => 'UserDeprecated');
 
   // XXX: This was causing problems at one point or another...
   //      Do we need/want it?
