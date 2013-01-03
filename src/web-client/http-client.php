@@ -798,10 +798,8 @@ class HttpClient {
         throw new InvalidArgumentException(
           "Expected an array for 'postParams' attribute of request");
       }
-      $this->info('Posting the following values...');
-      foreach ($req->postParams as $k => $v) {
-        $this->info("  $k: " . asString($v));
-      }
+      $this->info('Posting the following values: ' . asString($req->postParams));
+
       // TODO: Re-implement/re-enable support for POSTing files...
       /* if (isset($arguments["PostFiles"]) ||
           ($this->force_multipart_form_post && isset($arguments["PostValues"]))) {
