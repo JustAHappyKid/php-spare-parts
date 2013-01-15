@@ -460,10 +460,18 @@ function newDollarAmountField($name, $label) { return new DollarAmountField($nam
 
 class TextArea extends Field {
   protected $value = '';
+
+  public function placeholder($txt) {
+    $this->attributes['placeholder'] = $txt;
+    return $this;
+  }
+
   public function setValue($v) { $this->value = $v; return $this; }
+
   public function renderInputHtml() {
     return '<textarea' . $this->attrsHtml() . '>' . htmlspecialchars($this->value) . '</textarea>';
   }
+
   public function containerClass() {
     return 'textarea';
   }
