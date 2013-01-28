@@ -6,8 +6,13 @@ function asString($var, $singleLine = true) {
 }
 
 function at($arr, $index, $default = null) {
-  return $arr === null ? $default :
-    (in_array($index, array_keys($arr), $strict = true) ? $arr[$index] : $default);
+  if ($arr === null) {
+    return $default;
+  } else if (!is_array($arr)) {
+    throw new InvalidArgumentException("First parameter must be an array");
+  } else {
+    return in_array($index, array_keys($arr), $strict = true) ? $arr[$index] : $default;
+  }
 }
 
 function attr($obj, $attr, $default = null) {
