@@ -11,3 +11,7 @@ function camelCaseToUnderscoreName($camelCaseName) {
 function hyphenatedToCamelCaseName($hyphenatedName) {
   return preg_replace('/-([a-z])/e', 'strtoupper(\'$1\')', $hyphenatedName);
 }
+
+function camelCaseToHyphenatedName($camelCaseName) {
+  return preg_replace('/([A-Z])/e', '"-" . strtolower(\'$1\')', $camelCaseName);
+}
