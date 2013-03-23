@@ -33,13 +33,20 @@ function getStatesMap($includeMilitaryPseudoStates, $includeTerritories) {
             "PR" => "Puerto Rico", "VI" => "Virgin Islands") : array());
 }
 
-function getStateAbbr($stateName) {
-  $map = array_flip(getStatesMap(true, true));
+function getStateAbbr($stateName, $includeMilitaryPseudoStates = true,
+                      $includeTerritories = true) {
+  $map = array_flip(getStatesMap($includeMilitaryPseudoStates, $includeTerritories));
   if (isset($map[$stateName])) {
     return $map[$stateName];
   } else {
     throw new Exception("Could not find state named '$stateName'");
   }
+}
+
+function isValidStateAbbr($abbr, $includeMilitaryPseudoStates = true,
+                          $includeTerritories = true) {
+  $map = getStatesMap($includeMilitaryPseudoStates, $includeTerritories);
+  return isset($map[$abbr]);
 }
 
 # --
