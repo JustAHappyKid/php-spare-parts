@@ -29,7 +29,8 @@ function getStatesMap($includeMilitaryPseudoStates, $includeTerritories) {
             "VT" => "Vermont", "VA" => "Virginia", "WA" => "Washington",
             "WV" => "West Virginia", "WI" => "Wisconsin", "WY" => "Wyoming"),
     $includeTerritories ?
-      array("AS" => "American Samoa", "GU" => "Guam", "MP" => "Northern Mariana Islands",
+      array("AS" => "American Samoa", "FM" => "Federated States of Micronesia", "GU" => "Guam",
+            "MH" => "Marshall Islands", "MP" => "Northern Mariana Islands", "PW" => "Palau",
             "PR" => "Puerto Rico", "VI" => "Virgin Islands") : array());
 }
 
