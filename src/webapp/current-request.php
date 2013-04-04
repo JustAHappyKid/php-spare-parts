@@ -14,12 +14,19 @@ function isGetRequest() {
   return strtolower($_SERVER['REQUEST_METHOD']) == 'get';
 }
 
-function getURL() {
+function getProtocol() {
+  return 'http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '');
+}
+
+function getHost() {
   if (empty($_SERVER['HTTP_HOST'])) {
-    throw new Exception('HTTP_HOST not set, so cannot construct URL');
+    throw new Exception("\$_SERVER['HTTP_HOST'] is empty");
   }
-  return 'http' . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') .
-    '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+  return $_SERVER['HTTP_HOST'];
+}
+
+function getURL() {
+  return getProtocol() . '://' . getHost() . $_SERVER['REQUEST_URI'];
 }
 
 function getPath() {
