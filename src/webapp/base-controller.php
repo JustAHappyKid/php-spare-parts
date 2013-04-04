@@ -46,17 +46,17 @@ class Controller {
     $_SESSION[$var] = $value;
   }
 
-  public function getFromSession($var, $default = null) {
+  protected function getFromSession($var, $default = null) {
     return isset($_SESSION[$var]) ? $_SESSION[$var] : $default;
   }
 
-  public function takeFromSession($var, $default = null) {
+  protected function takeFromSession($var, $default = null) {
     $value = $this->getFromSession($var, $default);
     unset($_SESSION[$var]);
     return $value;
   }
 
-  public function redirect($path, $code = 302) {
+  protected function redirect($path, $code = 302) {
     $host = $_SERVER['HTTP_HOST'];
     if (substr($path, 0, strlen($host) == $host)) {
       throw new Exception("redirect should be called with a relative or absolute path, " .
