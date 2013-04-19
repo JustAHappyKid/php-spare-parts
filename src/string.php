@@ -18,7 +18,7 @@ function withoutSuffix($str, $suffix) {
 function withoutPrefix($str, $prefix, $caseInsensitive = true) {
   if (substr($caseInsensitive ? strtolower($str) : $str, 0, strlen($prefix)) ==
       ($caseInsensitive ? strtolower($prefix) : $prefix)) {
-    return substr ($str, strlen($prefix));
+    return substr($str, strlen($prefix));
   } else {
     return $str;
   }
