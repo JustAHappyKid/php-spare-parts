@@ -25,9 +25,10 @@ function assertEqual($expected, $actual, $msg = null) {
   }
 }
 
-function assertNotEqual($value1, $value2) {
+function assertNotEqual($value1, $value2, $msg = null) {
   if ($value1 == $value2) {
-    throw new TestFailure("Expected values to be unequal, but both were " . asString($value1));
+    throw new TestFailure($msg === null ?
+      ("Expected values to be unequal, but both were " . asString($value1)) : $msg);
   }
 }
 
