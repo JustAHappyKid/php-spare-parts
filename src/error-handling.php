@@ -166,9 +166,9 @@ function constructErrorReport($exception) {
  * If an email address has been configured for error reports, an appropriate
  * email will be sent there.
  */
-function presentErrorReport($fullReport) {
+function presentErrorReport($fullReport, $email = null) {
   global $__MyPHPLibs_ErrorHandling_sendReportsTo;
-  $sendReportTo = $__MyPHPLibs_ErrorHandling_sendReportsTo;
+  $sendReportTo = $email ? $email : $__MyPHPLibs_ErrorHandling_sendReportsTo;
   if (php_sapi_name() == 'cli') {
     # TODO: Shouldn't we still send an email if $__MyPHPLibs_ErrorHandling_sendReportsTo
     #       is set, even if we're running under the CLI??
