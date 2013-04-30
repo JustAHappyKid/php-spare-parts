@@ -3,8 +3,10 @@
 namespace MyPHPLibs\ErrorHandling;
 
 require_once dirname(__FILE__) . '/types.php';
+require_once dirname(__FILE__) . '/email.php';                  # sendTextEmail
+require_once dirname(__FILE__) . '/webapp/current-request.php'; # getHost
 
-use \Exception;
+use \Exception, \MyPHPLibs\Webapp\CurrentRequest;
 
 function initErrorHandling($sendReportsTo) {
   global $__MyPHPLibs_ErrorHandling_sendReportsTo;
@@ -188,7 +190,9 @@ function presentErrorReport($fullReport, $email = null) {
            <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
            were doing just before and leading up to this failure.  We'll do our best
            to get this fixed ASAP!</p></div>\n";
-      mail($sendReportTo, "PHP Error Report", $fullReport);
+      //mail($sendReportTo, "PHP Error Report", $fullReport);
+      $host = CurrentRequest\getHost();
+      sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
     } else {
       echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and no email " .
         "address was configured (via initErrorHandling) for receiving error reports!</p>\n";
