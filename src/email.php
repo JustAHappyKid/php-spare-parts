@@ -2,16 +2,16 @@
 
 require_once dirname(__FILE__) . '/validation.php'; # isValidEmailAddr
 
-use \InvalidArgumentException;
+use \InvalidArgumentException, \MyPHPLibs\Validation as V;
 
 function sendEmail($from, $to, $subject, $message, Array $headers = array()) {
   sendTextEmail($from, $to, $subject, $message, $headers);
 }
 
 function sendTextEmail($from, $to, $subject, $message, Array $headers = array()) {
-  if (!isValidEmailAddr($from, $allowExtendedFormat = true)) {
+  if (!V\isValidEmailAddr($from, $allowExtendedFormat = true)) {
     throw new InvalidArgumentException("Invalid email address for \$from parameter: $from");
-  } else if (!isValidEmailAddr($to, $allowExtendedFormat = true)) {
+  } else if (!V\isValidEmailAddr($to, $allowExtendedFormat = true)) {
     throw new InvalidArgumentException("Invalid email address for \$to parameter: $to");
   }
   $defaultHeaders = array("From: $from", "Reply-To: $from", "Return-Path: $from",
