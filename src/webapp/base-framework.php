@@ -14,11 +14,16 @@ use \Exception, \MyPHPLibs\Webapp\CurrentRequest, \MyPHPLibs\URL;
 
 abstract class FrontController {
 
-  protected $webappDir, $requestedPath, $cmd;
+  protected $webappDir, $actionsDir, $requestedPath, $cmd;
   private $requiredActions = array();
 
   function __construct($webappDir) {
     $this->webappDir = $webappDir;
+    $this->actionsDir = pathJoin($this->webappDir, 'actions');
+    if (!is_dir($this->actionsDir)) {
+      throw new Exception("'actions' directory does not exist at expected " .
+                          "location, {$this->actionsDir}");
+    }
   }
 
   public function go() {
@@ -113,7 +118,7 @@ abstract class FrontController {
     $origPath = urldecode(current(explode('?', $pathAndQuery)));
     $p = preg_replace('@/$@', '', $origPath);
     $unconsumedPathComponents = array();
-    $actionsDir = pathJoin($this->webappDir, 'actions');
+    $actionsDir = $this->actionsDir;
     $defaultPath = pathJoin($actionsDir, $p . '.php');
     $indexPath = pathJoin($actionsDir, $p, 'index.php');
     while ($p != '' && $p != '.' && !file_exists($defaultPath) && !file_exists($indexPath)) {
