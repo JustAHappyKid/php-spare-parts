@@ -174,7 +174,7 @@ abstract class FrontController {
         throw new Exception("Action file '$actionPath' did not return a callable/function or " .
                             "a class name");
       }
-      if ($result instanceof ResponseObj) {
+      if ($result instanceof HttpResponse) {
         return $result;
       } else if ($result instanceof HtmlPage) {
         return $this->renderAndOutputPage($result);
@@ -183,7 +183,7 @@ abstract class FrontController {
         return $this->renderAndOutputPage($page);
       } else {
         throw new Exception("Expected action to return null, a string, an object of type " .
-                            "HtmlPage, or an object of type ResponseObj, but got the " .
+                            "HtmlPage, or an object of type HttpResponse, but got the " .
                             "following: " . asString($result));
       }
     } else {
@@ -220,7 +220,7 @@ abstract class FrontController {
   }
 
   protected function simpleTextResponse($code, $content) {
-    $response = new ResponseObj;
+    $response = new HttpResponse;
     $response->statusCode = $code;
     $response->contentType = 'text/plain';
     $response->content = $content;
@@ -241,7 +241,7 @@ abstract class FrontController {
     $currentUrl = CurrentRequest\getURL();
     $this->info("Redirecting from " . $currentUrl . " to location " . $path . $referrerInfo);
     $url = URL\constructUrlFromRelativeLocation($currentUrl, $path);
-    $r = new ResponseObj;
+    $r = new HttpResponse;
     $r->statusCode = $statusCode;
     $r->addHeader('Location', $url);
     return $r;
@@ -339,7 +339,7 @@ class RequestContext {
   }
 }
 
-class ResponseObj {
+class HttpResponse {
   public $statusCode, $contentType, $content;
   private $headers = array();
   public function addHeader($name, $value) {
