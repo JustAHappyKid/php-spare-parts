@@ -10,7 +10,8 @@ Special care is given though, to keep the components loosely-coupled, so one can
 
 Here are some of the notable bits:
 
-  * An HttpClient class, for *'browsing'* the Web when more sophistication is needed than a simple `fopen` (or `curl` call, or the like) on a URL.
+  * An HttpClient class, for *'browsing'* the Web when more sophistication is
+    needed than a simple `fopen` (or `curl` call, or the like) on a URL.
 
   * Classes/tools for automating web-forms.
 
