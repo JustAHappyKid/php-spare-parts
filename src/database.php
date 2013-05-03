@@ -133,6 +133,18 @@ function insertOne($table, Array $values, $returnId = false) {
   return $returnId ? $conn->lastInsertId($table . '_id_seq') : null;
 }
 
+function updateByID($table, $id, Array $valuesToUpdate) {
+  $conn = getConnection();
+  $assignments = array();
+  foreach ($valuesToUpdate as $f => $_) {
+    $assignments[] = "$f = ?";
+  }
+  $setClause = implode(', ', $assignments);
+  $stmt = $conn->prepare("UPDATE " . $table . " SET " . $setClause . " WHERE id = ?");
+  $allParams = array_merge(array_values($valuesToUpdate), array($id));
+  $stmt->execute(_sanitizeValues($allParams));
+}
+
 /*
   XXX: The arguments to this method are too confusing... Wouldn't it be better to just
        require query() to be called with the full syntax of the UPDATE statement?
