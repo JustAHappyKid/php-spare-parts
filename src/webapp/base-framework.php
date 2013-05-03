@@ -40,11 +40,9 @@ abstract class FrontController {
     }
 
     if (empty($_SERVER['HTTP_HOST'])) {
-      $redirectTo = 'http://' . DOMAIN . '/';
-      $this->warn("HTTP_HOST environment variable not set for request, so " .
-                  "redirecting to $redirectTo");
-      header("Location: $redirectTo");
-      return;
+      // $this->warn("HTTP_HOST environment variable not set for request, so ...");
+      throw new HttpProtocolError("No HTTP 'Host' header included in request " .
+                                  "(i.e., \$_SERVER['HTTP_HOST'] was empty)");
     }
 
     $response = $this->handleRequest();
@@ -54,7 +52,7 @@ abstract class FrontController {
       "remote address {$_SERVER['REMOTE_ADDR']} $referrerInfo");
   }
 
-  private function outputHttpResponse($response) {
+  private function outputHttpResponse(HttpResponse $response) {
     header("HTTP/1.1 " . messageForStatusCode($response->statusCode));
     if ($response->contentType) {
       header('Content-Type: ' . $response->contentType);
@@ -360,6 +358,7 @@ class DoRedirect extends Exception {
 
 class PageNotFound extends Exception {}
 class AccessForbidden extends Exception {}
+class HttpProtocolError extends Exception {}
 class MaliciousRequestException extends Exception {}
 
 class HtmlPage {
