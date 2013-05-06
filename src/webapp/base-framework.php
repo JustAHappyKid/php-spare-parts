@@ -159,7 +159,10 @@ abstract class FrontController {
         }
       }
 
-      $page = $this->getDefaultPageForRequest();
+      # TODO: Phase out this concept of a "default page".
+      $page = method_exists($this, 'getDefaultPageForRequest') ?
+        $this->getDefaultPageForRequest() : null;
+
       $result = null;
       if (is_callable($funcOrClass)) {
         $result = $funcOrClass($context);
@@ -177,8 +180,12 @@ abstract class FrontController {
       } else if ($result instanceof HtmlPage) {
         return $this->renderAndOutputPage($result);
       } else if (is_string($result) || empty($result)) {
-        if (!empty($result)) $page->body = $result;
-        return $this->renderAndOutputPage($page);
+        if ($page !== null) {
+          if (!empty($result)) $page->body = $result;
+          return $this->renderAndOutputPage($page);
+        } else {
+          return $this->simpleHtmlResponse(200, $result);
+        }
       } else {
         throw new Exception("Expected action to return null, a string, an object of type " .
                             "HtmlPage, or an object of type HttpResponse, but got the " .
@@ -189,12 +196,14 @@ abstract class FrontController {
     }
   }
 
+  /*
   protected function getDefaultPageForRequest() {
     $page = new HtmlPage;
     $page->currentLocation = $_SERVER['REQUEST_URI'];
     $page->contentType = 'text/html; charset=utf-8';
     return $page;
   }
+  */
 
   protected function handlePageNotFound($referrerInfo) {
     $relocateTo = null;
@@ -221,6 +230,14 @@ abstract class FrontController {
     $response = new HttpResponse;
     $response->statusCode = $code;
     $response->contentType = 'text/plain';
+    $response->content = $content;
+    return $response;
+  }
+
+  protected function simpleHtmlResponse($code, $content) {
+    $response = new HttpResponse;
+    $response->statusCode = $code;
+    $response->contentType = 'text/html; charset=utf-8';
     $response->content = $content;
     return $response;
   }
