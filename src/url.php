@@ -50,9 +50,10 @@ function constructUrlFromRelativeLocation($baseUrl, $relativeLocation, $secure =
   }
 }
 
-function makeUrlQuery($vars) {
-  //$filtered = array();
-  //foreach ($vars as $name => $val) { if (!in_array($name, $exclude)) $filtered[$name] = $val; }
+# XXX: 'makeUrlQuery' deprecated in favor of 'makeQueryString'.
+function makeUrlQuery(Array $vars) { return makeQueryString($vars); }
+
+function makeQueryString(Array $vars) {
   $filtered = $vars;
   return '?' . implode('&',
     array_map(function($name, $val) { return $name . '=' . urlencode($val); },
