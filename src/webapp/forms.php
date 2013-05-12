@@ -622,6 +622,12 @@ abstract class Field {
     return $this;
   }
 
+  public function minLength($len, $err) {
+    $this->minLength = $len;
+    $this->minLengthErr = $err;
+    return $this;
+  }
+
   public function maxLength($len, $err) {
     $this->maxLength = $len;
     $this->maxLengthErr = $err;
@@ -645,7 +651,9 @@ abstract class Field {
       return array($err);
     }
     if ($v != '') {
-      if ($this->maxLength !== null && strlen($v) > $this->maxLength) {
+      if ($this->minLength !== null && strlen($v) < $this->minLength) {
+        return array($this->minLengthErr);
+      } else if ($this->maxLength !== null && strlen($v) > $this->maxLength) {
         return array($this->maxLengthErr);
       }
     }
