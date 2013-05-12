@@ -12,6 +12,8 @@ function sendTextEmail($from, $to, $subject, $message, Array $headers = array())
   if (!V\isValidEmailAddr($from, $allowExtendedFormat = true)) {
     throw new InvalidArgumentException("Invalid email address for \$from parameter: $from");
   }
+  if (trim($to) == "") throw new InvalidArgumentException(
+                         "No recipient(s) specified in \$to parameter");
   $allRecips = array_map('trim', explode(',', $to));
   foreach ($allRecips as $r) {
     if (!V\isValidEmailAddr($r, $allowExtendedFormat = true)) {
