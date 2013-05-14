@@ -1,5 +1,9 @@
 <?php
 
+function contains($haystack, $needle) {
+  return strpos($haystack, $needle) !== false;
+}
+
 # Returns true if $str begins with $sub.
 function beginsWith($str, $sub) {
   return substr($str, 0, strlen($sub)) == $sub;
