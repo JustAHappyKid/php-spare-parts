@@ -38,7 +38,8 @@ class HttpClient {
   var $socks_remotePort = 1080;
 
   private $httpProtocolVersion = "1.1";
-  public $userAgent = 'HttpClient (PHP class from my-php-libs)';
+  public $userAgent = 'Mozilla/4.0 (compatible; php-spare-parts HttpClient class; ' .
+    'User-Agent string is totally useless)';
   private $protocol = "http", $requestMethod = "GET", $relativeURI;
 
   /* XXX: Re-implement authentication...
