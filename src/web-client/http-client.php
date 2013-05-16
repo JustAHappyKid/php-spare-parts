@@ -38,8 +38,7 @@ class HttpClient {
   var $socks_remotePort = 1080;
 
   private $httpProtocolVersion = "1.1";
-  public $userAgent = 'Mozilla/4.0 (compatible; php-spare-parts HttpClient class; ' .
-    'User-Agent string is totally useless)';
+  public $userAgent = null;
   private $protocol = "http", $requestMethod = "GET", $relativeURI;
 
   /* XXX: Re-implement authentication...
@@ -104,6 +103,11 @@ class HttpClient {
     "Oct" => "10", "Nov" => "11", "Dec" => "12");
   private $session='';
   private $connection_close=0;
+
+  function __construct() {
+    $this->userAgent = 'Mozilla/4.0 (compatible; php-spare-parts HttpClient class; ' .
+    'User-Agent string is totally useless)';
+  }
 
   # To be sure no non-existent/renamed/deprecated properties are set...
   function __set($name, $value) {
