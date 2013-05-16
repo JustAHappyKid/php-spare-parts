@@ -3,7 +3,7 @@
 /**
  * A Compatibility library with PHP 5.5's simplified password hashing API.
  * Note, this file was originally copied from the following URL for inclusion
- * in the "my-php-libs" library:
+ * in the "php-spare-parts" library:
  * https://github.com/ircmaxell/password_compat/blob/master/lib/password.php
  *
  * @author Anthony Ferrara <ircmaxell@php.net>
