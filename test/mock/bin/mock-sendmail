@@ -1,0 +1,3 @@
+#!/bin/sh
+# Nothing to do here, for now... Maybe in the future add some assertions
+# that properly formed email addresses and headers and such have been passed?
