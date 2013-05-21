@@ -2,7 +2,7 @@
 
 require_once 'error-handling.php';
 
-use \MyPHPLibs\ErrorHandling;
+use \SpareParts\ErrorHandling;
 
 function testGeneratingErrorReportFromException() {
   $r = ErrorHandling\constructErrorReport(new Exception('catch me if u can!'));

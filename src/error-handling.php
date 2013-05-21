@@ -1,20 +1,20 @@
 <?php
 
-namespace MyPHPLibs\ErrorHandling;
+namespace SpareParts\ErrorHandling;
 
 require_once dirname(__FILE__) . '/types.php';
 require_once dirname(__FILE__) . '/email.php';                  # sendTextEmail
 require_once dirname(__FILE__) . '/webapp/current-request.php'; # getHost
 
-use \Exception, \ErrorException, \MyPHPLibs\Webapp\CurrentRequest;
+use \Exception, \ErrorException, \SpareParts\Webapp\CurrentRequest;
 
 function initErrorHandling($sendReportsTo) {
-  global $__MyPHPLibs_ErrorHandling_sendReportsTo;
-  $__MyPHPLibs_ErrorHandling_sendReportsTo = $sendReportsTo;
+  global $__SpareParts_ErrorHandling_sendReportsTo;
+  $__SpareParts_ErrorHandling_sendReportsTo = $sendReportsTo;
   ini_set('docref_root', null);
   ini_set('docref_ext', null);
-  set_error_handler('\\MyPHPLibs\\ErrorHandling\\errorHandler');
-  set_exception_handler('\\MyPHPLibs\\ErrorHandling\\exceptionHandler');
+  set_error_handler('\\SpareParts\\ErrorHandling\\errorHandler');
+  set_exception_handler('\\SpareParts\\ErrorHandling\\exceptionHandler');
 }
 
 /*
@@ -82,7 +82,7 @@ function errorHandler($errno, $errMsg, $file, $line) {
     return;
   } else {
     $exceptionClass = isset($errorTypes[$errno]) ?
-      ('\\MyPHPLibs\\ErrorHandling\\' . $errorTypes[$errno]) : null;
+      ('\\SpareParts\\ErrorHandling\\' . $errorTypes[$errno]) : null;
     $errMsg = htmlspecialchars_decode($errMsg);
     if ($exceptionClass == null) $exceptionClass == '\\ErrorException';
     throw new $exceptionClass($errMsg, $errno, 0, $file, $line);
@@ -178,10 +178,10 @@ function constructErrorReport($exception) {
  * email will be sent there.
  */
 function presentErrorReport($fullReport, $email = null) {
-  global $__MyPHPLibs_ErrorHandling_sendReportsTo;
-  $sendReportTo = $email ? $email : $__MyPHPLibs_ErrorHandling_sendReportsTo;
+  global $__SpareParts_ErrorHandling_sendReportsTo;
+  $sendReportTo = $email ? $email : $__SpareParts_ErrorHandling_sendReportsTo;
   if (php_sapi_name() == 'cli') {
-    # TODO: Shouldn't we still send an email if $__MyPHPLibs_ErrorHandling_sendReportsTo
+    # TODO: Shouldn't we still send an email if $__SpareParts_ErrorHandling_sendReportsTo
     #       is set, even if we're running under the CLI??
     echo "\n$fullReport\n\n";
   } else {

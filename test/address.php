@@ -3,7 +3,7 @@
 require_once 'webapp/forms.php';  # Forms\...
 require_once 'address.php';       # newStateOrProvinceField, newCountrySelectField
 
-use \MyPHPLibs\Test, \MyPHPLibs\Webapp\Forms;
+use \SpareParts\Test, \SpareParts\Webapp\Forms;
 
 class AddressRelatedFieldsTests extends Test\TestHarness {
 

@@ -5,7 +5,7 @@ require_once dirname(__FILE__) . '/locales/countries.php';  # countriesMap
 require_once dirname(__FILE__) . '/locales/us/address.php'; # getStatesMap
 require_once dirname(__FILE__) . '/locales/us/forms.php';   # ZipCodeField
 
-use \MyPHPLibs\Locales, \MyPHPLibs\Locales\US, \MyPHPLibs\Webapp\Forms;
+use \SpareParts\Locales, \SpareParts\Locales\US, \SpareParts\Webapp\Forms;
 
 function getCountriesMapForSelectField() {
   return array_merge(array("" => 'Choose a country'), Locales\countriesMap());

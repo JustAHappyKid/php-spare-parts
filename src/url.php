@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\URL;
+namespace SpareParts\URL;
 
 require_once dirname(__FILE__) . '/file-path.php';
 

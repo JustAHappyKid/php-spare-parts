@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\WebClient;
+namespace SpareParts\WebClient;
 
 require_once dirname(__FILE__) . '/http-client.php';  # HttpClient
 

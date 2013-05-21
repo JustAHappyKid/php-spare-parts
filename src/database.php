@@ -5,7 +5,7 @@
  * simply intended to minimize boiler-plate and add a tidbit of type-safety where possible.
  */
 
-namespace MyPHPLibs\Database;
+namespace SpareParts\Database;
 
 use \Exception, \PDO;
 
@@ -13,30 +13,30 @@ class NoMatchingRecords extends Exception {}
 class MultipleMatchingRecords extends Exception {}
 
 function setConnectionParams($driver, $dbName, $username, $password, $host) {
-  global $__MyPHPLibs_Database_connectionParams;
-  $__MyPHPLibs_Database_connectionParams = array('driver' => $driver, 'dbName' => $dbName,
+  global $__SpareParts_Database_connectionParams;
+  $__SpareParts_Database_connectionParams = array('driver' => $driver, 'dbName' => $dbName,
     'username' => $username, 'password' => $password, 'host' => $host);
 }
 
 function getConnection() {
-  global $__MyPHPLibs_Database_connectionParams, $__MyPHPLibs_Database_connection;
-  if (empty($__MyPHPLibs_Database_connectionParams)) {
+  global $__SpareParts_Database_connectionParams, $__SpareParts_Database_connection;
+  if (empty($__SpareParts_Database_connectionParams)) {
     throw new Exception("Connection parameters must be set (via 'setConnectionParams') " .
       "before connection to database can be made.");
   }
-  if ($__MyPHPLibs_Database_connection === null) {
-    $ps = $__MyPHPLibs_Database_connectionParams;
+  if ($__SpareParts_Database_connection === null) {
+    $ps = $__SpareParts_Database_connectionParams;
     $dsn = $ps['driver'] . ":dbname=" . $ps['dbName'] . ";host=" . $ps['host'];
-    $__MyPHPLibs_Database_connection = new PDO($dsn, $ps['username'], $ps['password'],
+    $__SpareParts_Database_connection = new PDO($dsn, $ps['username'], $ps['password'],
                                                array(PDO::ATTR_PERSISTENT => false));
-    $__MyPHPLibs_Database_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $__SpareParts_Database_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   }
-  return $__MyPHPLibs_Database_connection;
+  return $__SpareParts_Database_connection;
 }
 
 function closeConnection() {
-  global $__MyPHPLibs_Database_connection;
-  $__MyPHPLibs_Database_connection = null;
+  global $__SpareParts_Database_connection;
+  $__SpareParts_Database_connection = null;
 }
 
 function transaction($action, $params = array()) {
@@ -231,5 +231,5 @@ function getTableNames() {
 }
 */
 
-$__MyPHPLibs_Database_connectionParams = null;
-$__MyPHPLibs_Database_connection = null;
+$__SpareParts_Database_connectionParams = null;
+$__SpareParts_Database_connection = null;

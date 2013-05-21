@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__) . '/validation.php'; # isValidEmailAddr
 
-use \InvalidArgumentException, \MyPHPLibs\Validation as V;
+use \InvalidArgumentException, \SpareParts\Validation as V;
 
 function sendEmail($from, $to, $subject, $message, Array $headers = array()) {
   sendTextEmail($from, $to, $subject, $message, $headers);

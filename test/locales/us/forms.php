@@ -4,7 +4,7 @@ require_once 'webapp/forms.php';      # Forms\...
 require_once 'locales/us/forms.php';  # newStateSelectField, newNineDigitZipCodeInput, ...
 //require_once 'web-client/html-parsing.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\Webapp\Forms, \MyPHPLibs\Locales\US;
+use \SpareParts\Test, \SpareParts\Webapp\Forms, \SpareParts\Locales\US;
 
 class TestUSSpecificAddressRelatedFields extends Test\TestHarness {
 

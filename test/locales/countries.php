@@ -2,7 +2,7 @@
 
 require_once 'locales/countries.php';
 
-use \MyPHPLibs\Locales as L;
+use \SpareParts\Locales as L;
 
 function testIsValidCountryCode() {
   assertFalse(L\isValidCountryCode(''));

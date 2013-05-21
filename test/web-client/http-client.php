@@ -2,9 +2,9 @@
 
 require_once 'test/web-browser.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HttpResponse,
-  \MyPHPLibs\WebClient\HostNameResolutionError, \MyPHPLibs\WebClient\HttpConnectionError,
-  \MyPHPLibs\WebClient\TooManyRedirects;
+use \SpareParts\Test, \SpareParts\WebClient\HttpClient, \SpareParts\WebClient\HttpResponse,
+  \SpareParts\WebClient\HostNameResolutionError, \SpareParts\WebClient\HttpConnectionError,
+  \SpareParts\WebClient\TooManyRedirects;
 
 # ----------------------------------------------------------------------------------------------
 # - Test HTTP request is properly constructed and sent
@@ -53,7 +53,7 @@ function testSendingBasicRequest() {
 # the HttpClient class), to allow for broader testing purposes; so, we use a sub-class of the
 # WebBrowser for testing what is properly the functionality of the HttpClient, but it
 # shouldn't make a difference (since WebBrowser just adds functionality to HttpClient).
-use \MyPHPLibs\Test\WebBrowserForTesting;
+use \SpareParts\Test\WebBrowserForTesting;
 
 class HttpClientTests extends Test\TestHarness {
 

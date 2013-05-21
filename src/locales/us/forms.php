@@ -1,11 +1,11 @@
 <?php
 
-namespace MyPHPLibs\Locales\US;
+namespace SpareParts\Locales\US;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/webapp/forms.php'; # Forms\...
 require_once dirname(__FILE__) . '/address.php';                        # getStatesMap
 
-use \MyPHPLibs\Webapp\Forms;
+use \SpareParts\Webapp\Forms;
 
 # --
 # -- States

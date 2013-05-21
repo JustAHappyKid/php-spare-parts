@@ -1,6 +1,6 @@
 <?php
 
-use \MyPHPLibs\Test\TestFailure;
+use \SpareParts\Test\TestFailure;
 
 function fail($msg) {
   throw new TestFailure($msg);

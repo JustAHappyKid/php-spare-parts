@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\Locales\US;
+namespace SpareParts\Locales\US;
 
 use \Exception, \InvalidArgumentException;
 

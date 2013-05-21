@@ -1,12 +1,12 @@
 <?php
 
-namespace MyPHPLibs\Webapp;
+namespace SpareParts\Webapp;
 
 require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
 require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCaseName
 require_once dirname(__FILE__) . '/current-request.php';  # getPath, isPostRequest, isGetRequest
 
-use \MyPHPLibs\Webapp\CurrentRequest;
+use \SpareParts\Webapp\CurrentRequest;
 
 class Controller {
   public $user;

@@ -1,11 +1,11 @@
 <?php
 
-namespace MyPHPLibs\Locales\US;
+namespace SpareParts\Locales\US;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/web-client/web-browser.php';
 require_once dirname(__FILE__) . '/address.php';
 
-use \MyPHPLibs\WebClient\WebBrowser;
+use \SpareParts\WebClient\WebBrowser;
 
 function lookupZipCode($addr, WebBrowser $client) {
   $vars = array('mode' => 0,

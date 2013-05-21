@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\Test;
+namespace SpareParts\Test;
 
 use \ErrorHandlerInvokedException, \Exception;
 
@@ -53,7 +53,7 @@ function quit($msg) {
 
 function runTestFiles($baseTestDir, $testFiles) {
   requireTestFiles($testFiles);
-  set_exception_handler('\MyPHPLibs\Test\exceptionHandler');
+  set_exception_handler('\SpareParts\Test\exceptionHandler');
   $tests = runDefinedTests();
   echo "Ran " . $tests['functions'] . " test functions and " .
     $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
@@ -76,12 +76,12 @@ function runDefinedTests() {
   $userDefined = $allFuncs['user'];
   $testFuncs = array();
   foreach ($userDefined as $f) {
-    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), "myphplibs\\test\\")) {
+    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), "spareparts\\test\\")) {
       $testFuncs[] = $f;
     }
   }
   $testClasses = array();
-  $baseHarnessClass = 'MyPHPLibs\Test\TestHarness';
+  $baseHarnessClass = 'SpareParts\Test\TestHarness';
   if (!class_exists($baseHarnessClass)) {
     throw new Exception("Something is wrong: class $baseHarnessClass does not exist!");
   }

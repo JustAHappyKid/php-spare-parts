@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\Locales;
+namespace SpareParts\Locales;
 
 function isValidCountryCode($code) {
   $map = countriesMap();

@@ -1,9 +1,9 @@
 <?php
 
-namespace MyPHPLibs\WebClient\HttpSimple;
+namespace SpareParts\WebClient\HttpSimple;
 
 require_once dirname(__FILE__) . '/http-client.php';
-use \MyPHPLibs\WebClient\HttpClient;
+use \SpareParts\WebClient\HttpClient;
 
 function get($url) {
   $c = new HttpClient;

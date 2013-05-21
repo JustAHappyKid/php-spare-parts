@@ -1,10 +1,10 @@
 <?php
 
-namespace MyPHPLibs\Webapp\CurrentRequest;
+namespace SpareParts\Webapp\CurrentRequest;
 
 require_once dirname(__FILE__) . '/../url.php';   # makeUrlQuery
 
-use \Exception, \MyPHPLibs\URL;
+use \Exception, \SpareParts\URL;
 
 function isPostRequest() {
   return strtolower($_SERVER['REQUEST_METHOD']) == 'post';

@@ -1,7 +1,7 @@
 #!/usr/bin/php -dsendmail_path=mock-sendmail
 <?php
 
-use \MyPHPLibs\Test;
+use \SpareParts\Test;
 
 function main($argc, $argv) {
   error_reporting(E_ALL);

@@ -1,7 +1,7 @@
 <?php
 
 require_once 'array.php';
-use \MyPHPLibs\ArrayLib;
+use \SpareParts\ArrayLib;
 
 function testFlatten() {
   assertEqual(array(2), ArrayLib\flatten(array(0 => array(2))));

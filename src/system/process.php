@@ -1,11 +1,11 @@
 <?php
 
-namespace MyPHPLibs\System\Process;
+namespace SpareParts\System\Process;
 
 function runExclusiveProcess($pidFile, $func) {
-  global $__MyPHPLibs_System_Process_PIDFiles;
-  $__MyPHPLibs_System_Process_PIDFiles = array();
-  register_shutdown_function('\MyPHPLibs\System\Process\cleanPidFiles');
+  global $__SpareParts_System_Process_PIDFiles;
+  $__SpareParts_System_Process_PIDFiles = array();
+  register_shutdown_function('\SpareParts\System\Process\cleanPidFiles');
   checkPidFile($pidFile);
   $func();
 }
@@ -25,14 +25,14 @@ function checkPidFile($file) {
   flock($f, LOCK_EX);
   fwrite($f, posix_getpid() . "\n");
   fclose($f);
-  global $__MyPHPLibs_System_Process_PIDFiles;
-  $__MyPHPLibs_System_Process_PIDFiles[] = $file;
+  global $__SpareParts_System_Process_PIDFiles;
+  $__SpareParts_System_Process_PIDFiles[] = $file;
   return $file;
 }
 
 function cleanPidFiles() {
-  global $__MyPHPLibs_System_Process_PIDFiles;
-  foreach ($__MyPHPLibs_System_Process_PIDFiles as $file) {
+  global $__SpareParts_System_Process_PIDFiles;
+  foreach ($__SpareParts_System_Process_PIDFiles as $file) {
     $f = fopen($file, 'r');
     if (!$f) { continue; }
     flock($f, LOCK_SH);

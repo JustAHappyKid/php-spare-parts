@@ -1,7 +1,7 @@
 <?php
 
 require_once 'url.php';
-use \MyPHPLibs\URL;
+use \SpareParts\URL;
 
 function testTakingPartsOfURL() {
   $url = 'http://tabcollab.net/tabs/nada-surf/inside-of-love';

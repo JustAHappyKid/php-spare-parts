@@ -2,7 +2,7 @@
 
 require_once 'validation.php';
 
-use \MyPHPLibs\Validation as V;
+use \SpareParts\Validation as V;
 
 function testIsValidEmailAddr() {
   assertTrue(V\isValidEmailAddr("jeff@test.org"));

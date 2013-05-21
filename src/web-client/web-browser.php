@@ -1,12 +1,12 @@
 <?php
 
-namespace MyPHPLibs\WebClient;
+namespace SpareParts\WebClient;
 
 require_once dirname(__FILE__) . '/http-client.php';
 require_once dirname(__FILE__) . '/html-parsing.php';
 require_once dirname(dirname(__FILE__)) . '/url.php'; # constructUrlFromRelativeLocation
 
-use \MyPHPLibs\WebClient\HttpClient, \MyPHPLibs\WebClient\HttpResponse, \MyPHPLibs\URL;
+use \SpareParts\WebClient\HttpClient, \SpareParts\WebClient\HttpResponse, \SpareParts\URL;
 
 class WebBrowser extends HttpClient {
   protected $lastResponse;

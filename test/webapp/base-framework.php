@@ -2,7 +2,7 @@
 
 require_once 'webapp/base-framework.php';
 
-use \MyPHPLibs\Test\TestHarness, \MyPHPLibs\Webapp;
+use \SpareParts\Test\TestHarness, \SpareParts\Webapp;
 
 class BaseFrameworkTests extends TestHarness {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\ArrayLib;
+namespace SpareParts\ArrayLib;
 
 use \Closure;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\Validation;
+namespace SpareParts\Validation;
 
 # If $allowExtendedFormat is true, then a value like "Jimmy Petersen <jp@example.org>" will
 # be accepted.

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\CreditCard;
+namespace SpareParts\CreditCard;
 
 function maskCardNumber($untrimmed) {
   $cardnumber = str_replace(' ', '', $untrimmed);

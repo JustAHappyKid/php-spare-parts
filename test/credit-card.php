@@ -1,7 +1,7 @@
 <?php
 
 require_once 'credit-card.php';
-use \MyPHPLibs\CreditCard;
+use \SpareParts\CreditCard;
 
 function testMaskingCreditCardNumber() {
   assertEqual('1234-****-****-4321', CreditCard\maskCardNumber('1234-5678-8765-4321'));

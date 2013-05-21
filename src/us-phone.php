@@ -1,9 +1,9 @@
 <?php
 
-namespace MyPHPLibs\Locales\US;
+namespace SpareParts\Locales\US;
 
 require_once dirname(__FILE__) . '/webapp/forms.php';
-use \MyPHPLibs\Webapp\Forms\BasicTextField;
+use \SpareParts\Webapp\Forms\BasicTextField;
 
 class InvalidPhoneNumber extends \InvalidArgumentException {}
 

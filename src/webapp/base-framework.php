@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPHPLibs\Webapp;
+namespace SpareParts\Webapp;
 
 require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
 require_once dirname(__FILE__) . '/../types.php';         # asString, at
@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/../http.php';          # messageForStatusCode
 require_once dirname(__FILE__) . '/../url.php';           # constructUrlFromRelativeLocation
 require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnection
 
-use \Exception, \MyPHPLibs\Webapp\CurrentRequest, \MyPHPLibs\URL;
+use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL;
 
 abstract class FrontController {
 

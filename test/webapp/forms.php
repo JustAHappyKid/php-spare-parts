@@ -3,7 +3,7 @@
 require_once 'webapp/forms.php';
 require_once 'web-client/html-parsing.php';
 
-use \MyPHPLibs\Test, \MyPHPLibs\WebClient, \MyPHPLibs\Webapp\Forms, \MyPHPLibs\Webapp\Forms\Form;
+use \SpareParts\Test, \SpareParts\WebClient, \SpareParts\Webapp\Forms, \SpareParts\Webapp\Forms\Form;
 
 class FormsAPITests extends Test\TestHarness {
 

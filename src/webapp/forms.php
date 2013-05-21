@@ -1,11 +1,11 @@
 <?php
 
-namespace MyPHPLibs\Webapp\Forms;
+namespace SpareParts\Webapp\Forms;
 
 require_once dirname(dirname(__FILE__)) . '/types.php';
 require_once dirname(dirname(__FILE__)) . '/validation.php';
 
-use \Exception, \InvalidArgumentException, \MyPHPLibs\Validation;
+use \Exception, \InvalidArgumentException, \SpareParts\Validation;
 
 abstract class BaseFormContainer {
 

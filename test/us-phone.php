@@ -1,7 +1,7 @@
 <?php
 
 require_once 'us-phone.php';
-use MyPHPLibs\Test, MyPHPLibs\Locales\US;
+use SpareParts\Test, SpareParts\Locales\US;
 
 class PhoneFormInputTests extends Test\TestHarness {
 

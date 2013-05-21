@@ -2,7 +2,7 @@
 
 require_once 'webapp/current-request.php';
 
-use \MyPHPLibs\Webapp\CurrentRequest;
+use \SpareParts\Webapp\CurrentRequest;
 
 function testGettingURLForCurrentRequest() {
   $origServerVars = isset($_SERVER) ? $_SERVER : null;
