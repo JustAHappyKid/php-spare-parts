@@ -6,7 +6,7 @@ require_once dirname(__FILE__) . '/types.php';
 require_once dirname(__FILE__) . '/email.php';                  # sendTextEmail
 require_once dirname(__FILE__) . '/webapp/current-request.php'; # getHost
 
-use \Exception, \MyPHPLibs\Webapp\CurrentRequest;
+use \Exception, \ErrorException, \MyPHPLibs\Webapp\CurrentRequest;
 
 function initErrorHandling($sendReportsTo) {
   global $__MyPHPLibs_ErrorHandling_sendReportsTo;
@@ -17,6 +17,7 @@ function initErrorHandling($sendReportsTo) {
   set_exception_handler('\\MyPHPLibs\\ErrorHandling\\exceptionHandler');
 }
 
+/*
 class ErrorHandlerInvokedException extends Exception {
   public function getAdjustedTraceAsString() {
     $orig = parent::getTrace();
@@ -33,11 +34,15 @@ class ErrorHandlerInvokedException extends Exception {
     return $str;
   }
 }
+*/
 
-class Error      extends ErrorHandlerInvokedException {}
-class Warning    extends ErrorHandlerInvokedException {}
-class Notice     extends ErrorHandlerInvokedException {}
-class Deprecated extends ErrorHandlerInvokedException {}
+# All of our custom exceptions extend the built-in PHP class, ErrorException.
+# See more here: http://www.php.net/manual/en/class.errorexception.php
+
+class Error      extends ErrorException {}
+class Warning    extends ErrorException {}
+class Notice     extends ErrorException {}
+class Deprecated extends ErrorException {}
 
 class StandardPhpError    extends Error {}
 class StandardPhpWarning  extends Warning {}
@@ -45,12 +50,12 @@ class StandardPhpNotice   extends Notice {}
 class UserLevelPhpError   extends Error {}
 class UserLevelPhpWarning extends Warning {}
 class UserLevelPhpNotice  extends Notice {}
-class StrictStandard      extends ErrorHandlerInvokedException {}
+class StrictStandard      extends ErrorException {}
 class RecoverableError    extends Error {}
 class PhpDeprecated       extends Deprecated {}
 class UserDeprecated      extends Deprecated {}
 
-function errorHandler($errno, $errstr, $errfile, $errline) {
+function errorHandler($errno, $errMsg, $file, $line) {
 
   $errorTypes = array(
     E_ERROR             => 'StandardPhpError',
@@ -78,12 +83,16 @@ function errorHandler($errno, $errstr, $errfile, $errline) {
   } else {
     $exceptionClass = isset($errorTypes[$errno]) ?
       ('\\MyPHPLibs\\ErrorHandling\\' . $errorTypes[$errno]) : null;
-    $errMsg = htmlspecialchars_decode($errstr);
+    $errMsg = htmlspecialchars_decode($errMsg);
+    if ($exceptionClass == null) $exceptionClass == '\\ErrorException';
+    throw new $exceptionClass($errMsg, $errno, 0, $file, $line);
+    /*
     if ($exceptionClass) {
-      throw new $exceptionClass($errMsg);
+      throw new $exceptionClass($errMsg, $errno, );
     } else {
-      throw new Exception($errMsg);
+      throw new ErrorException($errMsg);
     }
+    */
   }
 }
 
