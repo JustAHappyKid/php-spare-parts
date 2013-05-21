@@ -7,6 +7,7 @@ function isValidCountryCode($code) {
   return isset($map[$code]);
 }
 
+# TODO: Properly capitalize all of these country names -- ALL-CAPS is totally lame!
 function countriesMap() {
   return array("US" => "UNITED STATES", "CA" => "CANADA",
                "GB" => "UNITED KINGDOM", "UM" => "US MINOR OUTLYING IS.",
