@@ -23,5 +23,13 @@ function sendTextEmail($from, $to, $subject, $message, Array $headers = array())
   $defaultHeaders = array("From: $from", "Reply-To: $from", "Return-Path: $from",
                           "Content-Type: text/plain");
   $allHeaders = array_merge($defaultHeaders, $headers);
+  foreach ($allHeaders as $h) {
+    if (trim($h) == '') throw new InvalidArgumentException("Empty string in \$headers array");
+    $parts = explode(':', $h, 2);
+    $hdrName = $parts[0];
+    if (!preg_match('/[-A-Za-z]+/', $hdrName)) {
+      throw new InvalidArgumentException("Invalid header provided: " . $h);
+    }
+  }
   mail($to, $subject, $message, implode("\r\n", $allHeaders), "-f \"$from\"");
 }
