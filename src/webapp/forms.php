@@ -12,7 +12,6 @@ abstract class BaseFormContainer {
   protected $nodes = array();
   protected $errors = array();
   protected $notices = array ();
-  //private $defaultValues = array();
   private $validated = false;
 
   public function addSection($name, Array $nodes = array()) {
@@ -71,7 +70,6 @@ abstract class BaseFormContainer {
       $f = $this->findFieldByName($fieldName);
       $f->setValue($value);
     }
-    $this->defaultValues = $values;
   }
 
   public function render() {
