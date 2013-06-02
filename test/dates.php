@@ -2,6 +2,19 @@
 
 require_once 'dates.php';
 
+function testDateSansTimeClass() {
+  $d1 = new DateSansTime('February 17, 1970 7:56 PM');
+  assertEqual('1970-02-17', $d1->asDatabaseString());
+  $d2 = new DateSansTime(new DateTime('2012-11-29 14:29:35'));
+  assertEqual('2012-11-29', $d2->asDatabaseString());
+  foreach (array(1, 3.2, new stdClass) as $v) {
+    try {
+      new DateSansTime($v);
+      fail("Expected InvalidArgumentException for value $v");
+    } catch (InvalidArgumentException $_) { /* that's what we want! */ }
+  }
+}
+
 function testGetPreviousMonth() {
   assertEqual('2009-07', getPreviousMonth('2009-08'));
   assertEqual('1999-12', getPreviousMonth('2000-01'));

@@ -1,10 +1,20 @@
 <?php
 
+use \DateTime, \InvalidArgumentException;
+
 # A class representing *only* a date -- no time component is kept.
 class DateSansTime {
   private $date;
   function __construct($date = "today") {
-    $this->date = strftime('%Y-%m-%d', strtotime($date));
+    if ($date instanceof DateTime) {
+      $this->date = $date->format('Y-m-d');
+    } else if (is_string($date)) {
+      $this->date = strftime('%Y-%m-%d', strtotime($date));
+    } else {
+      throw new InvalidArgumentException("Expected DateTime object or string representation " .
+        "of date, but got " . (is_object($date) ? ("object of class " . get_class($date)) :
+                                                  gettype($date)));
+    }
   }
   public function dayAfter() {
     return new DateSansTime($this->date . ' + 1 day');
