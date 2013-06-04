@@ -10,7 +10,7 @@ use \ErrorHandlerInvokedException, \Exception;
 # - main method -------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
-function C($relPathToTestDir, $filesToIgnore, $argc, $argv) {
+function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
   $dirContainingTests = realpath($relPathToTestDir);
   $baseLibDir = dirname(dirname(__FILE__));
   require_once $baseLibDir . '/fs.php';    # recursivelyGetFilesInDir, ...
