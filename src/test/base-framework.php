@@ -2,13 +2,15 @@
 
 namespace SpareParts\Test;
 
+require_once dirname(dirname(__FILE__)) . '/string.php';  # withoutPrefix
+
 use \ErrorHandlerInvokedException, \Exception;
 
 # ---------------------------------------------------------------------------------------------
 # - main method -------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
-function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
+function C($relPathToTestDir, $filesToIgnore, $argc, $argv) {
   $dirContainingTests = realpath($relPathToTestDir);
   $baseLibDir = dirname(dirname(__FILE__));
   require_once $baseLibDir . '/fs.php';    # recursivelyGetFilesInDir, ...
@@ -17,27 +19,19 @@ function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
   if ($argc > 2) {
     quit("Please specify a test file to run or give no arguments to run all tests.");
   } else if ($argc == 2) {
-    $path = realpath($argv[1]);
-    if ($path == false) {
+    $pathToTest = realpath($argv[1]);
+    if ($pathToTest == false) {
       quit("The specified test file or directory does not exist or is not accessible.");
-    } else if (!isWithinOrIsDirectory($path, realpath($dirContainingTests))) {
+    } else if (!isWithinOrIsDirectory($pathToTest, realpath($dirContainingTests))) {
       quit("The specified path is not within the test directory.");
     }
-    if (is_dir($path)) {
-      $testFiles = array();
-      foreach (recursivelyGetFilesInDir($path) as $f) { $testFiles []= pathJoin($path, $f); }
+    if (is_dir($pathToTest)) {
+      $testFiles = gatherTestFiles($dirContainingTests, $pathToTest, $filesToIgnore);
     } else {
-      $testFiles = array($path);
+      $testFiles = array($pathToTest);
     }
   } else {
-    $testFiles = array();
-    foreach (recursivelyGetFilesInDir($dirContainingTests) as $f) {
-      $skip = false;
-      foreach ($filesToIgnore as $ignorePattern) {
-        if (fnmatch($ignorePattern, $f)) $skip = true;
-      }
-      if (!$skip) $testFiles []= pathJoin($dirContainingTests, $f);
-    }
+    $testFiles = gatherTestFiles($dirContainingTests, $dirContainingTests, $filesToIgnore);
   }
   runTestFiles($dirContainingTests, $testFiles);
 }
@@ -49,6 +43,22 @@ function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
 function quit($msg) {
   echo "$msg\n";
   exit(-1);
+}
+
+function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
+  # Does file $f match one of the patterns in "files to ignore"?
+  $fileShouldBeIgnored = function($f) use($baseTestDir, $pathToTest, $filesToIgnore) {
+    $pathRelativeToBaseTestDir = withoutPrefix(pathJoin($pathToTest, $f), $baseTestDir . '/');
+    foreach ($filesToIgnore as $ignorePattern) {
+      if (fnmatch($ignorePattern, $pathRelativeToBaseTestDir)) return true;
+    }
+    return false;
+  };
+  $relativePaths = array_filter(recursivelyGetFilesInDir($pathToTest),
+    function($f) use($fileShouldBeIgnored) { return !$fileShouldBeIgnored($f); });
+  $testFiles = array_map(function($f) use($pathToTest) { return pathJoin($pathToTest, $f); },
+    $relativePaths);
+  return $testFiles;
 }
 
 function runTestFiles($baseTestDir, $testFiles) {
