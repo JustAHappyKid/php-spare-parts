@@ -7,6 +7,26 @@ use \SpareParts\SelfTesting\WebappTestHarness, \SpareParts\Webapp,
 
 class BaseFrameworkTests extends WebappTestHarness {
 
+  function testRoutingToClassMethods() {
+    # A method named "twoWords" should map to path-component "two-words"...
+    $response = $this->get('/a-controller/two-words');
+    assertEqual(200, $response->statusCode);
+    # ...but path components 'twowords' and 'twoWords' should not map to that same method...
+    foreach (array('twowords', 'twoWords') as $p) {
+      $this->assertYields404("/a-controller/$p",
+        "Path '/a-controller/$p' should not route to method 'twoWords'");
+    }
+  }
+
+  private function assertYields404($path, $msg = null) {
+    try {
+      $response = $this->get($path);
+      fail($msg ? $msg : "Expected to get 404-not-found response for path '$path'");
+    } catch (HttpNotFound $_) {
+      # That's what we're expecting!
+    }
+  }
+
   function testPathComponentsAreDecoded() {
     $response = $this->get("/hitit/sumthin'%20to%20dec%40de");
     assertTrue(strstr($response->content, "sumthin' to dec@de") != false,

@@ -18,14 +18,19 @@ class Controller {
   }
 
   protected function routeTo($cmd, $context) {
+    if (strtolower($cmd) != $cmd) {
+      return $this->pageNotFound("Requested path has capital letters in it");
+    }
     $method = hyphenatedToCamelCaseName($cmd);
     $content = '';
-    if ($method && method_exists($this, $method) && $method != 'init') {
+    $publicMethods = getNamesOfPublicMethods($this);
+    if ($method && in_array($method, $publicMethods) && $method != 'init') {
       $content = call_user_func(array($this, $method), $context);
-    } else if (empty($method) && method_exists($this, 'index')) {
+    } else if (empty($method) && in_array('index', $publicMethods)) {
       $content = call_user_func(array($this, 'index'), $context);
     } else {
-      $this->pageNotFound("Controller " . get_class($this) . " has no method named '$method'");
+      return $this->pageNotFound("Controller " . get_class($this) . " has no method " .
+                                 "named '$method'");
     }
     return $content;
   }
