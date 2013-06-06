@@ -24,7 +24,8 @@ class Controller {
     $method = hyphenatedToCamelCaseName($cmd);
     $content = '';
     $publicMethods = getNamesOfPublicMethods($this);
-    if ($method && in_array($method, $publicMethods) && $method != 'init') {
+    if ($method && in_array($method, $publicMethods) &&
+        $method != 'init' && $method != 'dispatch') {
       $content = call_user_func(array($this, $method), $context);
     } else if (empty($method) && in_array('index', $publicMethods)) {
       $content = call_user_func(array($this, 'index'), $context);
