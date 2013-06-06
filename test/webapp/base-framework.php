@@ -18,6 +18,13 @@ class BaseFrameworkTests extends WebappTestHarness {
     }
   }
 
+  function testSpecialMethodsCannotBeAccessedViaRequest() {
+    $this->assertYields404('/a-controller/dispatch');
+    $this->assertYields404('/a-controller/init');
+    assertTrue(method_exists(new AController, 'dispatch'));
+    assertTrue(method_exists(new AController, 'init'));
+  }
+
   private function assertYields404($path, $msg = null) {
     try {
       $response = $this->get($path);
