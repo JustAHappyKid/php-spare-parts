@@ -1,17 +1,19 @@
 <?php
 
-function underscoreToCamelCaseName($underscoreName) {
+namespace SpareParts\Names;
+
+function underscoreToCamelCase($underscoreName) {
   return preg_replace('/_([a-z])/e', 'strtoupper(\'$1\')', $underscoreName);
 }
 
-function camelCaseToUnderscoreName($camelCaseName) {
+function camelCaseToUnderscore($camelCaseName) {
   return preg_replace('/([A-Z])/e', '"_" . strtolower(\'$1\')', $camelCaseName);
 }
 
-function hyphenatedToCamelCaseName($hyphenatedName) {
+function hyphenatedToCamelCase($hyphenatedName) {
   return preg_replace('/-([a-z])/e', 'strtoupper(\'$1\')', $hyphenatedName);
 }
 
-function camelCaseToHyphenatedName($camelCaseName) {
+function camelCaseToHyphenated($camelCaseName) {
   return preg_replace('/([A-Z])/e', '"-" . strtolower(\'$1\')', $camelCaseName);
 }
