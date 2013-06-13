@@ -3,10 +3,10 @@
 namespace SpareParts\Webapp;
 
 require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
-require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCaseName
+require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCase
 require_once dirname(__FILE__) . '/current-request.php';  # getPath, isPostRequest, isGetRequest
 
-use \SpareParts\Webapp\CurrentRequest;
+use \SpareParts\Webapp\CurrentRequest, \SpareParts\Names;
 
 class Controller {
   public $user;
@@ -21,7 +21,7 @@ class Controller {
     if (strtolower($cmd) != $cmd) {
       return $this->pageNotFound("Requested path has capital letters in it");
     }
-    $method = hyphenatedToCamelCaseName($cmd);
+    $method = Names\hyphenatedToCamelCase($cmd);
     $content = '';
     $publicMethods = getNamesOfPublicMethods($this);
     if ($method && in_array($method, $publicMethods) &&
