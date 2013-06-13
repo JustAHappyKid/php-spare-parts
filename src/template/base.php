@@ -3,9 +3,9 @@
 namespace SpareParts\Template;
 
 require_once dirname(dirname(__FILE__)) . '/array.php';
-require_once dirname(dirname(__FILE__)) . '/string.php';
+require_once dirname(dirname(__FILE__)) . '/string.php';  # beginsWith, withoutPrefix, ...
 
-use \SpareParts\ArrayLib as A;
+use \Closure, \Exception, \SpareParts\ArrayLib as A;
 
 /**
  * Represents piece of template...
@@ -29,7 +29,80 @@ class TextPart      extends Part {
   function render() { return $this->content; }
 }
 
+class Context {
+  public $baseDir, $vars;
+  function __construct($baseDir, Array $vars) {
+    $this->baseDir = $baseDir;
+    $this->vars = $vars;
+  }
+}
+
+class TemplateException extends Exception {}
+class SecurityException extends TemplateException {}
+class NoSuchTemplate extends TemplateException {}
+
+function renderFile($path, Context $context) {
+  if (contains($path, '..')) throw new SecurityException("No .. allowed");
+  $t = generateClassFromTemplate($path, $context);
+  require $t->path;
+  $obj = new $t->className;
+  return captureOutput(function() use($obj, $context) { $obj->__render($context->vars); });
+  //return renderFromString($tpl, $context->vars);
+}
+
+function generateClassFromTemplate($relPath, Context $context) {
+  $absPath = "{$context->baseDir}/$relPath";
+  if (!is_readable($absPath)) throw new NoSuchTemplate($absPath);
+  $content = file_get_contents($absPath);
+  if (beginsWith($content, 'extends')) {
+    # XXX: What if we came across a file with just one line here??
+    list($extendStmnt, $classMethods) = explode("\n", $content, 2);
+    $quotedFname = trim(withoutPrefix($extendStmnt, 'extends'));
+    $parentTplFile = trim($quotedFname, "'\"");
+    generateClassFromTemplate($parentTplFile, $context);
+    $expanded = expandShorthandPHP($classMethods);
+    /* return saveMethodsAsClass(withoutPrefix(withoutSuffix($expanded, '?>'), '<?')); */
+    return saveMethodsAsClass($expanded);
+  } else {
+    // xxx;
+    $expanded = expandShorthandPHP($content);
+    return saveAsRenderableClass($expanded);
+  }
+}
+
+class ExpandedTemplate {
+  public $path, $className;
+  function __construct($p, $cn) {
+    $this->path = $p; $this->className = $cn;
+  }
+}
+
+function saveAsRenderableClass($content) {
+  return saveMethodsAsClass('public function __render($vars) { ?>' . $content . '<? }');
+}
+
+function saveMethodsAsClass($methods) {
+  $content = "<?php
+    class Whatev {
+      $methods
+    }
+  ";
+  $tmpF = tempnam(sys_get_temp_dir(), 'spare-parts-tpl');
+  //echo "wanna save the following to file $tmpF...\n" . $content . "\n";
+  file_put_contents($tmpF, $content);
+  return new ExpandedTemplate($tmpF, 'Whatev');
+}
+
 function renderFromString($tpl, $vars) {
+  $final = expandShorthandPHP($tpl);
+  ob_start();
+  eval("?>$final");
+  $rendered = ob_get_contents();
+  ob_end_clean();
+  return $rendered;
+}
+
+function expandShorthandPHP($tpl) {
   $linesOrig = explode("\n", $tpl);
   $allParts = A\flatten(array_map(function($line) {
     if (beginsWith(trim($line), '?')) {
@@ -62,19 +135,13 @@ function renderFromString($tpl, $vars) {
       $p->content = preg_replace('/\$([a-zA-Z0-9_]+)/', '$vars[\'\\1\']', $p->content);
   }
   $final = implode('', array_map(function(Part $p) { return $p->render(); }, $allParts));
-  ob_start();
-  eval("?>$final");
-  $rendered = ob_get_contents();
-  ob_end_clean();
-  return $rendered;
+  return $final;
 }
 
-/*
-function renderFromString($tpl, $vars) {
-  $rescoped = preg_replace('/\$([a-zA-Z0-9_]+)/', '{$vars[\'\\1\']}', $tpl);
-  // echo "rescoped: $rescoped\n";
-  eval("\$result = \"$rescoped\";");
-  // echo "result: $result\n";
-  return $result;
+function captureOutput(Closure $f) {
+  ob_start();
+  $f();
+  $output = ob_get_contents();
+  ob_end_clean();
+  return $output;
 }
-*/

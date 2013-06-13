@@ -9,7 +9,8 @@ function main($argc, $argv) {
   set_include_path("$baseDir/src:" . get_include_path());
   configMockSendmail("$baseDir/test");
   require_once $baseDir . '/src/test/base-framework.php';
-  $filesToIgnore = array('mock/bin/*', 'network-enabled/*', 'test.php', 'webapp/actions/*');
+  $filesToIgnore = array('mock/bin/*', 'network-enabled/*', 'template/*.sphp', 'test.php',
+                         'webapp/actions/*');
   Test\testScriptMain("$baseDir/test", $filesToIgnore, $argc, $argv);
 }
 
