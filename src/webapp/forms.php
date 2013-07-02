@@ -84,7 +84,7 @@ abstract class BaseFormContainer {
       } else if (is_string($n)) {
         $html .= $n;
       } else {
-        throw new Exception("Expected node to be renderable object or string, " .
+        throw new Exception("Expected node to be render-able object or string, " .
                             "but got type " . gettype($n));
       } 
     }
@@ -166,8 +166,8 @@ abstract class BaseFormContainer {
   }
 
   public function wrapField(Field $field) {
-    $attrs = $field->containerClass() ? (' class="' . $field->containerClass() . '"') : '';
-     return "<li" . $attrs . "><label>{$field->label}</label>" .
+    $as = $field->containerClass() ? (' class="' . $field->containerClass() . '"') : '';
+     return "<li" . $as . "><label>{$field->label}</label>" .
       $field->renderInputHtml() . "</li>";
   }
 
@@ -218,27 +218,27 @@ class Form extends BaseFormContainer {
   }
 
   public function renderErrorMessages() {
-    $errorMsgs = '';
+    $errors = '';
     if (count($this->errors) == 1) {
-      $errorMsgs = '<div class="error">' . $this->errors[0] . "</div>\n";
+      $errors = '<div class="error">' . $this->errors[0] . "</div>\n";
     } else if (count($this->errors) > 1) {
-      $errorMsgs = '<ul class="error">';
-      foreach ($this->errors as $e) $errorMsgs .= "<li>$e</li>";
-      $errorMsgs .= "</ul>\n";
+      $errors = '<ul class="error">';
+      foreach ($this->errors as $e) $errors .= "<li>$e</li>";
+      $errors .= "</ul>\n";
     }
-    return $errorMsgs;
+    return $errors;
   }
 
   public function renderNotices() {
-    $noticeMsgs = '';
+    $notices = '';
     if (count ($this->notices) == 1) {
-      $noticeMsgs = '<div class="notice">' . $this->notices[0] . "</div>\n";
+      $notices = '<div class="notice">' . $this->notices[0] . "</div>\n";
     } else if (count ($this->notices) > 1) {
-      $noticeMsgs = '<div class="notice"><ul>';
-      foreach ($this->notices as $n) $noticeMsgs .= "<li>$n</li>";
-      $noticeMsgs .= "</ul></div>\n";
+      $notices = '<div class="notice"><ul>';
+      foreach ($this->notices as $n) $notices .= "<li>$n</li>";
+      $notices .= "</ul></div>\n";
     }
-    return $noticeMsgs;
+    return $notices;
   }
 
   public function render() {
@@ -328,7 +328,8 @@ class SelectField extends Field {
     $optionsHtml = '';
     foreach ($this->options as $value => $label) {
       $selected = $value == $this->defaultValue ? ' selected="selected"' : '';
-      $optionsHtml .= "<option value=\"$value\"$selected>$label</option>\n";
+      $optionsHtml .= '<option value="' . $value . '"' . $selected . '>' .
+        $label . '</option>' . "\n";
     }
     return "<select" . $this->attrsHtml() . ">\n" . $optionsHtml . "</select>\n";
   }
@@ -371,7 +372,7 @@ class EmailAddressField extends BasicTextField {
   }
   protected function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
     if (!Validation\isValidEmailAddr($trimmedValue, $this->allowExtendedFormat)) {
-      return array("The provided email address is not vaild.");
+      return array("The provided email address is not valid.");
     } else {
       $this->cleanedValue = $trimmedValue;
       return array();
@@ -512,7 +513,7 @@ class MultiCheckboxField extends Field {
     $this->options = $options;
     $this->checked = array();
   }
-  public function setValue(Array $v) { $this->checked = $v; }
+  public function setValue($v) { $this->checked = $v; }
   public function containerClass() { return 'checkbox-set'; }
   public function renderInputHtml() {
     $html = '';
@@ -560,6 +561,9 @@ class HiddenInput extends Field {
 function newHiddenInput($name, $value) { return new HiddenInput($name, $value); }
 
 abstract class Field {
+
+  abstract public function setValue($v);
+  abstract public function renderInputHtml();
 
   public $name, $label, $optional, $cleanedValue;
   protected $attributes = array(), $shouldMatch = array();
