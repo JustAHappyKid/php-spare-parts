@@ -2,9 +2,10 @@
 
 namespace SpareParts\Test;
 
-require_once dirname(dirname(__FILE__)) . '/string.php';  # withoutPrefix
+require_once dirname(dirname(__FILE__)) . '/string.php';      # withoutPrefix, beginsWith
+require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getSubclasses
 
-use \ErrorHandlerInvokedException, \Exception;
+use \ErrorHandlerInvokedException, \Exception, \SpareParts\Reflection;
 
 # ---------------------------------------------------------------------------------------------
 # - main method -------------------------------------------------------------------------------
@@ -80,7 +81,6 @@ function requireTestFiles($files) {
 }
 
 function runDefinedTests() {
-  require_once dirname(dirname(__FILE__)) . '/string.php'; # beginsWith
   require_once dirname(__FILE__) . '/assertions.php';
   $allFuncs = get_defined_functions();
   $userDefined = $allFuncs['user'];
@@ -95,8 +95,8 @@ function runDefinedTests() {
   if (!class_exists($baseHarnessClass)) {
     throw new Exception("Something is wrong: class $baseHarnessClass does not exist!");
   }
-  foreach (getSubclasses($baseHarnessClass) as $c) {
-    if (!isAbstractClass($c)) $testClasses []= $c;
+  foreach (Reflection\getSubclasses($baseHarnessClass) as $c) {
+    if (!Reflection\isAbstractClass($c)) $testClasses []= $c;
   }
   if (count($testFuncs) == 0 && count($testClasses) == 0) {
     throw new Exception("No test functions or test classes found");

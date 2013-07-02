@@ -31,6 +31,7 @@ function readBoolFromStr($str) {
   return in_array($lower, $falseValues) ? false : ((boolean) $lower);
 }
 
+/*
 function getSubclasses($parentClassName) {
   $classes = array();
   foreach (get_declared_classes() as $className) {
@@ -52,3 +53,4 @@ function getNamesOfPublicMethods($object) {
   }
   return $names;
 }
+*/

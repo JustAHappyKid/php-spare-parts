@@ -4,9 +4,10 @@ namespace SpareParts\Webapp;
 
 require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
 require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCase
+require_once dirname(__FILE__) . '/../reflection.php';    # getNamesOfPublicMethods
 require_once dirname(__FILE__) . '/current-request.php';  # getPath, isPostRequest, isGetRequest
 
-use \SpareParts\Webapp\CurrentRequest, \SpareParts\Names;
+use \SpareParts\Webapp\CurrentRequest, \SpareParts\Names, \SpareParts\Reflection;
 
 class Controller {
   public $user;
@@ -23,7 +24,7 @@ class Controller {
     }
     $method = Names\hyphenatedToCamelCase($cmd);
     $content = '';
-    $publicMethods = getNamesOfPublicMethods($this);
+    $publicMethods = Reflection\getNamesOfPublicMethods($this);
     if ($method && in_array($method, $publicMethods) &&
         $method != 'init' && $method != 'dispatch') {
       $content = call_user_func(array($this, $method), $context);
