@@ -280,7 +280,7 @@ class FormSection extends BaseFormContainer {
 
   public function render() {
     return "<fieldset id=\"{$this->id}\" class=\"form-section\">\n" .
-      "<h2>" . $this->header . "</h2>\n" .
+      ($this->header ? ("<h2>" . $this->header . "</h2>\n") : "") .
       "\n<ol>\n" . parent::render() . "\n</ol></fieldset>\n";
   }
 }
