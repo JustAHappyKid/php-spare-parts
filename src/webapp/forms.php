@@ -5,7 +5,7 @@ namespace SpareParts\Webapp\Forms;
 require_once dirname(dirname(__FILE__)) . '/types.php';
 require_once dirname(dirname(__FILE__)) . '/validation.php';
 
-use \Exception, \InvalidArgumentException, \SpareParts\Validation;
+use \Exception, \InvalidArgumentException, \SpareParts\Validation, \SpareParts\Reflection;
 
 abstract class BaseFormContainer {
 
@@ -662,7 +662,12 @@ abstract class Field {
     $errs = $this->validateWhenNotEmpty($submittedValues, $v);
     if (count($errs) == 0) {
       foreach ($this->customValidations as $validateFunc) {
-        $newErrs = $validateFunc($this, $v);
+        $numParams = Reflection\numberOfParameters($validateFunc);
+        if ($numParams != 1 && $numParams != 2) {
+          throw new InvalidArgumentException('Validation function must accept either ' .
+                                             'one or two parameters');
+        }
+        $newErrs = $numParams == 1 ? $validateFunc($v) : $validateFunc($this, $v);
         if (!is_array($newErrs)) {
           throw new InvalidArgumentException('Validation function must return an array ' .
             'containing validation errors, or an empty array if validation was successful');
