@@ -271,6 +271,10 @@ class FormSection extends BaseFormContainer {
 
   function __construct($id, $nodes) {
     $this->id = $id;
+    foreach ($nodes as $n) {
+      if (!is_string($n) && !($n instanceof Field))
+        throw new InvalidArgumentException("All nodes must be of type Field or string");
+    }
     $this->nodes = $nodes;
   }
 
