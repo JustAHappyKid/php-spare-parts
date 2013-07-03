@@ -449,6 +449,7 @@ class DollarAmountField extends BasicTextField {
   function maxAmount($amount, $validationErr = null) {
     $this->maxAmount = $amount;
     $this->maxAmountErr = $validationErr;
+    return $this;
   }
 
   protected function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
