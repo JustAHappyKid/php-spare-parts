@@ -432,10 +432,21 @@ class DateField extends DateTimeField {
 function newDateField($name, $label) { return new DateField($name, $label); }
 
 class DollarAmountField extends BasicTextField {
+
+  protected $maxAmount, $maxAmountErr;
+
   function __construct($name, $label) {
     $this->setClass('dollar-amount');
     parent::__construct($name, $label);
   }
+
+  # TODO: Add 'minAmount' method
+
+  function maxAmount($amount, $validationErr = null) {
+    $this->maxAmount = $amount;
+    $this->maxAmountErr = $validationErr;
+  }
+
   protected function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
 
     // TODO: Don't just blindly strip out commas...  We should actually check that the commas
@@ -449,6 +460,9 @@ class DollarAmountField extends BasicTextField {
       $err = "Please provide a valid dollar amount" .
         (empty($this->nameForValidation) ? "." : " for the {$this->nameForValidation}.");
       return array($err);
+    } else if (floatval($amount) > $this->maxAmount) {
+      return array($this->maxAmountErr ? $this->maxAmountErr :
+        "Sorry, the maximum allowed amount is {$this->maxAmount}");
     } else {
       $this->cleanedValue = (float) $amount;
       return array();
