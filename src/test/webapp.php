@@ -108,7 +108,7 @@ abstract class WebappTestingHarness extends TestHarness {
         }
       };
       $errorsStr = implode(', ', array_map($renderError, $errors));
-      fail("Got validation error(s) when submitting form: " . $errorsStr);
+      throw new ValidationErrors("Got validation error(s) when submitting form: " . $errorsStr);
     }
   }
 
@@ -253,3 +253,4 @@ class HttpRedirect extends HttpNonOkayResponse {
 class HttpNotFound extends HttpNonOkayResponse {}
 class UnexpectedHttpResponseCode extends HttpNonOkayResponse {}
 class NoSuchForm extends TestFailure {}
+class ValidationErrors extends TestFailure {}
