@@ -7,12 +7,15 @@ require_once dirname(__FILE__) . '/../names.php';         # hyphenatedToCamelCas
 require_once dirname(__FILE__) . '/../reflection.php';    # getNamesOfPublicMethods
 require_once dirname(__FILE__) . '/current-request.php';  # getPath, isPostRequest, isGetRequest
 
-use \SpareParts\Webapp\CurrentRequest, \SpareParts\Names, \SpareParts\Reflection;
+use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\Names, \SpareParts\Reflection;
 
 class Controller {
-  public $user;
 
-  function dispatch($context) {
+  # XXX: Should $user be 'protected' ??
+  public $user;
+  protected $context;
+
+  function dispatch(RequestContext $context) {
     $this->context = $context;
     $this->user = $context->user;
     return $this->routeTo($context->takeNextPathComponent(), $context);
@@ -23,7 +26,7 @@ class Controller {
       return $this->pageNotFound("Requested path has capital letters in it");
     }
     $method = Names\hyphenatedToCamelCase($cmd);
-    $content = '';
+    //$content = '';
     $publicMethods = Reflection\getNamesOfPublicMethods($this);
     if ($method && in_array($method, $publicMethods) &&
         $method != 'init' && $method != 'dispatch') {
