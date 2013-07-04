@@ -437,7 +437,7 @@ function newDateField($name, $label) { return new DateField($name, $label); }
 
 class DollarAmountField extends BasicTextField {
 
-  protected $maxAmount, $maxAmountErr;
+  protected $maxAmount = null, $maxAmountErr;
 
   function __construct($name, $label) {
     $this->setClass('dollar-amount');
@@ -465,7 +465,7 @@ class DollarAmountField extends BasicTextField {
       $err = "Please provide a valid dollar amount" .
         (empty($this->nameForValidation) ? "." : " for the {$this->nameForValidation}.");
       return array($err);
-    } else if (floatval($amount) > $this->maxAmount) {
+    } else if ($this->maxAmount !== null && floatval($amount) > $this->maxAmount) {
       return array($this->maxAmountErr ? $this->maxAmountErr :
         "Sorry, the maximum allowed amount is {$this->maxAmount}");
     } else {
