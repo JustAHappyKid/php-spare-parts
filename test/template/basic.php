@@ -39,6 +39,16 @@ function testVariableSubstitutionWithQuestionMarkSyntax() {
     normalizeSpace(T\renderFromString($tpl, array('switch' => false))));
 }
 
+function testNoQuestionMarkNorPhpBracketsAreNecessaryForClosingBracketOnItsOwnLine() {
+  $tpl = trim('
+    ? if ($myvar) {
+      yes!
+    }
+  ');
+  assertEqual('yes!', normalizeSpace(T\renderFromString($tpl, array('myvar' => true))));
+  assertEqual('',     normalizeSpace(T\renderFromString($tpl, array('myvar' => false))));
+}
+
 function normalizeSpace($s) {
   $lines = explode("\n", $s);
   $linesFixed = array_map(

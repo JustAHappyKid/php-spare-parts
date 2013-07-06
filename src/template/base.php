@@ -107,6 +107,8 @@ function expandShorthandPHP($tpl) {
   $allParts = A\flatten(array_map(function($line) {
     if (beginsWith(trim($line), '?')) {
       return array(new PHPLogicPart(withoutPrefix(trim($line), '?')));
+    } else if (trim($line) == '}') {
+      return array(new PHPLogicPart(trim($line)));
     } else {
       $parts = array();
       $txt = '';
