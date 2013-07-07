@@ -1,0 +1,6 @@
+!extends 'test1.base.diet-php'
+
+block theRealStuff {
+  <p>Oh, isn't this great?</p>
+  <p>Two paragraphs, and the layout takes care of the rest!</p>
+}

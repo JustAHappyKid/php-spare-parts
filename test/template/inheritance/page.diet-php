@@ -1,0 +1,10 @@
+!extends 'layout.diet-php'
+
+block title {
+  Welcome to the website!
+}
+
+block dynamicContent {
+  <p>Oh, isn't this great?</p>
+  <p>Two paragraphs, and the layout takes care of the rest!</p>
+}

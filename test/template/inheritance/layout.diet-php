@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title><?= $this->title() ?></title>
+  </head>
+  <body>
+    <ul id="nav-panel">
+      <li><a href="/other-page">Other Page</a></li>
+    </ul>
+    <div id="content">
+      ? $this->dynamicContent()
+    </div>
+  </body>
+</html>

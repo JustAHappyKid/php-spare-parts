@@ -1,0 +1,7 @@
+<html>
+  <body>
+    <div id="content">
+      ? block theRealStuff
+    </div>
+  </body>
+</html>
