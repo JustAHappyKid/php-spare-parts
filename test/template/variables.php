@@ -11,3 +11,8 @@ function testSimpleVariableSubstitution() {
     assertEqual('<p>The goods.</p>', $r);
   }
 }
+
+function testLiteralDollarAmountStringIsNotConstruedAsVariable() {
+  $r = T\renderFromString('<p>It costs $500.</p>', array());
+  assertEqual('<p>It costs $500.</p>', $r);
+}
