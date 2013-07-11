@@ -2,6 +2,7 @@
 
 namespace SpareParts\Template;
 
+require_once dirname(__FILE__) . '/exceptions.php';
 require_once dirname(__FILE__) . '/LineByLineParser.php';
 
 class Block {
@@ -45,7 +46,32 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody) {
 }
 
 function expandBlockReferences($code) {
-  
+  $tokens = token_get_all($code);
+  $expandedCode = "";
+  $blocks = array();
+  $i = 0;
+  while (count($tokens) > $i) {
+    $t = $tokens[$i];
+    if (is_array($t)) {
+//      echo token_name($t[0]) . ": {$t[1]}\n";
+      if ($t[0] == T_STRING && $t[1] == 'block') {
+        $t = $tokens[++$i];
+        if ($t[0] != T_WHITESPACE) throw new ParseError("Expected whitespace after 'block'");
+        $t = $tokens[++$i];
+        if ($t[0] != T_STRING) throw new ParseError("Expected block name");
+        $blockName = $t[1];
+        $blocks []= $blockName;
+        $expandedCode .= '$this->' . $blockName . '();';
+      } else {
+        $expandedCode .= $t[1];
+      }
+    } else {
+//      echo "simple string token: {$t}\n";
+      $expandedCode .= $t;
+    }
+    ++$i;
+  }
+  return array($expandedCode, $blocks);
 }
 
 /*
