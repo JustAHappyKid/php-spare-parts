@@ -10,10 +10,13 @@ use \SpareParts\ArrayLib as A;
 /**
  * Expand lines beginning with `?` or containing only a single closing curly-bracket (`}`) to
  * PHP "logic lines".  For example, the following...
+ *
  *   ? if ($myBool) {
  *     <p>It's true!</p>
  *   }
+ *
  * ...would yield...
+ *
  *   <?php if ($myBool) { ?>
  *     <p>It's true!</p>
  *   <?php } ?>
@@ -35,8 +38,11 @@ function expandShorthandPhpLogic($tpl) {
 /**
  * Expand variables (alpha-numeric sequences beginning with `$`) within all "T_INLINE_HTML" parts
  * to PHP "echo tags".  For example, the following...
+ *
  *   <em>Welcome to our website, $name.</em>
+ *
  * ...given a value of "Joe" for variable $name, would yield...
+ *
  *   <em>Welcome to our website, Joe.</em>
  */
 function expandShorthandPhpVariableSubstitution($tpl) {
@@ -56,7 +62,7 @@ function expandVariablesInTextPart($tpl) {
   $chars = str_split($tpl);
   for ($i = 0; $i < count($chars); ++$i) {
     $char = $chars[$i];
-    if ($char == '$') {
+    if ($char == '$' && (ctype_alpha($chars[$i+1]) || $chars[$i+1] == '_')) {
       $vnameChars = A\takeWhile(function($c) { return ctype_alnum($c) || $c == '_'; },
                       str_split(substr($tpl, $i + 1)));
       $i += count($vnameChars);
