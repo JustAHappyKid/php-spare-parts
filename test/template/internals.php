@@ -1,7 +1,6 @@
 <?php
 
 require_once 'template/inheritance.php';
-//require_once 'string.php';        # contains
 
 use \SpareParts\Template as T;
 
