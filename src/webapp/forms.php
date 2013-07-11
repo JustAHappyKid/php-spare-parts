@@ -271,6 +271,10 @@ class FormSection extends BaseFormContainer {
 
   function __construct($id, $nodes) {
     $this->id = $id;
+    foreach ($nodes as $n) {
+      if (!is_string($n) && !($n instanceof Field))
+        throw new InvalidArgumentException("All nodes must be of type Field or string");
+    }
     $this->nodes = $nodes;
   }
 
@@ -432,10 +436,22 @@ class DateField extends DateTimeField {
 function newDateField($name, $label) { return new DateField($name, $label); }
 
 class DollarAmountField extends BasicTextField {
+
+  protected $maxAmount = null, $maxAmountErr;
+
   function __construct($name, $label) {
     $this->setClass('dollar-amount');
     parent::__construct($name, $label);
   }
+
+  # TODO: Add 'minAmount' method
+
+  function maxAmount($amount, $validationErr = null) {
+    $this->maxAmount = $amount;
+    $this->maxAmountErr = $validationErr;
+    return $this;
+  }
+
   protected function validateWhenNotEmpty(Array $submittedValues, $trimmedValue) {
 
     // TODO: Don't just blindly strip out commas...  We should actually check that the commas
@@ -449,6 +465,9 @@ class DollarAmountField extends BasicTextField {
       $err = "Please provide a valid dollar amount" .
         (empty($this->nameForValidation) ? "." : " for the {$this->nameForValidation}.");
       return array($err);
+    } else if ($this->maxAmount !== null && floatval($amount) > $this->maxAmount) {
+      return array($this->maxAmountErr ? $this->maxAmountErr :
+        "Sorry, the maximum allowed amount is {$this->maxAmount}");
     } else {
       $this->cleanedValue = (float) $amount;
       return array();

@@ -19,6 +19,8 @@ use \BadMethodCallException, \InvalidArgumentException, \DOMDocument, \DOMNode, 
 
 abstract class WebappTestingHarness extends TestHarness {
 
+  private $xpathObj;
+
   /**
    * When this method is called (via the below makeRequest) method, all relevant PHP
    * environment variables should be set (XXX: it's likely we're missing a few things
@@ -85,7 +87,7 @@ abstract class WebappTestingHarness extends TestHarness {
     if (count($forms) == 0) {
       throw new NoSuchForm("No forms found " . ($formId ? "with ID '$formId'" : "on page"));
     } else if (count($forms) > 1) {
-      fail("Multiple forms found " . ($formId ? "with ID '$formId'" : "on page"));
+      return fail("Multiple forms found " . ($formId ? "with ID '$formId'" : "on page"));
     } else {
       $theForm = current($forms);
       return HtmlForm::fromDOMNode($theForm, $this->xpathObj);
@@ -106,7 +108,7 @@ abstract class WebappTestingHarness extends TestHarness {
         }
       };
       $errorsStr = implode(', ', array_map($renderError, $errors));
-      fail("Got validation error(s) when submitting form: " . $errorsStr);
+      throw new ValidationErrors("Got validation error(s) when submitting form: " . $errorsStr);
     }
   }
 
@@ -116,7 +118,7 @@ abstract class WebappTestingHarness extends TestHarness {
                 "Expected to get validation error(s) from submitting form");
   }
 
-  private function justSubmitForm($form, $nonDefaultValues, $submitButton = null) {
+  private function justSubmitForm(HtmlForm $form, $nonDefaultValues, $submitButton = null) {
     if (!$form->hasSubmitButton()) {
       fail("Form has no submit button");
     }
@@ -194,7 +196,7 @@ abstract class WebappTestingHarness extends TestHarness {
   }
 
   protected function makeRequest($method, $pathAndQuery, $serverVars = null,
-                                 $numRedirectsToFollow = 10) {
+                                 $numRedirectsToFollow = self::maxRedirects) {
     $defaultServerVars = array('REQUEST_METHOD' => $method, 'REMOTE_ADDR' => '99.99.99.99',
       'HTTP_USER_AGENT' => 'Mozillar Farfox', 'HTTP_HOST' => $this->domain(),
       'SERVER_NAME' => $this->domain(), 'REQUEST_URI' => $pathAndQuery);
@@ -221,7 +223,7 @@ abstract class WebappTestingHarness extends TestHarness {
       $redirectTo = $parts['path'] . (isset($parts['query']) ? ('?' . $parts['query']) : '');
       if ($this->followRedirects) {
         if ($numRedirectsToFollow == 0) {
-          fail("Maximum number of redirects ({$this->maxRedirects}) followed");
+          return fail("Maximum number of redirects (" . self::maxRedirects . ") followed");
         } else {
           $_POST = null;
           return $this->makeRequest('GET', $redirectTo, null, $numRedirectsToFollow - 1);
@@ -236,6 +238,8 @@ abstract class WebappTestingHarness extends TestHarness {
         "HTTP status code: " . $this->lastResponse->statusCode);
     }
   }
+
+  const maxRedirects = 10;
 }
 
 class HttpNonOkayResponse extends TestFailure {}
@@ -249,3 +253,4 @@ class HttpRedirect extends HttpNonOkayResponse {
 class HttpNotFound extends HttpNonOkayResponse {}
 class UnexpectedHttpResponseCode extends HttpNonOkayResponse {}
 class NoSuchForm extends TestFailure {}
+class ValidationErrors extends TestFailure {}

@@ -3,7 +3,8 @@
 require_once 'webapp/forms.php';
 require_once 'web-client/html-parsing.php';
 
-use \SpareParts\Test, \SpareParts\WebClient, \SpareParts\Webapp\Forms, \SpareParts\Webapp\Forms\Form;
+use \SpareParts\Test, \SpareParts\WebClient, \SpareParts\Webapp\Forms,
+  \SpareParts\Webapp\Forms\Form;
 
 class FormsAPITests extends Test\TestHarness {
 
@@ -118,6 +119,26 @@ class FormsAPITests extends Test\TestHarness {
     $f->validate(array('email' => 'Joe Patty <joey@tabcollab.net>'));
     assertTrue($f->isValid());
     assertEqual('Joe Patty <joey@tabcollab.net>', $f->getValue('email'));
+  }
+
+  function testMaxAmountOptionForDollarAmountField() {
+    $field = Forms\newDollarAmountField('amount', 'Amount');
+    $this->assertFieldAcceptsValue($field, 1000000);
+    $field->maxAmount(100);
+  }
+
+  private function assertFieldAcceptsValue(Forms\Field $field, $value) {
+    $f = new Form('post');
+    $f->addSection('section-name', array($field));
+    $f->validate(array($field->name => $value));
+    assertTrue($f->isValid(), "Value was rejected: " . implode(', ', $f->getErrors()));
+  }
+
+  private function assertFieldDoesNotAcceptValue(Forms\Field $field, $value) {
+    $f = new Form('post');
+    $f->addSection('section-name', array($field));
+    $f->validate(array($field->name => $value));
+    assertFalse($f->isValid(), "Value '$value' was not rejected");
   }
 
   private function renderFormAndAssertNodeExists($f, $q) {
