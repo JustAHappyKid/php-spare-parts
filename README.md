@@ -1,20 +1,20 @@
 # Spare Parts for PHP #
 
-`php-spare-parts` is a set of PHP libraries with components ranging from
-simple functions that one would expect to find in a functional programming
-language (such as `takeWhile` and `flatten`), that should have probably been
-included in PHP's standard library in the first place, all the way up to a
-very minimalistic testing framework and minimalistic web framework.
+`php-spare-parts` is a set of PHP classes, functions, and general tools which
+you may or may not find useful. It begins with very basic functionality that
+probably should have been included in the base PHP libraries (for example,
+better functions for URL parsing/manipulation), but in some cases goes so far
+as to provide mini "frameworks" (such as a minimalistic testing framework).
 
-Special care is given though, to keep the components loosely-coupled, so one can
-*pick and choose* pieces as desired.
+Note though, special care is given to keep the components loosely-coupled.
+This way, one can *pick and choose* pieces he wishes to use, as desired.
 
 ## Some of the notable components: ##
 
   * An HttpClient class, for *'browsing'* the Web when more sophistication is
     needed than a simple `fopen` (or `curl` call, or the like) on a URL.
 
-  * Classes/tools for automating web-forms.
+  * Classes/functions for automating web-forms.
 
   * Common webapp tools / stuff you might use to build your own "framework":
 
