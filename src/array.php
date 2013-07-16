@@ -6,7 +6,7 @@ use \Closure;
 
 /**
  * This method may at first appear to be a useless wrapper for 'reset', but it serves two
- * little purpsoses: (1) it can be used on non-variables, and (2) it adds readability (at
+ * small purposes: (1) it can be used on non-variables, and (2) it adds readability (at
  * least for those accustomed to functional programming languages).
  * 
  * Re (1): 'reset' cannot be used in a case such as this: reset(functionReturningArray())
@@ -15,6 +15,14 @@ use \Closure;
  */
 function head(Array $a) {
   return reset($a);
+}
+
+function filterByKey(Closure $qualify, Array $orig) {
+  $result = array();
+  foreach ($orig as $k => $v) {
+    if ($qualify($k)) $result[$k] = $v;
+  }
+  return $result;
 }
 
 function flatten(Array $origArray) {
