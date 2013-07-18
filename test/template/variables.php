@@ -16,3 +16,11 @@ function testLiteralDollarAmountStringIsNotConstruedAsVariable() {
   $r = T\renderFromString('<p>It costs $500.</p>', array());
   assertEqual('<p>It costs $500.</p>', $r);
 }
+
+function testSupportForLocalVariables() {
+  $tpl = implode("\n", array(
+    '<?php $total = $v1 + $v2; ?>',
+    'The total is $total.'));
+  $r = T\renderFromString($tpl, array('v1' => 100, 'v2' => 4));
+  assertEqual('The total is 104.', $r);
+}
