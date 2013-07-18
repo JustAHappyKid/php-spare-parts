@@ -5,7 +5,8 @@ require_once 'string.php';        # contains
 
 use \SpareParts\Template as T;
 
-function testBasicInheritance() {
+/*
+function testXXXDebugging() {
   $context = new T\Context(dirname(__FILE__), array());
   $result = T\compileFile('test1.page.diet-php', $context);
   foreach (glob('/tmp/spare-parts*') as $f) {
@@ -16,8 +17,7 @@ function testBasicInheritance() {
     unlink($f);
   }
 }
-
-/*
+*/
 
 function testBasicInheritance() {
   $context = new T\Context(dirname(__FILE__), array());
@@ -25,6 +25,8 @@ function testBasicInheritance() {
   assertTrue(contains($result, "isn't this great?</p>"));
   assertTrue(contains($result, '<p>Two paragraphs, and the layout'));
 }
+
+/*
 
 function testSupportForTemplateInheritance() {
   $context = new T\Context(dirname(__FILE__), array());
