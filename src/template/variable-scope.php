@@ -16,8 +16,13 @@ function rescopeVariables($php) {
   $expandedCode = '';
   foreach ($tokens as $t) {
     if (is_array($t) && $t[0] == T_VARIABLE) {
-      $expandedVar = '$vars[\'' . withoutPrefix($t[1], '$') . '\']';
-      $expandedCode .= $inString ? ('{' . $expandedVar . '}') : $expandedVar;
+      $varName = withoutPrefix($t[1], '$');
+      if ($varName == 'this') {
+        $expandedCode .= '$this';
+      } else {
+        $expandedVar = '$vars[\'' . $varName . '\']';
+        $expandedCode .= $inString ? ('{' . $expandedVar . '}') : $expandedVar;
+      }
     } else {
       if (is_string($t) && $t == '"') $inString = !$inString;
       $expandedCode .= Token\render($t);
