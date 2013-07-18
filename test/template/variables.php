@@ -17,6 +17,12 @@ function testLiteralDollarAmountStringIsNotConstruedAsVariable() {
   assertEqual('<p>It costs $500.</p>', $r);
 }
 
+function testSupportForVarEmbeddedInStringInPhpBlock() {
+  $tpl = '<?php $css = "width: $theWidth%;"; ?>$css';
+  $r = T\renderFromString($tpl, array('theWidth' => 75));
+  assertEqual('width: 75%;', $r);
+}
+
 function testSupportForLocalVariables() {
   $tpl = implode("\n", array(
     '<?php $total = $v1 + $v2; ?>',
