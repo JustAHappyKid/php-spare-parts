@@ -1,7 +1,0 @@
-extends 'layout.php'
-
-? function showHeader() { return false; }
-
-? block realStuff {
-  <p>This is the real stuff.</p>
-}
