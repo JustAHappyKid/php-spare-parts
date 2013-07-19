@@ -13,7 +13,7 @@ function lookupZipCode($addr, WebBrowser $client) {
                 'tCity' => $addr['city'], 'sState' => $addr['state'],
                 'zip' => $addr['zip5']);
   $client->followRedirects(true);
-  $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
+  $response = $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
   $errNode = current($client->findMatchingNodes("//p[@id='nonDeliveryMsg']"));
   $z5node = current($client->findMatchingNodes("//div[@id='result-list']//span[@class='zip']"));
   if ($errNode) {
@@ -29,7 +29,7 @@ function lookupZipCode($addr, WebBrowser $client) {
     }
   } else if ($z5node) {
     $z4node = current($client->findMatchingNodes("//div[@id='result-list']//span[@class='zip4']"));
-    return new ZipLookupResult(new ZipCode($z5node->textContent, $z4node->textContent));
+    $result = new ZipLookupResult(new ZipCode($z5node->textContent, $z4node->textContent));
     if (stristr($response->content, 'Several addresses matched the information you provided')) {
       $result->multipleResults = true;
     }
