@@ -294,7 +294,7 @@ abstract class FrontController {
 
     session_start();
 
-    # Reset the expiration time everytime the user hits our site.
+    # Reset the expiration time every-time the user hits our site.
     if (isset($_COOKIE[$sessionName])) {
       setcookie($sessionName, $_COOKIE[$sessionName], time() + $sessionLifetime,
                 '/', $cookieDomain);
@@ -380,4 +380,12 @@ class MaliciousRequestException extends Exception {}
 
 class HtmlPage {
   public $contentType = 'text/html', $body = '';
+}
+
+function htmlResponse($html, $charset = null) {
+  $r = new HttpResponse();
+  $r->content = $html;
+  $r->contentType = 'text/html' . ($charset ? "charset=$charset" : "");
+  $r->statusCode = 200;
+  return $r;
 }
