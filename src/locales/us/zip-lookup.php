@@ -38,7 +38,7 @@ function lookupZipCode($addr, WebBrowser $client) {
     return $result;
   } else {
     throw new ZipCodeLookupError("Could not find ZIP Code or error message in data returned " .
-      "from USPS website (zip4.usps.com) for following address: " . asString($addr));
+      "from USPS website (tools.usps.com) for following address: " . asString($addr));
   }
 }
 
