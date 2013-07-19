@@ -13,7 +13,7 @@ function lookupZipCode($addr, WebBrowser $client) {
                 'tCity' => $addr['city'], 'sState' => $addr['state'],
                 'zip' => $addr['zip5']);
   $client->followRedirects(true);
-  $response = $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
+  $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
   $errNode = current($client->findMatchingNodes("//p[@id='nonDeliveryMsg']"));
   $z5node = current($client->findMatchingNodes("//div[@id='result-list']//span[@class='zip']"));
   if ($errNode) {
@@ -36,7 +36,7 @@ function lookupZipCode($addr, WebBrowser $client) {
     return $result;
   } else {
     throw new ZipCodeLookupError("Could not find ZIP Code or error message in data returned " .
-      "from USPS website (zip4.usps.com)");
+      "from USPS website (zip4.usps.com) for following address: " . asString($addr));
   }
 }
 
