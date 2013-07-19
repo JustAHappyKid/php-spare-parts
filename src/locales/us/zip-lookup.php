@@ -15,6 +15,8 @@ function lookupZipCode($addr, WebBrowser $client) {
   $client->followRedirects(true);
   $response = $client->post('https://tools.usps.com/go/ZipLookupAction.action', $vars);
   $errNode = current($client->findMatchingNodes("//p[@id='nonDeliveryMsg']"));
+  if (empty($errNode)) $errNode = current(
+    $client->findMatchingNodes("//div[@class='noresults-container']/ul/li"));
   $z5node = current($client->findMatchingNodes("//div[@id='result-list']//span[@class='zip']"));
   if ($errNode) {
     $err = $errNode->textContent;
