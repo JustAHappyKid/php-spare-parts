@@ -21,10 +21,11 @@ want to generate).
 ## Diet PHP provides the following enhancements to standard PHP: ##
 
   * [Shorthand syntax for control structures](#shorthand-control-structure-syntax)
-    (`if`-statements, `for`-loops, etc.)
-    to avoid having hard-to-read angle-bracket-question-mark sequences all over tarnation.
+    (`if`-statements, `for`-loops, etc.) to avoid having hard-to-read
+    angle-bracket-question-mark sequences all over tarnation.
 
-  * Shorthand variable substitution syntax -- forget the angle brackets and just
+  * [Shorthand variable substitution syntax](#shorthand-variable-syntax) -- forget
+    the angle brackets and just
     assume any "word" that begins with `$` is a variable!
 
   * A more natural and elegant mechanism for defining hierarchies of templates.
