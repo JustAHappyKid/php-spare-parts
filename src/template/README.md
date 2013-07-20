@@ -20,10 +20,10 @@ want to generate).
 
 ## Diet PHP provides the following enhancements to standard PHP: ##
 
-  * Short-hand syntax for control structures (`if`-statements, `for`-loops, etc.)
+  * Shorthand syntax for control structures (`if`-statements, `for`-loops, etc.)
     to avoid having hard-to-read angle-bracket-question-mark sequences all over tarnation.
 
-  * Short-hand variable substitution syntax -- forget the angle brackets and just
+  * Shorthand variable substitution syntax -- forget the angle brackets and just
     assume any "word" that begins with `$` is a variable!
 
   * A more natural and elegant mechanism for defining hierarchies of templates.
@@ -41,7 +41,7 @@ syntax when you want, where you want; fallback to standard PHP whenever you want
 
 ## Examples ##
 
-### Short-hand Control Structure Syntax ###
+### Shorthand Control Structure Syntax ###
 
 Instead of:
 
@@ -58,7 +58,7 @@ Just write:
 Should be obvious what's going on there, even to someone that doesn't know what Diet
 PHP is!
 
-### Short-hand Variable Syntax ###
+### Shorthand Variable Syntax ###
 
 Instead of...
 
