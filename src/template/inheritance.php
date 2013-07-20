@@ -36,13 +36,14 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody) {
   }
   $renderedMethods = array_map(
     function(Block $b) { return "function {$b->name}() { ?>\n" . $b->body . "<? }"; }, $blocks);
+  $className = uniqueClassName();
   $content = "<?php
     require_once '{$baseTpl->path}';
-    class SubTemplate extends {$baseTpl->className} {
+    class $className extends {$baseTpl->className} {
       " . implode("\n\n", $renderedMethods) . "
     }
   ";
-  return saveExpandendTemplate($content, 'SubTemplate');
+  return saveExpandendTemplate($content, $className);
 }
 
 function expandBlockReferences($code) {

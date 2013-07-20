@@ -1,14 +1,17 @@
 <?php
 
-abstract class Layout {
-  abstract function showHeader();
+require_once 'template/Renderable.php';
+use \SpareParts\Template\Renderable;
+
+abstract class Layout implements Renderable {
+
   abstract function realStuff();
+
   function content() {
     ?><html> <body>
-      <? if ($this->showHeader()): ?>
-        <div>This is the header :P</div>
-      <? endif; ?>
-      <div><?= $this->realStuff() ?></div>
+      <div id="content"><?= $this->realStuff() ?></div>
     </body> </html><?
   }
+
+  function __render($vars) { return $this->content(); }
 }

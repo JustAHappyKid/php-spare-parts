@@ -2,14 +2,16 @@
 
 namespace SpareParts\Template;
 
-require_once dirname(dirname(__FILE__)) . '/string.php';  # beginsWith, withoutPrefix, ...
+require_once dirname(dirname(__FILE__)) . '/string.php';      # beginsWith, withoutPrefix, ...
+require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getImplementations, ...
+
 require_once dirname(__FILE__) . '/exceptions.php';       # NoSuchTemplate, SecurityException, ...
+require_once dirname(__FILE__) . '/Renderable.php';       # Renderable
 require_once dirname(__FILE__) . '/shorthand-php.php';    # expandShorthandPhpLogic, ...
 require_once dirname(__FILE__) . '/variable-scope.php';   # rescopeVariables
 require_once dirname(__FILE__) . '/inheritance.php';      # expandBlockReferences, ...
 
-use \Closure;
-
+use \InvalidArgumentException, \Closure, \SpareParts\Reflection;
 
 function renderFromString($tplContent, $vars) {
 //  $expanded = expandShorthandPhpVariableSubstitution(
@@ -27,10 +29,44 @@ function renderFromString($tplContent, $vars) {
 }
 
 function renderFile($path, Context $context) {
-  $t = compileFile($path, $context);
+  $t = produceRenderableFromFile($path, $context);
+//  $t = compileFile($path, $context);
   require $t->path;
   $obj = new $t->className;
   return renderTemplate($obj, $context->vars);
+}
+
+/**
+ * If $path is a simple PHP file, then it's loaded (via `require`) and is expected
+ * to have an implementation of Renderable. Otherwise, if a Diet PHP file, is compiled
+ * to a Renderable. In either case, an instance of the Renderable implementation
+ * is returned.
+ * @return Renderable
+ */
+function produceRenderableFromFile($path, Context $context) {
+  if (contains($path, '..')) throw new SecurityException("No .. allowed");
+  if (endsWith($path, '.php')) {
+    $iface = 'SpareParts\\Template\\Renderable';
+    $absPath = $context->baseDir . '/' . $path;
+    require_once $absPath;
+    $all = Reflection\getClassesDefinedInFile($absPath);
+    $impls = array_filter($all,
+      function($cls) use($iface) { return Reflection\implementsInterface($cls, $iface); });
+    if (count($impls) == 0) {
+      throw new InvalidArgumentException("No implementations of $iface are " .
+                                         "defined in file '{$path}'");
+    } else if (count($impls) > 1) {
+      throw new InvalidArgumentException("Multpile implementations of $iface are defined " .
+                                         "in file '{$path}''");
+    } else {
+      return new ExpandedTemplate($absPath, current($impls));
+    }
+  } else if (endsWith($path, '.diet-php')) {
+    return compileFile($path, $context);
+  } else {
+    throw new InvalidArgumentException(
+      "Given \$path did not have extension `.php` nor `.diet-php`");
+  }
 }
 
 function compileFile($path, Context $context) {
@@ -38,6 +74,7 @@ function compileFile($path, Context $context) {
   return generateClassFromTemplateFile($path, $context);
 }
 
+/** @returns ExpandedTemplate */
 function generateClassFromTemplateFile($relPath, Context $context) {
   $absPath = "{$context->baseDir}/$relPath";
   if (!is_readable($absPath)) throw new NoSuchTemplate($absPath);
@@ -47,7 +84,8 @@ function generateClassFromTemplateFile($relPath, Context $context) {
     list($extendStmnt, $blocks) = explode("\n", $content, 2);
     $quotedFname = trim(withoutPrefix($extendStmnt, '!extends'));
     $parentTplFile = trim($quotedFname, "'\"");
-    $parentTpl = generateClassFromTemplateFile($parentTplFile, $context);
+    $parentTpl = produceRenderableFromFile($parentTplFile, $context);
+//    $parentTpl = generateClassFromTemplateFile($parentTplFile, $context);
     return childTemplateToChildClass($parentTpl, $blocks);
     // $expanded = expandShorthandPHP($blocks);
     // return saveMethodsAsClass($expanded);
@@ -73,13 +111,17 @@ function saveAsRenderableClass($content) {
 }
 
 function saveMethodsAsClass($methods) {
-  $className = uniqid("sparePartsTpl");
+  $className = uniqueClassName();
   $content = "<?php
-    class $className extends \\SpareParts\\Template\\Renderable {
+    class $className implements \\SpareParts\\Template\\Renderable {
       $methods
     }
   ";
   return saveExpandendTemplate($content, $className);
+}
+
+function uniqueClassName() {
+  return uniqid("sparePartsTpl");
 }
 
 function saveExpandendTemplate($content, $className) {
@@ -109,8 +151,4 @@ class ExpandedTemplate {
   function __construct($p, $cn) {
     $this->path = $p; $this->className = $cn;
   }
-}
-
-abstract class Renderable {
-  abstract public function __render($vars);
 }
