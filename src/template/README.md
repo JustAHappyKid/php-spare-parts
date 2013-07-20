@@ -20,7 +20,8 @@ want to generate).
 
 ## Diet PHP provides the following enhancements to standard PHP: ##
 
-  * Shorthand syntax for control structures (`if`-statements, `for`-loops, etc.)
+  * [Shorthand syntax for control structures](#example-shorthand-control)
+    (`if`-statements, `for`-loops, etc.)
     to avoid having hard-to-read angle-bracket-question-mark sequences all over tarnation.
 
   * Shorthand variable substitution syntax -- forget the angle brackets and just
@@ -41,7 +42,7 @@ syntax when you want, where you want; fallback to standard PHP whenever you want
 
 ## Examples ##
 
-### Shorthand Control Structure Syntax ###
+### <a id="example-shorthand-control"></a>Shorthand Control Structure Syntax ###
 
 Instead of:
 
