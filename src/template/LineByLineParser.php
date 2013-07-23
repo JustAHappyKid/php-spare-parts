@@ -2,6 +2,8 @@
 
 namespace SpareParts\Template;
 
+use \Exception;
+
 class LineByLineParser {
 
   public $lines, $currentLine;
