@@ -41,13 +41,14 @@ function renderFile($path, Context $context) {
  * to have an implementation of Renderable. Otherwise, if a Diet PHP file, is compiled
  * to a Renderable. In either case, an instance of the Renderable implementation
  * is returned.
- * @return Renderable
+ * @return ExpandedTemplate
  */
 function produceRenderableFromFile($path, Context $context) {
   if (contains($path, '..')) throw new SecurityException("No .. allowed");
   if (endsWith($path, '.php')) {
     $iface = 'SpareParts\\Template\\Renderable';
     $absPath = $context->baseDir . '/' . $path;
+    if (!is_readable($absPath)) throw new NoSuchTemplate("No template exists at $path");
     require_once $absPath;
     $all = Reflection\getClassesDefinedInFile($absPath);
     $impls = array_filter($all,
@@ -74,7 +75,7 @@ function compileFile($path, Context $context) {
   return generateClassFromTemplateFile($path, $context);
 }
 
-/** @returns ExpandedTemplate */
+/** @return ExpandedTemplate */
 function generateClassFromTemplateFile($relPath, Context $context) {
   $absPath = "{$context->baseDir}/$relPath";
   if (!is_readable($absPath)) throw new NoSuchTemplate($absPath);
@@ -86,7 +87,7 @@ function generateClassFromTemplateFile($relPath, Context $context) {
     $parentTplFile = trim($quotedFname, "'\"");
     $parentTpl = produceRenderableFromFile($parentTplFile, $context);
 //    $parentTpl = generateClassFromTemplateFile($parentTplFile, $context);
-    return childTemplateToChildClass($parentTpl, $blocks);
+    return childTemplateToChildClass($parentTpl, $blocks, $relPath);
     // $expanded = expandShorthandPHP($blocks);
     // return saveMethodsAsClass($expanded);
   } else {
