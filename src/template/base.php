@@ -102,13 +102,17 @@ function renderTemplate(Renderable $tpl, $vars) {
 function generateClassForBaseTemplate($content) {
   $expanded = expandShorthandPhpVariableSubstitution(
     expandShorthandPhpLogic($content));
-  list($blocksFixed, $blocks) = expandBlockReferences($expanded);
+  list($blocksFixed, $_) = expandBlockReferences($expanded);
   $rescoped = rescopeVariables($blocksFixed);
-  return saveAsRenderableClass($rescoped, $blocks);
+  return saveAsRenderableClass($rescoped);
 }
 
 function saveAsRenderableClass($content) {
-  return saveMethodsAsClass('public function __render($vars) { ?>' . $content . '<? }');
+  return saveMethodsAsClass('
+    public function __render($vars) {
+      $this->__vars = $vars;
+      ?>' . $content . '<?
+    }');
 }
 
 function saveMethodsAsClass($methods) {

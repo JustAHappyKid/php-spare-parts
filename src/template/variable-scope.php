@@ -20,7 +20,8 @@ function rescopeVariables($php) {
       if ($varName == 'this') {
         $expandedCode .= '$this';
       } else {
-        $expandedVar = '$vars[\'' . $varName . '\']';
+        //$expandedVar = '$vars[\'' . $varName . '\']';
+        $expandedVar = '$this->__vars[\'' . $varName . '\']';
         $expandedCode .= $inString ? ('{' . $expandedVar . '}') : $expandedVar;
       }
     } else {
