@@ -2,8 +2,8 @@
 
 namespace SpareParts\Template;
 
-require_once dirname(__FILE__) . '/exceptions.php';
-require_once dirname(__FILE__) . '/LineByLineParser.php';
+require_once dirname(__FILE__) . '/exceptions.php';       # ParseError
+require_once dirname(__FILE__) . '/LineByLineParser.php'; # LineByLineParser
 
 abstract class MethodOrBlock {
   public $name, $body;
@@ -11,7 +11,10 @@ abstract class MethodOrBlock {
 }
 class Block  extends MethodOrBlock {
   public function generate() {
-    return "function {$this->name}() { ?>\n" . $this->body . "<? }";
+    $expanded = expandShorthandPhpVariableSubstitution(
+      expandShorthandPhpLogic($this->body));
+    $rescoped = rescopeVariables($expanded);
+    return "function {$this->name}() { ?>\n" . $rescoped . "<? }";
   }
 }
 class Method extends MethodOrBlock {
@@ -26,7 +29,7 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody, $pathToT
   $p = new LineByLineParser($tplBody);
   while ($p->moreLinesLeft()) {
     $ln = $p->takeLine();
-    if (beginsWith(trim($ln), 'block ')) {
+    if (beginsWith($ln, 'block ')) {
       $parts = explode(' ', $ln);
       if (count($parts) != 3 || $parts[2] != '{') {
         throw new ParseError("Block-definition line did not match expected format: $ln",
@@ -38,14 +41,9 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody, $pathToT
         throw new ParseError("`{$block->name}` is an invalid block name",
                              $pathToTpl, $p->lineNum());
       }
-//      $ln = $p->takeLine();
-//      while (trim($ln) != '}') {
-//        $block->body .= "$ln\n";
-//        $ln = $p->takeLine();
-//      }
       $block->body = takeBody($p);
       $blocksAndMethods []= $block;
-    } else if (beginsWith(trim($ln), 'function ')) {
+    } else if (beginsWith($ln, 'function ')) {
       $m = null;
       preg_match('/^\\s*function\\s+([_0-9a-zA-Z]+)\\s*\\(([^\\)]*)\\)\\s*{$/', $ln, $m);
       if (!$m) throw new ParseError("Function-definition line did not match expected format: $ln",
@@ -74,9 +72,13 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody, $pathToT
 function takeBody(LineByLineParser $parser) {
   $body = '';
   $ln = $parser->takeLine();
-  while (trim($ln) != '}') {
+  while (strlen($ln) == 0 || $ln[0] != '}') {
     $body .= "$ln\n";
     $ln = $parser->takeLine();
+  }
+  if (trim($ln) != '}') {
+    throw new ParseError("Expected line to contain ONLY closing bracket",
+                         'TODO report file', $parser->lineNum());
   }
   return $body;
 }
@@ -84,7 +86,7 @@ function takeBody(LineByLineParser $parser) {
 function expandBlockReferences($code) {
   $tokens = token_get_all($code);
   $expandedCode = "";
-  $blocks = array();
+  $blockNames = array();
   $i = 0;
   while (count($tokens) > $i) {
     $t = $tokens[$i];
@@ -96,7 +98,7 @@ function expandBlockReferences($code) {
         $t = $tokens[++$i];
         if ($t[0] != T_STRING) throw new ParseError("Expected block name");
         $blockName = $t[1];
-        $blocks []= $blockName;
+        $blockNames []= $blockName;
         $expandedCode .= '$this->' . $blockName . '();';
       } else {
         $expandedCode .= $t[1];
@@ -107,7 +109,7 @@ function expandBlockReferences($code) {
     }
     ++$i;
   }
-  return array($expandedCode, $blocks);
+  return array($expandedCode, $blockNames);
 }
 
 /*

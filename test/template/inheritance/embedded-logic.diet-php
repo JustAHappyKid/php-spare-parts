@@ -1,0 +1,12 @@
+!extends 'layout.diet-php'
+
+block title {
+  Welcome to the website!
+}
+
+block dynamicContent {
+  ? if ($loggedIn) {
+    <p>Welcome $name!</p>
+  }
+  <p>Everyone sees this.</p>
+}
