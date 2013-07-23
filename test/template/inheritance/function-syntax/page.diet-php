@@ -1,0 +1,5 @@
+!extends 'layout.php'
+
+function showSomething() {
+  return true;
+}

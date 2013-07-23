@@ -1,0 +1,5 @@
+!extends 'layout.php'
+
+block realStuff {
+  <p>Welcome to my simple webpage.</p>
+}
