@@ -1,5 +1,7 @@
 <?php
 
+namespace SpareParts\DateTime;
+
 use \DateTime, \InvalidArgumentException;
 
 # A class representing *only* a date -- no time component is kept.

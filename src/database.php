@@ -9,7 +9,7 @@ namespace SpareParts\Database;
 
 require_once dirname(__FILE__) . '/dates.php';
 
-use \Exception, \PDO, \DateTime, \DateSansTime;
+use \Exception, \PDO, \DateTime, \SpareParts\DateTime\DateSansTime;
 
 class NoMatchingRecords extends Exception {}
 class MultipleMatchingRecords extends Exception {}
