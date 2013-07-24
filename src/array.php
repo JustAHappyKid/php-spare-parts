@@ -42,3 +42,9 @@ function takeWhile(Closure $qualify, Array $a) {
   }
   return $result;
 }
+
+function dropWhile(Closure $qualify, Array $a) {
+  $offset = 0;
+  while ($qualify($a[$offset])) $offset += 1;
+  return array_slice($a, $offset);
+}
