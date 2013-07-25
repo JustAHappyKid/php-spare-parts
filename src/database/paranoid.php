@@ -19,9 +19,11 @@ function updateByID($table, $id, Array $valuesToUpdate) {
 
 function securityScan(Array $values, $policy = null) {
   foreach ($values as $column => $value) {
-    if (contains($value,  '<') || contains($value,  '>') ||
-        contains($column, '<') || contains($column, '>')) {
-      throw new Exception('No angle brackets allowed!');;
+    if (!($value instanceof \DateTime)) {
+      if (contains($value,  '<') || contains($value,  '>') ||
+          contains($column, '<') || contains($column, '>')) {
+        throw new Exception('No angle brackets allowed!');
+      }
     }
   }
 }
