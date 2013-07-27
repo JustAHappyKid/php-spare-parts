@@ -57,6 +57,8 @@ abstract class WebappTestingHarness extends TestHarness {
     $this->followRedirects = false;
   }
 
+  protected function clearSession() { $_SESSION = array(); }
+
   protected function followRedirects($follow = true) { $this->followRedirects = $follow; }
 
   protected function getCurrentPath() {
