@@ -157,7 +157,7 @@ abstract class WebappTestingHarness extends TestHarness {
     $dom = new DOMDocument();
     $dom->loadHTML($this->currentPageContent());
     $xpathObj = new DOMXPath($dom);
-    $hrefs = $xpathObj->evaluate($xpathToLink);
+    $hrefs = $xpathObj->query($xpathToLink);
     if ($hrefs == false || $hrefs->length == 0) {
       fail("Could not find link matching XPath expression: $xpathToLink");
     }
