@@ -13,6 +13,8 @@ class Controller {
 
   # XXX: Should $user be 'protected' ??
   public $user;
+
+  /** @var RequestContext */
   protected $context;
 
   function dispatch(RequestContext $context) {
