@@ -15,7 +15,7 @@ require_once dirname(dirname(__FILE__)) . '/url.php';                   # makeUr
 
 use \BadMethodCallException, \InvalidArgumentException, \DOMDocument, \DOMNode, \DOMXPath,
   \SpareParts\Test\TestHarness, \SpareParts\Test\TestFailure, \SpareParts\URL,
-  \SpareParts\WebClient\HtmlForm, \SpareParts\WebClient;
+  \SpareParts\WebClient\HtmlForm, \SpareParts\WebClient, \SpareParts\Webapp\HttpResponse;
 
 abstract class WebappTestingHarness extends TestHarness {
 
@@ -212,7 +212,7 @@ abstract class WebappTestingHarness extends TestHarness {
     $this->currentPath = $pathAndQuerySplit[0];
     if (count($pathAndQuerySplit) > 1) $_SERVER['QUERY_STRING'] = $pathAndQuerySplit[1];
     $this->lastResponse = $this->dispatchToWebapp();
-    if (empty($this->lastResponse)) {
+    if (empty($this->lastResponse) || !($this->lastResponse instanceof HttpResponse)) {
       fail("'dispatchToWebapp' did not return an HttpResponse instance!");
     }
     if ($this->lastResponse->statusCode == 200) {
