@@ -14,30 +14,26 @@ require_once dirname(__FILE__) . '/inheritance.php';      # expandBlockReference
 use \InvalidArgumentException, \Closure, \SpareParts\Reflection;
 
 function renderFromString($tplContent, $vars) {
-//  $expanded = expandShorthandPhpVariableSubstitution(
-//    expandShorthandPhpLogic($tpl));
-//  $final = rescopeVariables($expanded);
-//  ob_start();
-  /*eval("?>$final");*/
-//  $rendered = ob_get_contents();
-//  ob_end_clean();
-//  return $rendered;
   $t = generateClassForBaseTemplate($tplContent);
-  require $t->path;
-  $renderable = new $t->className;
-  $out = renderTemplate($renderable, $vars);
-  unlink($t->path);
-  return $out;
+  return renderExpandedTemplateAndUnlinkTmpFile($t, $vars);
 }
 
 function renderFile($path, Context $context) {
   $t = produceRenderableFromFile($path, $context);
-//  $t = compileFile($path, $context);
+  return renderExpandedTemplateAndUnlinkTmpFile($t, $context->vars);
+}
+
+function renderExpandedTemplateAndUnlinkTmpFile(ExpandedTemplate $t, Array $vars) {
   require $t->path;
   $obj = new $t->className;
-  $out = renderTemplate($obj, $context->vars);
+  $out = renderTemplate($obj, $vars);
   unlink($t->path);
+  $t->path = null;
   return $out;
+}
+
+function renderTemplate(Renderable $tpl, $vars) {
+  return captureOutput(function() use($tpl, $vars) { $tpl->__render($vars); });
 }
 
 /**
@@ -97,10 +93,6 @@ function generateClassFromTemplateFile($relPath, Context $context) {
   } else {
     return generateClassForBaseTemplate($content);
   }
-}
-
-function renderTemplate(Renderable $tpl, $vars) {
-  return captureOutput(function() use($tpl, $vars) { $tpl->__render($vars); });
 }
 
 function generateClassForBaseTemplate($content) {
