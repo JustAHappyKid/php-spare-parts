@@ -105,18 +105,17 @@ function selectByID($table, $id) {
   return current($rows);
 }
 
-/*
 function selectExactlyOne($table, $whereClause, Array $values) {
   $rows = simpleSelect($table, $whereClause, $values);
   if (count($rows) == 0) {
     throw new NoMatchingRecords("No entry in table '$table' found matching given constraint");
   } else if (count($rows) > 1) {
-    throw new Exception("Expected to find exactly 1 row in table '$table' matching constraint, " .
-                        "but " . count($rows) . " rows were found");
+    throw new MultipleMatchingRecords(
+      "Expected to find exactly 1 row in table '$table' matching constraint, " .
+      "but " . count($rows) . " rows were found");
   }
   return current($rows);
 }
-*/
 
 function selectAllRows($table, $orderBy = null) {
   return simpleSelect($table, 'TRUE', array(), $orderBy);
