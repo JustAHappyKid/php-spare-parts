@@ -11,8 +11,7 @@ function testQuestionMarkForIndicatingLineOfPHP() {
       <p>Nevah gunna c this.</p>
     ? }
   ");
-  $r = T\renderFromString($tpl, array());
-  assertEqual('<p>Duh.</p>', trim($r));
+  assertEqual('<p>Duh.</p>', renderAndNormalize($tpl, array()));
 }
 
 function testVariableSubstitutionWithQuestionMarkSyntax() {
@@ -24,10 +23,8 @@ function testVariableSubstitutionWithQuestionMarkSyntax() {
       off.
     ? }
   ');
-  assertEqual('The heat is... on.',
-    normalizeSpace(T\renderFromString($tpl, array('switch' => true))));
-  assertEqual('The heat is... off.',
-    normalizeSpace(T\renderFromString($tpl, array('switch' => false))));
+  assertEqual('The heat is... on.',  renderAndNormalize($tpl, array('switch' => true)));
+  assertEqual('The heat is... off.', renderAndNormalize($tpl, array('switch' => false)));
 }
 
 function testNoQuestionMarkNorPhpBracketsAreNecessaryForClosingBracketOnItsOwnLine() {
@@ -36,8 +33,16 @@ function testNoQuestionMarkNorPhpBracketsAreNecessaryForClosingBracketOnItsOwnLi
       yes!
     }
   ');
-  assertEqual('yes!', normalizeSpace(T\renderFromString($tpl, array('myvar' => true))));
-  assertEqual('',     normalizeSpace(T\renderFromString($tpl, array('myvar' => false))));
+  assertEqual('yes!', renderAndNormalize($tpl, array('myvar' => true)));
+  assertEqual('',     renderAndNormalize($tpl, array('myvar' => false)));
+}
+
+/**
+ * Render the given template (string), using given $vars, and normalize spaces
+ * (as, in these particular test-cases, we aren't concerned with specific whitespace).
+ */
+function renderAndNormalize($tpl, Array $vars) {
+  return normalizeSpace(T\renderString($tpl, $vars));
 }
 
 function normalizeSpace($s) {

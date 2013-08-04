@@ -13,9 +13,14 @@ require_once dirname(__FILE__) . '/inheritance.php';      # expandBlockReference
 
 use \InvalidArgumentException, \Closure, \SpareParts\Reflection;
 
-function renderFromString($tplContent, $vars) {
+function renderString($tplContent, Array $vars) {
   $t = generateClassForBaseTemplate($tplContent);
   return renderExpandedTemplateAndUnlinkTmpFile($t, $vars);
+}
+
+/** @deprecated Use 'renderString' instead. */
+function renderFromString($tplContent, Array $vars) {
+  return renderString($tplContent, $vars);
 }
 
 function renderFile($path, Context $context) {

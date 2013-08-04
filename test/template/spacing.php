@@ -8,7 +8,7 @@ function testLineEndingsAreMaintained() {
     '<body>',
     '<p>this is my site.</p>',
     '</body>'));
-  $r = T\renderFromString($tpl, array());
+  $r = T\renderString($tpl, array());
   $lines = explode("\n", $r);
   assertEqual(3, count($lines));
   assertEqual('<p>this is my site.</p>', $lines[1]);
