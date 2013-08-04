@@ -25,7 +25,9 @@ function renderFromString($tplContent, $vars) {
   $t = generateClassForBaseTemplate($tplContent);
   require $t->path;
   $renderable = new $t->className;
-  return renderTemplate($renderable, $vars);
+  $out = renderTemplate($renderable, $vars);
+  unlink($t->path);
+  return $out;
 }
 
 function renderFile($path, Context $context) {
@@ -33,7 +35,9 @@ function renderFile($path, Context $context) {
 //  $t = compileFile($path, $context);
   require $t->path;
   $obj = new $t->className;
-  return renderTemplate($obj, $context->vars);
+  $out = renderTemplate($obj, $context->vars);
+  unlink($t->path);
+  return $out;
 }
 
 /**
