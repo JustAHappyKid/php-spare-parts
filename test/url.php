@@ -9,6 +9,8 @@ function testTakingPartsOfURL() {
   assertEqual('/tabs/nada-surf/inside-of-love', URL\takePath($url));
   assertEqual('/index.cfm',
     URL\takePath('https://long.house.gov/index.cfm?sectionid=58&sectiontree=3,58'));
+  assertEqual('v1=this&othervar=that', URL\takeQuery('http://test.org/?v1=this&othervar=that'));
+  assertEqual(null, URL\takeQuery('http://test.net/no/query'));
 }
 
 function testConstructUrlFromRelativeLocation() {
