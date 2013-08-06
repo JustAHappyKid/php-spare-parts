@@ -11,12 +11,17 @@ function takeDomain($url) { return takeUrlPart($url, 'host');   }
 function takePath  ($url) { return takeUrlPart($url, 'path');   }
 function takeQuery ($url) { return takeUrlPart($url, 'query');  }
 
+function takePathAndQuery($url) {
+  $q = takeQuery($url);
+  return takePath($url) . ($q ? ('?' . $q) : '');
+}
+
 function takeUrlPart($url, $part) {
   $parts = parse_url($url);
   if (empty($parts['scheme']) || empty($parts['host'])) {
-    throw new InvalidArgumentException('Invalid URL given');
+    throw new InvalidArgumentException("Invalid URL: $url");
   }
-  return $parts[$part];
+  return isset($parts[$part]) ? $parts[$part] : null;
 }
 
 function constructUrlFromRelativeLocation($baseUrl, $relativeLocation, $secure = null) {
