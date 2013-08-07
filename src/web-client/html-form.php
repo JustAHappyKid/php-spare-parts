@@ -46,9 +46,9 @@ class HtmlForm {
     $formNode = null;
     $forms = $this->search('//form');
     if (count($forms) == 0) {
-      throw new Exception('Could not find a form node in given HTML');
+      throw new InvalidArgumentException('Could not find a form node in given HTML');
     } else if (count($forms) > 1) {
-      throw new Exception('Multiple form nodes found in given HTML');
+      throw new InvalidArgumentException('Multiple form nodes found in given HTML');
     } else {
       $formNode = current($forms);
     }
@@ -171,11 +171,11 @@ class HtmlForm {
     }
     if ($submitButton && is_string($submitButton) &&
         (empty($this->fields[$submitButton]) || !$this->fields[$submitButton]->isSubmitButton())) {
-      throw new Exception("Form has no submit button named '$submitButton'");
+      throw new InvalidArgumentException("Form has no submit button named '$submitButton'");
     }
     if (count($submitButtons) > 1 && $submitButton == null) {
-      throw new Exception("Multiple submit buttons found on form, but no submit button " .
-                          "specified for form submission");
+      throw new InvalidArgumentException("Multiple submit buttons found on form, but no submit " .
+                                         "button specified for form submission");
     }
     if ($submitButton == null && count($submitButtons) == 1) {
       $submitButtonObj = current($submitButtons);
