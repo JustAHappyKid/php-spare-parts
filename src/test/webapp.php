@@ -167,12 +167,12 @@ abstract class WebappTestingHarness extends TestHarness {
     $href = $link->getAttribute('href');
     $path = $href;
     $hrefLower = strtolower($href);
-    $d = URL\takeDomain($hrefLower);
-    if ($d != strtolower($this->domain())) {
-      throw new InvalidArgumentException("Cannot follow link for domain $d as it's " .
-        "not the domain under test ({$this->domain()})");
-    }
     if (beginsWith($hrefLower, 'http:') || beginsWith($hrefLower, 'https:')) {
+      $d = URL\takeDomain($hrefLower);
+      if ($d != strtolower($this->domain())) {
+        throw new InvalidArgumentException("Cannot follow link for domain $d as it's " .
+          "not the domain under test ({$this->domain()})");
+      }
       $path = URL\takePathAndQuery($href);
     }
     $this->get($path);
