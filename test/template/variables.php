@@ -30,3 +30,11 @@ function testSupportForLocalVariables() {
   $r = T\renderString($tpl, array('v1' => 100, 'v2' => 4));
   assertEqual('The total is 104.', $r);
 }
+
+function testSupportForReferencingObjectAttributes() {
+  class MyLittleClass { public $myAttribute; }
+  $o = new MyLittleClass;
+  $o->myAttribute = 'my little string';
+  $tpl = 'The man said, "$man->myAttribute"';
+  assertEqual('The man said, "my little string"', T\renderString($tpl, array('man' => $o)));
+}

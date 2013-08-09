@@ -63,8 +63,9 @@ function expandVariablesInTextPart($tpl) {
   for ($i = 0; $i < count($chars); ++$i) {
     $char = $chars[$i];
     if ($char == '$' && (ctype_alpha($chars[$i+1]) || $chars[$i+1] == '_')) {
-      $vnameChars = A\takeWhile(function($c) { return ctype_alnum($c) || $c == '_'; },
-                      str_split(substr($tpl, $i + 1)));
+      $vnameChars = A\takeWhile(
+        function($c) { return ctype_alnum($c) || in_array($c, array('_', '-', '>')); },
+        str_split(substr($tpl, $i + 1)));
       $i += count($vnameChars);
       $result .= '<?= $' . implode('', $vnameChars) . ' ?>';
     } else {
