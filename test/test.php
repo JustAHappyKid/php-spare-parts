@@ -7,6 +7,8 @@ function main($argc, $argv) {
   error_reporting(E_ALL);
   $baseDir = realpath(dirname(dirname(__FILE__)));
   set_include_path("$baseDir/src:" . get_include_path());
+  require_once 'error-handling.php';
+  SpareParts\ErrorHandling\enableErrorHandler();
   configMockSendmail("$baseDir/test");
   require_once $baseDir . '/src/test/base-framework.php';
   $filesToIgnore = array('mock/bin/*', 'network-enabled/*', 'template/*.diet-php', 'test.php',
