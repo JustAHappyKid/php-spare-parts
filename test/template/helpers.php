@@ -4,11 +4,17 @@ require_once 'template/base.php';
 use \SpareParts\Template as T;
 
 /**
- * Render the given template (string), using given $vars, and normalize spaces
- * (as, in these particular test-cases, we aren't concerned with specific whitespace).
+ * Render the given template (string), using given $vars, and normalize spaces.
  */
 function renderAndNormalize($tpl, Array $vars) {
   return normalizeSpace(T\renderString($tpl, $vars));
+}
+
+/**
+ * Render the given template (file), using given $vars, and normalize spaces.
+ */
+function renderAndNormalizeTplFile($tpl, T\Context $context) {
+  return normalizeSpace(T\renderFile($tpl, $context));
 }
 
 /**
