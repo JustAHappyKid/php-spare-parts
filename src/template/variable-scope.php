@@ -7,8 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/string.php';  # withoutPrefix
 
 use \SpareParts\Template\Token;
 
-# TODO: This should not blindly replace all instances of the variable pattern -- it should
-#       only consider those wrapped in appropriate PHP tags.
 function rescopeVariables($php) {
   //return preg_replace('/\$([a-zA-Z_][a-zA-Z0-9_]*)/', '$vars[\'\\1\']', $php);
   $tokens = token_get_all($php);
