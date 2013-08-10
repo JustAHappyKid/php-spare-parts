@@ -4,13 +4,14 @@ namespace SpareParts\Webapp;
 
 require_once dirname(__FILE__) . '/../fs.php';            # pathJoin
 require_once dirname(__FILE__) . '/../types.php';         # asString, at
+require_once dirname(__FILE__) . '/../reflection.php';    # getClassesDefinedInFile
 require_once dirname(__FILE__) . '/../string.php';        # endsWith
 require_once dirname(__FILE__) . '/../utf8.php';          # hasInvalidUTF8Chars
 require_once dirname(__FILE__) . '/../http.php';          # messageForStatusCode
 require_once dirname(__FILE__) . '/../url.php';           # constructUrlFromRelativeLocation
 require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnection
 
-use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL;
+use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL, \SpareParts\Reflection;
 
 abstract class FrontController {
 
@@ -167,13 +168,19 @@ abstract class FrontController {
       if (is_callable($funcOrClass)) {
         $result = $funcOrClass($context);
       } else if (class_exists($funcOrClass)) {
-        $controller = new $funcOrClass($page);
-        if (method_exists($controller, 'init')) $controller->init();
-        $result = $controller->dispatch($context);
-        //if (!empty($content)) $page->body = $content;
+        $result = $this->invokeController($funcOrClass, $context, $page);
       } else {
-        throw new Exception("Action file '$actionPath' did not return a callable/function or " .
-                            "a class name");
+        $controllers = array_filter(Reflection\getClassesDefinedInFile($actionPath),
+          function($cls) { return is_subclass_of($cls, 'SpareParts\\Webapp\\Controller'); });
+        if (count($controllers) == 1) {
+          $result = $this->invokeController(current($controllers), $context);
+        } else if (count($controllers) > 1) {
+          throw new RoutingException("File '$actionPath' contained multiple classes " .
+            "implementing SpareParts\\Webapp\\Controller");
+        } else {
+          throw new RoutingException("Action file '$actionPath' did not return a callable/" .
+            "function, nor did it provide a class implementing SpareParts\\Webapp\\Controller");
+        }
       }
       if ($result instanceof HttpResponse) {
         return $result;
@@ -194,6 +201,13 @@ abstract class FrontController {
     } else {
       return null;
     }
+  }
+
+  private function invokeController($className, RequestContext $context, $page = null) {
+    $controller = new $className($page);
+    if (method_exists($controller, 'init')) $controller->init();
+    return $controller->dispatch($context);
+    //if (!empty($content)) $page->body = $content;
   }
 
   /*
@@ -353,6 +367,8 @@ class RequestContext {
     return $c;
   }
 }
+
+class RoutingException extends Exception {}
 
 class HttpResponse {
   public $statusCode, $contentType, $content;

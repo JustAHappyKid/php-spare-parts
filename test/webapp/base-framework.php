@@ -18,6 +18,14 @@ class BaseFrameworkTests extends WebappTestHarness {
     }
   }
 
+  # Once upon a time it was required that an "action file" that included a controller also
+  # had to return the name of that controller (see ./actions/a-controller.php)
+  function testAutoDetectionOfControllerClass() {
+    $r = $this->get('/other-controller/come-on-in');
+    assertEqual(200, $r->statusCode);
+    assertEqual('...and take a load off.', $r->content);
+  }
+
   function testSpecialMethodsCannotBeAccessedViaRequest() {
     $this->assertYields404('/a-controller/dispatch');
     $this->assertYields404('/a-controller/init');
