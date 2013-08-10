@@ -13,7 +13,15 @@ function initErrorHandling($sendReportsTo) {
   $__SpareParts_ErrorHandling_sendReportsTo = $sendReportsTo;
   ini_set('docref_root', null);
   ini_set('docref_ext', null);
+  enableErrorHandler();
+  enableExceptionHandler();
+}
+
+function enableErrorHandler() {
   set_error_handler('\\SpareParts\\ErrorHandling\\errorHandler');
+}
+
+function enableExceptionHandler() {
   set_exception_handler('\\SpareParts\\ErrorHandling\\exceptionHandler');
 }
 
