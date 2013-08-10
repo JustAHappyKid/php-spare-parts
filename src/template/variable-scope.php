@@ -7,18 +7,17 @@ require_once dirname(dirname(__FILE__)) . '/string.php';  # withoutPrefix
 
 use \SpareParts\Template\Token;
 
-function rescopeVariables($php) {
-  //return preg_replace('/\$([a-zA-Z_][a-zA-Z0-9_]*)/', '$vars[\'\\1\']', $php);
+function rescopeVariables($php, Array $vars) {
+  $varNames = array_keys($vars);
   $tokens = token_get_all($php);
   $inString = false;
   $expandedCode = '';
   foreach ($tokens as $t) {
     if (is_array($t) && $t[0] == T_VARIABLE) {
       $varName = withoutPrefix($t[1], '$');
-      if ($varName == 'this') {
-        $expandedCode .= '$this';
+      if ($varName == 'this' || !in_array($varName, $varNames)) {
+        $expandedCode .= '$' . $varName;
       } else {
-        //$expandedVar = '$vars[\'' . $varName . '\']';
         $expandedVar = '$this->__vars[\'' . $varName . '\']';
         $expandedCode .= $inString ? ('{' . $expandedVar . '}') : $expandedVar;
       }

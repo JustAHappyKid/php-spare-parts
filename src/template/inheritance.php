@@ -6,41 +6,53 @@ require_once dirname(__FILE__) . '/exceptions.php';       # ParseError
 require_once dirname(__FILE__) . '/LineByLineParser.php'; # LineByLineParser
 
 abstract class MethodOrBlock {
-  public $name, $body;
-  abstract public function generate();
-}
-class Block  extends MethodOrBlock {
-  public function generate() {
-    $expanded = expandShorthandPhpVariableSubstitution(
-      expandShorthandPhpLogic($this->body));
-    $rescoped = rescopeVariables($expanded);
-    return "function {$this->name}() { ?>\n" . $rescoped . "<? }";
-  }
-}
-class Method extends MethodOrBlock {
-  public $params;
-  public function generate() {
-    return "function {$this->name}({$this->params}) {\n" . $this->body . "}";
+  public $name, $body, $params = '';
+  abstract public function generate(Array $vars);
+  protected function functionSignature() {
+    return "function {$this->name}({$this->params})";
   }
 }
 
-function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody, $pathToTpl) {
+class Block extends MethodOrBlock {
+  public function generate(Array $vars) {
+    $expanded = expandShorthandPhpVariableSubstitution(
+      expandShorthandPhpLogic($this->body));
+    $rescoped = rescopeVariables($expanded, $vars);
+    return $this->functionSignature() . " { ?>\n" . $rescoped . "<? }";
+  }
+}
+
+class Method extends MethodOrBlock {
+  public function generate(Array $vars) {
+    return $this->functionSignature() . " {\n" . $this->body . "}";
+  }
+}
+
+function childTemplateToChildClass(ExpandedTemplate $baseTpl, Array $vars, $tplBody, $pathToTpl) {
   $blocksAndMethods = array();
   $p = new LineByLineParser($tplBody);
   while ($p->moreLinesLeft()) {
     $ln = $p->takeLine();
     if (beginsWith($ln, 'block ')) {
-      $parts = explode(' ', $ln);
+      $m = null;
+      preg_match('/^\\s*block\\s+([_0-9a-zA-Z]*)\\s*(\\(([^\\)]*)\\))?\\s*{$/', $ln, $m);
+      // $parts = explode(' ', $ln);
+      /*
       if (count($parts) != 3 || $parts[2] != '{') {
         throw new ParseError("Block-definition line did not match expected format: $ln",
                              $pathToTpl, $p->lineNum());
       }
+      */
+      if (!$m) throw new ParseError("Block-definition line did not match expected format: $ln",
+                                    $pathToTpl, $p->lineNum());
       $block = new Block;
-      $block->name = $parts[1];
+      // $block->name = $parts[1];
+      $block->name = $m[1];
       if (!isValidBlockName($block->name)) {
         throw new ParseError("`{$block->name}` is an invalid block name",
                              $pathToTpl, $p->lineNum());
       }
+      $block->params = at($m, 3, '');
       $block->body = takeBody($p);
       $blocksAndMethods []= $block;
     } else if (beginsWith($ln, 'function ')) {
@@ -58,7 +70,7 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody, $pathToT
     }
   }
   $renderedMethods = array_map(
-    function(MethodOrBlock $x) { return $x->generate(); }, $blocksAndMethods);
+    function(MethodOrBlock $x) use($vars) { return $x->generate($vars); }, $blocksAndMethods);
   $className = uniqueClassName();
   $content = "<?php
     require_once '{$baseTpl->path}';
@@ -139,8 +151,8 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody) {
   ";
   return saveExpandendTemplate($content, 'SubTemplate');
 }
-
 */
+
 # TODO: Support any valid PHP function name for block name
 function isValidBlockName($name) {
   return preg_match('/^[a-zA-Z]+$/', $name);

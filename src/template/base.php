@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . '/inheritance.php';      # expandBlockReference
 use \InvalidArgumentException, \Closure, \SpareParts\Reflection;
 
 function renderString($tplContent, Array $vars) {
-  $t = generateClassForBaseTemplate($tplContent);
+  $t = generateClassForBaseTemplate($tplContent, $vars);
   return renderExpandedTemplateAndUnlinkTmpFile($t, $vars);
 }
 
@@ -43,9 +43,9 @@ function renderTemplate(Renderable $tpl, $vars) {
 
 /**
  * If $path is a simple PHP file, then it's loaded (via `require`) and is expected
- * to have an implementation of Renderable. Otherwise, if a Diet PHP file, is compiled
- * to a Renderable. In either case, an instance of the Renderable implementation
- * is returned.
+ * to have an implementation of Renderable. Otherwise, if $path is a Diet PHP file,
+ * it is compiled to a Renderable. In either case, an instance of the Renderable
+ * implementation is returned.
  * @return ExpandedTemplate
  */
 function produceRenderableFromFile($path, Context $context) {
@@ -92,19 +92,19 @@ function generateClassFromTemplateFile($relPath, Context $context) {
     $parentTplFile = trim($quotedFname, "'\"");
     $parentTpl = produceRenderableFromFile($parentTplFile, $context);
 //    $parentTpl = generateClassFromTemplateFile($parentTplFile, $context);
-    return childTemplateToChildClass($parentTpl, $blocks, $relPath);
+    return childTemplateToChildClass($parentTpl, $context->vars, $blocks, $relPath);
     // $expanded = expandShorthandPHP($blocks);
     // return saveMethodsAsClass($expanded);
   } else {
-    return generateClassForBaseTemplate($content);
+    return generateClassForBaseTemplate($content, $context->vars);
   }
 }
 
-function generateClassForBaseTemplate($content) {
+function generateClassForBaseTemplate($content, Array $vars) {
   $expanded = expandShorthandPhpVariableSubstitution(
     expandShorthandPhpLogic($content));
   list($blocksFixed, $_) = expandBlockReferences($expanded);
-  $rescoped = rescopeVariables($blocksFixed);
+  $rescoped = rescopeVariables($blocksFixed, $vars);
   return saveAsRenderableClass($rescoped);
 }
 

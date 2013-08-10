@@ -1,5 +1,6 @@
 <?php
 
+require_once dirname(dirname(__FILE__)) . '/helpers.php';
 require_once 'template/base.php';
 require_once 'string.php';        # contains
 
@@ -37,6 +38,13 @@ function testSupportForLogicEmbeddedWithinBlock() {
   $context = getContext(array('loggedIn' => true, 'name' => 'Fred'));
   $result = T\renderFile('embedded-logic.diet-php', $context);
   assertTrue(contains($result, "Welcome Fred!"));
+}
+
+function testSupportForBlocksThatAcceptParameters() {
+  $result = renderAndNormalizeTplFile('block-with-params.diet-php', getContext());
+  assertTrue(contains($result, "Hey there. Did you eat steak for dinner?"));
+  assertTrue(contains($result, "Or... Did you eat empanadas for dinner?"));
+  assertTrue(contains($result, "The number 1 plus 5 minus 2 is 4."));
 }
 
 function getContext($vars = array()) {

@@ -1,0 +1,19 @@
+!extends 'layout.diet-php'
+
+block title {
+  I have a block that takes a parameter
+}
+
+block dynamicContent {
+  <p>Hey there. <?= $this->helperMethod('steak') ?>
+    Or... <?= $this->helperMethod("empanadas") ?></p>
+  <p><?= $this->multiParamBlock(1, 5, 2) ?></p>
+}
+
+block helperMethod($food) {
+  Did you eat <?= $food ?> for dinner?
+}
+
+block multiParamBlock($a, $b, $c) {
+  The number <?= $a ?> plus <?= $b ?> minus <?= $c ?> is <?= $a + $b - $c ?>.
+}
