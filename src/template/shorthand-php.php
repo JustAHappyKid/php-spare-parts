@@ -4,6 +4,7 @@ namespace SpareParts\Template;
 
 require_once dirname(dirname(__FILE__)) . '/array.php';   # flatten
 require_once dirname(dirname(__FILE__)) . '/string.php';  # beginsWith, withoutPrefix, ...
+require_once dirname(__FILE__) . '/LineByLineParser.php'; # LineByLineParser
 
 use \SpareParts\ArrayLib as A;
 
@@ -22,18 +23,49 @@ use \SpareParts\ArrayLib as A;
  *   <?php } ?>
  */
 function expandShorthandPhpLogic($tpl) {
-  $linesOrig = explode("\n", $tpl);
-  $linesFixed = array_map(function($line) {
-    if (beginsWith(trim($line), '?')) {
-      return '<?php ' . withoutPrefix(trim($line), '?') . ' ?>';
-    } else if (trim($line) == '}') {
-      return '<?php ' . trim($line) . ' ?>';
-    } else {
-      return $line;
-    }
-  }, $linesOrig);
-  return implode("\n", $linesFixed);
+  $parser = new LineByLineParser($tpl);
+  return expandLineByLine($parser);
 }
+
+function expandLineByLine(LineByLineParser $parser) {
+  $result = "";
+  while ($parser->moreLinesLeft()) {
+    $line = $parser->takeLine();
+    if (beginsWith(ltrim($line), '?')) {
+      $indentation = substr($line, 0, strlen($line) - strlen(ltrim($line)));
+      $result .= $indentation . phpBlock(withoutPrefix(ltrim($line), '?'));
+      if (endsWith(rtrim($line), '{')) {
+        $innerContent = readBracketedContent($parser, $indentation);
+        $result .=
+          $innerContent . "\n" .
+          $indentation . phpBlock('}') . "\n";
+      }
+    } else {
+      $result .= $line . "\n";
+    }
+  }
+  return rtrim($result);
+}
+
+function readBracketedContent(LineByLineParser $parser, $indentation) {
+  $content = "";
+  $firstLineNum = $parser->lineNum() - 1;
+  $line = $parser->takeLine();
+  while ($line != ($indentation . '}')) {
+    /*
+    echo "line == '$line'\n";
+    echo "seeking '" . $indentation . "}'\n\n";
+    */
+    $content .= $line . "\n";
+    if (!$parser->moreLinesLeft())
+      throw new ParseError("Reach end-of-file while searching for closing-bracket for block " .
+                           "that began on line $firstLineNum", "XXX", $parser->lineNum());
+    $line = $parser->takeLine();
+  }
+  return $content;
+}
+
+function phpBlock($c) { return "<?php $c ?>"; }
 
 /**
  * Expand variables (alpha-numeric sequences beginning with `$`) within all "T_INLINE_HTML" parts

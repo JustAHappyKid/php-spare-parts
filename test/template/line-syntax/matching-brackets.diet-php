@@ -1,0 +1,13 @@
+
+<html> <body>
+  <p>Welcome.</p>
+  ? if ($showAlert) {
+    <script type="text/javascript">
+      if (window.location == 'http://mysite.com/') {
+        alert("You're on my site!");
+      } else {
+        alert("Where are we?");
+      }
+    </script>
+  }
+</body> </html>
