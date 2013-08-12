@@ -3,7 +3,7 @@
 namespace SpareParts\Template;
 
 require_once dirname(__FILE__) . '/exceptions.php';       # ParseError
-require_once dirname(__FILE__) . '/LineByLineParser.php'; # LineByLineParser
+require_once dirname(__FILE__) . '/LineByLineLexer.php';  # LineByLineLexer
 
 abstract class MethodOrBlock {
   public $name, $body, $params = '';
@@ -30,7 +30,7 @@ class Method extends MethodOrBlock {
 
 function childTemplateToChildClass(ExpandedTemplate $baseTpl, Array $vars, $tplBody, $pathToTpl) {
   $blocksAndMethods = array();
-  $p = new LineByLineParser($tplBody);
+  $p = new LineByLineLexer($tplBody);
   while ($p->moreLinesLeft()) {
     $ln = $p->takeLine();
     if (beginsWith($ln, 'block ')) {
@@ -81,7 +81,7 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, Array $vars, $tplB
   return saveExpandendTemplate($content, $className);
 }
 
-function takeBody(LineByLineParser $parser) {
+function takeBody(LineByLineLexer $parser) {
   $body = '';
   $ln = $parser->takeLine();
   while (strlen($ln) == 0 || $ln[0] != '}') {

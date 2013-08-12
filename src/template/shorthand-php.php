@@ -4,7 +4,7 @@ namespace SpareParts\Template;
 
 require_once dirname(dirname(__FILE__)) . '/array.php';   # flatten
 require_once dirname(dirname(__FILE__)) . '/string.php';  # beginsWith, withoutPrefix, ...
-require_once dirname(__FILE__) . '/LineByLineParser.php'; # LineByLineParser
+require_once dirname(__FILE__) . '/LineByLineLexer.php';  # LineByLineLexer
 
 use \SpareParts\ArrayLib as A;
 
@@ -23,11 +23,11 @@ use \SpareParts\ArrayLib as A;
  *   <?php } ?>
  */
 function expandShorthandPhpLogic($tpl) {
-  $parser = new LineByLineParser($tpl);
+  $parser = new LineByLineLexer($tpl);
   return expandLineByLine($parser);
 }
 
-function expandLineByLine(LineByLineParser $parser) {
+function expandLineByLine(LineByLineLexer $parser) {
   $result = "";
   while ($parser->moreLinesLeft()) {
     $line = $parser->takeLine();
@@ -47,7 +47,7 @@ function expandLineByLine(LineByLineParser $parser) {
   return rtrim($result);
 }
 
-function readBracketedContent(LineByLineParser $parser, $indentation) {
+function readBracketedContent(LineByLineLexer $parser, $indentation) {
   $content = "";
   $firstLineNum = $parser->lineNum() - 1;
   $line = $parser->takeLine();
