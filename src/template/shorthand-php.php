@@ -107,11 +107,25 @@ function expandVariablesInTextPart($tpl) {
   for ($i = 0; $i < count($chars); ++$i) {
     $char = $chars[$i];
     if ($char == '$' && (ctype_alpha($chars[$i+1]) || $chars[$i+1] == '_')) {
+      /*
       $vnameChars = A\takeWhile(
         function($c) { return ctype_alnum($c) || in_array($c, array('_', '-', '>')); },
         str_split(substr($tpl, $i + 1)));
       $i += count($vnameChars);
-      $result .= '<?= $' . implode('', $vnameChars) . ' ?>';
+      */
+      $vnameChars = '$';
+      $i += 1;
+      while (ctype_alnum(A\at($chars, $i)) || A\at($chars, $i) == '_' ||
+             (A\at($chars, $i) == '-' && A\at($chars, $i+1) == '>')) {
+        $vnameChars .= $chars[$i];
+        $i += 1;
+        if (A\at($chars, $i) == '>') {
+          $vnameChars .= '>';
+          $i += 1;
+        }
+      }
+      $i -= 1;
+      $result .= '<?= ' . $vnameChars . ' ?>';
     } else {
       $result .= $char;
     }

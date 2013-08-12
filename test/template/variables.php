@@ -17,6 +17,10 @@ function testLiteralDollarAmountStringIsNotConstruedAsVariable() {
   assertEqual('<p>It costs $500.</p>', $r);
 }
 
+function testTemplateThatContainsNothingButAVariable() {
+  assertEqual('bueno', T\renderString('$justThis', array('justThis' => 'bueno')));
+}
+
 function testSupportForVarEmbeddedInStringInPhpBlock() {
   $tpl = '<?php $css = "width: $theWidth%;"; ?>$css';
   $r = T\renderString($tpl, array('theWidth' => 75));
@@ -37,4 +41,9 @@ function testSupportForReferencingObjectAttributes() {
   $o->myAttribute = 'my little string';
   $tpl = 'The man said, "$man->myAttribute"';
   assertEqual('The man said, "my little string"', T\renderString($tpl, array('man' => $o)));
+}
+
+function testSupportForObjectOperatorIsNotOverzealous() {
+  $tpl = '<span>$newVar<!--$oldVar--></span>';
+  T\renderString($tpl, array('oldVar' => 'in the comment', 'newVar' => 'this is it'));
 }
