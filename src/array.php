@@ -17,6 +17,11 @@ function head(Array $a) {
   return reset($a);
 }
 
+function at($arr, $index, $default = null) {
+  require_once dirname(__FILE__) . '/types.php';
+  return \at($arr, $index, $default);
+}
+
 function filterByKey(Closure $qualify, Array $orig) {
   $result = array();
   foreach ($orig as $k => $v) {
