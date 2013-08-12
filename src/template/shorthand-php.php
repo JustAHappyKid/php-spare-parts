@@ -9,8 +9,20 @@ require_once dirname(__FILE__) . '/LineByLineLexer.php';  # LineByLineLexer
 use \SpareParts\ArrayLib as A;
 
 /**
- * Expand lines beginning with `?` or containing only a single closing curly-bracket (`}`) to
- * PHP "logic lines".  For example, the following...
+ * Expand "shorthand line" and "shorthand control-structure" syntax.
+ *
+ * "Shorthand line" syntax includes any line beginning with `?` (excluding whitespace).
+ * For example, the following line...
+ *
+ *   ? $myLocalVar = 1 + 1;
+ *
+ * ...would become...
+ *
+ *    <?php $myLocalVar = 1 + 1; ?>
+ *
+ * "Shorthand control-structure" syntax allows for a PHP control structure (if-statement,
+ * for-loop, etc) to be defined similar to above, but the "closing-bracket line" need NOT
+ * begin with a `?`. For example...
  *
  *   ? if ($myBool) {
  *     <p>It's true!</p>
