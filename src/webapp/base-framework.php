@@ -40,12 +40,6 @@ abstract class FrontController {
       $this->info("Posted values: " . asString($_POST));
     }
 
-    if (empty($_SERVER['HTTP_HOST'])) {
-      // $this->warn("HTTP_HOST environment variable not set for request, so ...");
-      throw new HttpProtocolError("No HTTP 'Host' header included in request " .
-                                  "(i.e., \$_SERVER['HTTP_HOST'] was empty)");
-    }
-
     $response = $this->handleRequest();
     $this->outputHttpResponse($response);
 
@@ -71,6 +65,9 @@ abstract class FrontController {
   // XXX: Made public for the purposes of testing...  Should we factor this method
   //      into separate module or something??
   public function handleRequest() {
+    if (empty($_SERVER['HTTP_HOST'])) {
+      return $this->simpleTextResponse(400, "No 'Host' header given");
+    }
     $this->setCommandAndRequestedPath();
     $referrerInfo = " (referrer is " .
       (empty($_SERVER['HTTP_REFERER']) ? "unknown" : $_SERVER['HTTP_REFERER']) . ")";
@@ -391,7 +388,6 @@ class DoRedirect extends Exception {
 
 class PageNotFound extends Exception {}
 class AccessForbidden extends Exception {}
-class HttpProtocolError extends Exception {}
 class MaliciousRequestException extends Exception {}
 
 class HtmlPage {
