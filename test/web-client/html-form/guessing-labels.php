@@ -1,5 +1,8 @@
 <?php
 
+require_once 'web-client/html-form.php';
+use \SpareParts\WebClient\HtmlForm;
+
 function testGuessingLabels() {
   $formHtml = '
     <form action="/path/to-it" method="post">
