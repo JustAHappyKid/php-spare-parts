@@ -235,7 +235,11 @@ class HtmlForm {
     while ($textContent == '' && $node != null) {
       if ($node) $textContent = trim($node->textContent);
       if ($field instanceof HtmlRadioButtonField) {
-        foreach ($field->textAfter as $t)
+        $btnLabels = $field->textAfter;
+        # We sort the labels longest-to-shortest, to avoid issues with a substring of one label
+        # matching exactly the full label of a prior one.
+        usort($btnLabels, function($a, $b) { return strlen($b) - strlen($a); });
+        foreach ($btnLabels as $t)
           $textContent = trim(str_replace($t, '', $textContent));
       }
       $node = $node->parentNode; //current($this->search('..', $node));
