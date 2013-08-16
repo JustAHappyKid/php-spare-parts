@@ -235,7 +235,8 @@ class HtmlForm {
     while ($textContent == '' && $node != null) {
       if ($node) $textContent = trim($node->textContent);
       if ($field instanceof HtmlRadioButtonField) {
-        foreach ($field->textAfter as $t) $textContent = trim(str_replace($t, '', $textContent));
+        foreach ($field->textAfter as $t)
+          $textContent = trim(str_replace($t, '', $textContent));
       }
       $node = $node->parentNode; //current($this->search('..', $node));
     }
