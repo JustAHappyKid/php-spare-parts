@@ -1,5 +1,19 @@
 <?php
 
+function testGuessingLabels() {
+  $formHtml = '
+    <form action="/path/to-it" method="post">
+      <div>Prefix:
+        <select name="salutation"><option>Mr.</option><option>Mrs.</option></select></div>
+      <div>Your Name: <input type="text" name="name" /></div>
+      <div>Message: <textarea name="yer-msg">here</textarea></div>
+    </form>';
+  $form = new HtmlForm($formHtml);
+  assertEqual("Prefix:", $form->guessFieldLabel($form->fields['salutation']));
+  assertEqual("Your Name:", $form->guessFieldLabel($form->fields['name']));
+  assertEqual("Message:", $form->guessFieldLabel($form->fields['yer-msg']));
+}
+
 function testGuessingLabelForRadioButtonSet() {
   $form = new HtmlForm('<form> <div>
       <p>Would you like a banana? <strong class="required">*</strong></p>
@@ -18,20 +32,6 @@ function testGuessingLabelForRadioButtonSet() {
     </div> </form>');
   assertTrue(strstr($form->guessFieldLabel($form->fields['banana-check']),
                     'Would you like a banana') != false);
-}
-
-function testGuessingLabels() {
-  $formHtml = '
-    <form action="/path/to-it" method="post">
-      <div>Prefix:
-        <select name="salutation"><option>Mr.</option><option>Mrs.</option></select></div>
-      <div>Your Name: <input type="text" name="name" /></div>
-      <div>Message: <textarea name="yer-msg">here</textarea></div>
-    </form>';
-  $form = new HtmlForm($formHtml);
-  assertEqual("Prefix:", $form->guessFieldLabel($form->fields['salutation']));
-  assertEqual("Your Name:", $form->guessFieldLabel($form->fields['name']));
-  assertEqual("Message:", $form->guessFieldLabel($form->fields['yer-msg']));
 }
 
 function testCallingGuessFieldLabelTwiceDoesNotBreak() {
