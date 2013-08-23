@@ -53,7 +53,7 @@ function produceRenderableFromFile($path, Context $context) {
   if (endsWith($path, '.php')) {
     $iface = 'SpareParts\\Template\\Renderable';
     $absPath = $context->baseDir . '/' . $path;
-    if (!is_readable($absPath)) throw new NoSuchTemplate("No template exists at $path");
+    if (!is_readable($absPath)) throw new NoSuchTemplate($path);
     require_once $absPath;
     $all = Reflection\getClassesDefinedInFile($absPath);
     $impls = array_filter($all,
