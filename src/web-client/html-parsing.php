@@ -41,6 +41,7 @@ function htmlSoupToDOMDocument($html, $logPrefix = null) {
 
   # Output (if requested) and then clear the errors that libxml produced...
   if ($logPrefix !== null) {
+    # TODO: We should not be directly accessing logging library here!
     foreach (libxml_get_errors() as $error) warn($logPrefix . ": " . trim($error->message));
   }
   libxml_clear_errors();
