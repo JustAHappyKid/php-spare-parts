@@ -123,14 +123,14 @@ function saveMethodsAsClass($methods) {
       $methods
     }
   ";
-  return saveExpandendTemplate($content, $className);
+  return saveExpandedTemplate($content, $className);
 }
 
 function uniqueClassName() {
   return uniqid("sparePartsTpl");
 }
 
-function saveExpandendTemplate($content, $className) {
+function saveExpandedTemplate($content, $className) {
   $tmpF = tempnam(sys_get_temp_dir(), 'spare-parts-tpl');
   file_put_contents($tmpF, $content);
   return new ExpandedTemplate($tmpF, $className);

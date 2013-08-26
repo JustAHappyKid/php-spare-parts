@@ -78,7 +78,7 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, Array $vars, $tplB
       " . implode("\n\n", $renderedMethods) . "
     }
   ";
-  return saveExpandendTemplate($content, $className);
+  return saveExpandedTemplate($content, $className);
 }
 
 function takeBody(LineByLineLexer $parser) {
@@ -149,7 +149,7 @@ function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody) {
       " . implode("\n", $fixedLines) . "
     }
   ";
-  return saveExpandendTemplate($content, 'SubTemplate');
+  return saveExpandedTemplate($content, 'SubTemplate');
 }
 */
 
