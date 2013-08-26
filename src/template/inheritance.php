@@ -124,35 +124,6 @@ function expandBlockReferences($code) {
   return array($expandedCode, $blockNames);
 }
 
-/*
-function childTemplateToChildClass(ExpandedTemplate $baseTpl, $tplBody) {
-  $lines = explode("\n", $tplBody);
-  $fixedLines = array_map(
-    function($ln) {
-      if (beginsWith(trim($ln), 'block ')) {
-        $parts = explode(' ', $ln);
-        if (count($parts) != 3 || $parts[2] != '{') {
-          throw new ParseError("Block definition line did not match expected format: $ln");
-        }
-        $name = $parts[1];
-        if (!isValidBlockName($name)) {
-          throw new ParseError("Invalid block name: $name");
-        }
-        return "function $name() { ?>";
-      } else {
-        return $ln;
-      }
-    },
-    $lines);
-  $content = "<?php
-    class SubTemplate extends {$baseTpl->className} {
-      " . implode("\n", $fixedLines) . "
-    }
-  ";
-  return saveExpandedTemplate($content, 'SubTemplate');
-}
-*/
-
 # TODO: Support any valid PHP function name for block name
 function isValidBlockName($name) {
   return preg_match('/^[a-zA-Z]+$/', $name);
