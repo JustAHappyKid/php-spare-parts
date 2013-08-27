@@ -15,8 +15,6 @@ function testSupportForSimpleIfStatement() {
   assertEqual('<p>Duh.</p>', renderAndNormalize($tpl, array()));
 }
 
-/*
-  TODO: Fix support for this...
 function testSupportForIfElse() {
   $getTpl = function($switch) { return "
     The heat is...
@@ -26,10 +24,9 @@ function testSupportForIfElse() {
       off.
     }
   "; };
-  assertEqual('The heat is... on.',  renderAndNormalize($getTpl(true), array()));
-  assertEqual('The heat is... off.', renderAndNormalize($getTpl(false), array()));
+  assertEqual('The heat is... on.',  renderAndNormalize($getTpl('true'), array()));
+  assertEqual('The heat is... off.', renderAndNormalize($getTpl('false'), array()));
 }
-*/
 
 # The parser should only consider closing-brackets that appear in the same column
 # as that which began the given 'block'.

@@ -63,7 +63,7 @@ function readBracketedContent(LineByLineLexer $parser, $indentation) {
   $content = "";
   $firstLineNum = $parser->lineNum() - 1;
   $line = $parser->takeLine();
-  while ($line != ($indentation . '}')) {
+  while (!beginsWith($line, ($indentation . '}'))) {
     /*
     echo "line == '$line'\n";
     echo "seeking '" . $indentation . "}'\n\n";
@@ -73,6 +73,10 @@ function readBracketedContent(LineByLineLexer $parser, $indentation) {
       throw new ParseError("Reach end-of-file while searching for closing-bracket for block " .
                            "that began on line $firstLineNum", "XXX", $parser->lineNum());
     $line = $parser->takeLine();
+  }
+  if (endsWith(rtrim($line), '{')) {
+    $content .= $indentation . phpBlock(ltrim($line)) . "\n" .
+      readBracketedContent($parser, $indentation);
   }
   return $content;
 }
