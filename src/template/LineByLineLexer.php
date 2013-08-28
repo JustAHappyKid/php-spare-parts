@@ -23,6 +23,10 @@ class LineByLineLexer {
     return $this->currentLine < count($this->lines);
   }
 
+  public function noLinesLeft() {
+    return $this->currentLine >= count($this->lines);
+  }
+
   public function lineNum() { return $this->currentLine + 1; }
 
 /*
