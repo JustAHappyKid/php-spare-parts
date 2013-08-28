@@ -28,6 +28,17 @@ function testSupportForIfElse() {
   assertEqual('The heat is... off.', renderAndNormalize($getTpl('false'), array()));
 }
 
+function testSupportForEmbeddedIf() {
+  $tpl = "
+    ? if (1 == 1) {
+      ? if (5 == 5) {
+        Math works!
+      }
+    }
+  ";
+  assertEqual('Math works!',  renderAndNormalize($tpl, array()));
+}
+
 # The parser should only consider closing-brackets that appear in the same column
 # as that which began the given 'block'.
 function testMatchingBrackets() {

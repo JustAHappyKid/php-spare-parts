@@ -39,44 +39,46 @@ function expandShorthandPhpLogic($tpl) {
   return expandLineByLine($parser);
 }
 
-function expandLineByLine(LineByLineLexer $parser) {
+function expandLineByLine(LineByLineLexer $scanner) {
   $result = "";
-  while ($parser->moreLinesLeft()) {
-    $line = $parser->takeLine();
-    if (beginsWith(ltrim($line), '?')) {
-      $indentation = substr($line, 0, strlen($line) - strlen(ltrim($line)));
-      $result .= $indentation . phpBlock(withoutPrefix(ltrim($line), '?'));
-      if (endsWith(rtrim($line), '{')) {
-        $innerContent = readBracketedContent($parser, $indentation);
-        $result .=
-          $innerContent . "\n" .
-          $indentation . phpBlock('}') . "\n";
-      }
-    } else {
-      $result .= $line . "\n";
-    }
+  while ($scanner->moreLinesLeft()) {
+    $result .= processLine($scanner->takeLine(), $scanner);
   }
   return rtrim($result);
 }
 
-function readBracketedContent(LineByLineLexer $parser, $indentation) {
+function processLine($line, LineByLineLexer $scanner) {
+  if (beginsWith(ltrim($line), '?')) {
+    $indentation = substr($line, 0, strlen($line) - strlen(ltrim($line)));
+    $block = $indentation . phpBlock(withoutPrefix(ltrim($line), '?'));
+    if (endsWith(rtrim($line), '{')) {
+      $innerContent = readBracketedContent($scanner, $indentation);
+      $block .=
+        $innerContent . "\n" .
+        $indentation . phpBlock('}') . "\n";
+    }
+    return $block;
+  } else {
+    return "$line\n";
+  }
+}
+
+function readBracketedContent(LineByLineLexer $scanner, $indentation) {
+  $firstLineNum = $scanner->lineNum() - 1;
+  $line = $scanner->takeLine();
   $content = "";
-  $firstLineNum = $parser->lineNum() - 1;
-  $line = $parser->takeLine();
   while (!beginsWith($line, ($indentation . '}'))) {
-    /*
-    echo "line == '$line'\n";
-    echo "seeking '" . $indentation . "}'\n\n";
-    */
-    $content .= $line . "\n";
-    if (!$parser->moreLinesLeft())
-      throw new ParseError("Reach end-of-file while searching for closing-bracket for block " .
-                           "that began on line $firstLineNum", "XXX", $parser->lineNum());
-    $line = $parser->takeLine();
+//    echo "line == '$line'\n";
+//    echo "seeking '" . $indentation . "}'\n\n";
+    $content .= processLine($line, $scanner);
+    if ($scanner->noLinesLeft())
+      throw new ParseError("Reached end-of-file while searching for closing-bracket for block " .
+        "that began on line $firstLineNum", "XXX", $scanner->lineNum());
+    $line = $scanner->takeLine();
   }
   if (endsWith(rtrim($line), '{')) {
     $content .= $indentation . phpBlock(ltrim($line)) . "\n" .
-      readBracketedContent($parser, $indentation);
+      readBracketedContent($scanner, $indentation);
   }
   return $content;
 }
