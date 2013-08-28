@@ -437,14 +437,20 @@ function newDateField($name, $label) { return new DateField($name, $label); }
 
 class DollarAmountField extends BasicTextField {
 
-  protected $maxAmount = null, $maxAmountErr;
+  protected
+    $minAmount = 0,    $minAmountErr,
+    $maxAmount = null, $maxAmountErr;
 
   function __construct($name, $label) {
     $this->setClass('dollar-amount');
     parent::__construct($name, $label);
   }
 
-  # TODO: Add 'minAmount' method
+  function minAmount($amount, $validationErr = null) {
+    $this->minAmount = $amount;
+    $this->minAmountErr = $validationErr;
+    return $this;
+  }
 
   function maxAmount($amount, $validationErr = null) {
     $this->maxAmount = $amount;
@@ -465,9 +471,12 @@ class DollarAmountField extends BasicTextField {
       $err = "Please provide a valid dollar amount" .
         (empty($this->nameForValidation) ? "." : " for the {$this->nameForValidation}.");
       return array($err);
+    } else if ($this->minAmount !== null && floatval($amount) < $this->minAmount) {
+      return array($this->minAmountErr ? $this->minAmountErr :
+        "Please specify an amount of at least {$this->minAmount}.");
     } else if ($this->maxAmount !== null && floatval($amount) > $this->maxAmount) {
       return array($this->maxAmountErr ? $this->maxAmountErr :
-        "Sorry, the maximum allowed amount is {$this->maxAmount}");
+        "Sorry, the maximum allowed amount is {$this->maxAmount}.");
     } else {
       $this->cleanedValue = (float) $amount;
       return array();
