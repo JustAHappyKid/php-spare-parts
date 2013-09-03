@@ -96,7 +96,8 @@ abstract class WebappTestingHarness extends TestHarness {
     }
   }
 
-  protected function submitForm($form, $nonDefaultValues = array(), $submitButton = null) {
+  protected function submitForm(HtmlForm $form, Array $nonDefaultValues = array(),
+                                $submitButton = null) {
     $this->justSubmitForm($form, $nonDefaultValues, $submitButton);
     $errors = $this->getValidationErrors();
     if (count($errors) > 0) {
