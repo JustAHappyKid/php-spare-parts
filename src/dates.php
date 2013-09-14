@@ -58,7 +58,9 @@ function getLastDayOfMonth($year, $month) {
   } else {
     $m = $monthNum + 1; $y = $yearNum;
   }
-  $timestamp = strtotime("$y-$m-01 -1 day");
+  // $timestamp = strtotime("$y-$m-01 -1 day");
+  $oneDay = (60 * 60 * 24);
+  $timestamp = strtotime("$y-$m-01") - $oneDay;
   return intval(date('d', $timestamp));
 }
 
