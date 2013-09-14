@@ -15,7 +15,11 @@ function rescopeVariables($php, Array $vars) {
   foreach ($tokens as $t) {
     if (is_array($t) && $t[0] == T_VARIABLE) {
       $varName = withoutPrefix($t[1], '$');
-      if ($varName == 'this' || !in_array($varName, $varNames)) {
+      if ($varName == 'this') {
+        $expandedCode .= '$' . $varName;
+      } else if (!in_array($varName, $varNames)) {
+//        $expandedCode .= 'if (!isset($' . $varName .'))' .
+//          'throw new \\SpareParts\\Template\\UndefinedVariable("' . $varName . '");';
         $expandedCode .= '$' . $varName;
       } else {
         $expandedVar = '$this->__vars[\'' . $varName . '\']';
