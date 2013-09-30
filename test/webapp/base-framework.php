@@ -78,4 +78,11 @@ class BaseFrameworkTests extends WebappTestHarness {
     assertTrue(strstr($r->content, 'Welcome to the index of dir2') != false,
       'Expected to reach the action in file dir1/dir2/index.php');
   }
+
+  function testProvidingInvalidSessionID() {
+    $fc = new \SpareParts\SelfTesting\FrontControllerForTesting(dirname(__FILE__));
+    $cookieName = $fc->nameOfSessionCookie();
+    $_COOKIE[$cookieName] = "4b!'@#$%^&*()[]{}-BM`~";
+    $fc->configureAndStartSession();
+  }
 }

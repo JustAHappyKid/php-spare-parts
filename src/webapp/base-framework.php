@@ -299,7 +299,7 @@ abstract class FrontController {
            (isset($_SERVER['HTTP_USER_AGENT']) ?
              ('the following User-Agent: ' . $_SERVER['HTTP_USER_AGENT']) : 'unknown User-Agent'));
     } else if (!preg_match('/^[-,a-zA-Z0-9]+$/', $_COOKIE[$sessionName])) {
-      warn("Illegal session-ID provided: " . $_COOKIE[$sessionName]);
+      $this->warn("Illegal session-ID provided: " . $_COOKIE[$sessionName]);
       unset($_COOKIE[$sessionName]);
     }
 
