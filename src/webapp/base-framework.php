@@ -47,7 +47,7 @@ abstract class FrontController {
       "remote address {$_SERVER['REMOTE_ADDR']} $referrerInfo");
   }
 
-  private function outputHttpResponse(HttpResponse $response) {
+  protected function outputHttpResponse(HttpResponse $response) {
     header("HTTP/1.1 " . messageForStatusCode($response->statusCode));
     if ($response->contentType) {
       header('Content-Type: ' . $response->contentType);
@@ -303,7 +303,7 @@ abstract class FrontController {
       unset($_COOKIE[$sessionName]);
     }
 
-    session_start();
+    $this->sessionStart();
 
     # Reset the expiration time every-time the user hits our site.
     if (isset($_COOKIE[$sessionName])) {
@@ -311,6 +311,8 @@ abstract class FrontController {
                 '/', $cookieDomain);
     }
   }
+
+  protected function sessionStart() { session_start(); }
 
   private function checkForSpaceAtEndOfRequestedPath() {
     $unescaped = urldecode($this->requestedPath);
