@@ -71,7 +71,7 @@ class BaseFrameworkTests extends WebappTestHarness {
   }
 
   function testCaseWhereDirectoryIsMirroredByFileOfSameName() {
-    # In the actions directory, both a directory named 'dir1' and a file name 'dir1.php' exist...
+    # In the actions directory, both a directory named 'dir1' and a file named 'dir1.php' exist...
     # In the request here, the file (dir1.php) should be ignored, and this should map to
     # 'dir1/dir2/index.php'.
     $r = $this->get('/dir1/dir2/');
