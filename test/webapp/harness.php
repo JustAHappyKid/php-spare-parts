@@ -11,8 +11,8 @@ class WebappTestHarness extends WebappTestingHarness {
 
   protected function dispatchToWebapp() {
     global $__frontControllerForTesting;
-    $r = $__frontControllerForTesting->handleRequest();
-    return $r;
+    $__frontControllerForTesting->go();
+    return $__frontControllerForTesting->lastResponse;
   }
 
   protected function getValidationErrors() {
@@ -22,11 +22,22 @@ class WebappTestHarness extends WebappTestingHarness {
 }
 
 class FrontControllerForTesting extends Webapp\FrontController {
+
   protected function info($msg) { }
   protected function notice($msg) { }
   protected function warn($msg) { }
   protected function sessionLifetimeInSeconds() { return 60 * 60 * 3; /* 3 hours */ }
   protected function checkAccessPrivileges($cmd, $user) { return true; }
+
+  # Redefine both of these as public for testing purposes.
+  public function nameOfSessionCookie() { return parent::nameOfSessionCookie(); }
+  public function configureAndStartSession() { return parent::configureAndStartSession(); }
+  protected function sessionStart() { /* Do nothing -- override call to session_start */ }
+
+  public $lastResponse;
+  protected function outputHttpResponse(Webapp\HttpResponse $r) {
+    return $this->lastResponse = $r;
+  }
 
   # XXX: Should we not have a base-line implementation of this in the base FrontController??
   protected function renderAndOutputPage($page) {
