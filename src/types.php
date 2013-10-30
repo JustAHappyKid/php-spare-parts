@@ -1,10 +1,17 @@
 <?php
 
+# TODO: Phase this file out...
+#   * Move functions that should be available in global/base namespace to 'global-utils.php'.
+#   * Move other functions to more particular sub-libs/namespaces.
+
+require_once dirname(__FILE__) . '/global-utils.php';
+
 function asString($var, $singleLine = true) {
   $exp = var_export($var, true);
   return $singleLine ? str_replace("\n", " ", $exp) : $exp;
 }
 
+/*
 function at($arr, $index, $default = null) {
   if ($arr === null) {
     return $default;
@@ -14,6 +21,7 @@ function at($arr, $index, $default = null) {
     return in_array($index, array_keys($arr), $strict = true) ? $arr[$index] : $default;
   }
 }
+*/
 
 function attr($obj, $attr, $default = null) {
   return (is_object($obj) && isset($obj->$attr)) ? $obj->$attr : $default;

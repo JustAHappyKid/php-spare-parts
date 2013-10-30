@@ -2,7 +2,7 @@
 
 namespace SpareParts\ArrayLib;
 
-use \Closure;
+use \Closure, \InvalidArgumentException;
 
 /**
  * This method may at first appear to be a useless wrapper for 'reset', but it serves two
@@ -18,8 +18,13 @@ function head(Array $a) {
 }
 
 function at($arr, $index, $default = null) {
-  require_once dirname(__FILE__) . '/types.php';
-  return \at($arr, $index, $default);
+  if ($arr === null) {
+    return $default;
+  } else if (!is_array($arr)) {
+    throw new InvalidArgumentException("First parameter must be an array");
+  } else {
+    return in_array($index, array_keys($arr), $strict = true) ? $arr[$index] : $default;
+  }
 }
 
 function filterByKey(Closure $qualify, Array $orig) {
