@@ -2,8 +2,9 @@
 
 namespace SpareParts\Template;
 
-require_once dirname(__FILE__) . '/exceptions.php';       # ParseError
-require_once dirname(__FILE__) . '/LineByLineLexer.php';  # LineByLineLexer
+require_once dirname(dirname(__FILE__)) . '/global-utils.php';  # at
+require_once dirname(__FILE__) . '/exceptions.php';             # ParseError
+require_once dirname(__FILE__) . '/LineByLineLexer.php';        # LineByLineLexer
 
 abstract class MethodOrBlock {
   public $name, $body, $params = '';
