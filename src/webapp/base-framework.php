@@ -199,7 +199,7 @@ abstract class FrontController {
 
   protected function invokeController($className, RequestContext $context) {
     $controller = $this->getControllerByName($className);
-    if (method_exists($controller, 'init')) $controller->init();
+    $controller->init();
     return $controller->dispatch($context);
   }
 

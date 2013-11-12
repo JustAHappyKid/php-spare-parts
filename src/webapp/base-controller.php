@@ -17,7 +17,13 @@ class Controller {
   /** @var RequestContext */
   protected $context;
 
-  function dispatch(RequestContext $context) {
+  /**
+   * Override this method of all action-methods of the controller implementation need
+   * to execute the same initialization code.
+   */
+  public function init() {}
+
+  public function dispatch(RequestContext $context) {
     $this->context = $context;
     $this->user = $context->user;
     return $this->routeTo($context->takeNextPathComponent(), $context);
