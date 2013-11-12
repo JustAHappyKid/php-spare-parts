@@ -41,6 +41,16 @@ function flatten(Array $origArray) {
   return $flatArray;
 }
 
+function groupBy(Closure $getKey, Array $orig) {
+  $result = array();
+  foreach ($orig as $a) {
+    $key = $getKey($a);
+    if (empty($result[$key])) $result[$key] = array();
+    $result[$key] []= $a;
+  }
+  return $result;
+}
+
 function takeWhile(Closure $qualify, Array $a) {
   $result = array();
   foreach ($a as $item) {
