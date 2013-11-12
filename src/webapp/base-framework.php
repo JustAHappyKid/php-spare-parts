@@ -206,6 +206,8 @@ abstract class FrontController {
   /**
    * Override this method if, for example, you want to pass custom data to your controllers
    * (such as request data or a default page-layout object or what have you).
+   * @param string $className Fully-qualified name for class (that extends from Controller)
+   * @return Controller
    */
   protected function getControllerByName($className) {
     return new $className();
