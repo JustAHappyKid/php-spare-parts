@@ -157,15 +157,11 @@ abstract class FrontController {
         }
       }
 
-      # TODO: Phase out this concept of a "default page".
-      $page = method_exists($this, 'getDefaultPageForRequest') ?
-        $this->getDefaultPageForRequest() : null;
-
       $result = null;
       if (is_callable($funcOrClass)) {
-        $result = $funcOrClass($context);
+        $result = $this->invokeAction($funcOrClass, $context);
       } else if (class_exists($funcOrClass)) {
-        $result = $this->invokeController($funcOrClass, $context, $page);
+        $result = $this->invokeController($funcOrClass, $context /*, $page*/);
       } else {
         $controllers = array_filter(Reflection\getClassesDefinedInFile($actionPath),
           function($cls) { return is_subclass_of($cls, 'SpareParts\\Webapp\\Controller'); });
@@ -181,15 +177,12 @@ abstract class FrontController {
       }
       if ($result instanceof HttpResponse) {
         return $result;
-      } else if ($result instanceof HtmlPage) {
-        return $this->renderAndOutputPage($result);
-      } else if (is_string($result) || empty($result)) {
-        if ($page !== null) {
-          if (!empty($result)) $page->body = $result;
-          return $this->renderAndOutputPage($page);
-        } else {
-          return $this->simpleHtmlResponse(200, $result);
-        }
+      } else if ($result instanceof Renderable) {
+        return $result->toHttpResponse();
+      } else if (is_string($result)) {
+        return $this->simpleHtmlResponse(200, $result);
+      } else if (empty($result)) {
+        throw new Exception("Action returned empty/null response");
       } else {
         throw new Exception("Expected action to return null, a string, an object of type " .
                             "HtmlPage, or an object of type HttpResponse, but got the " .
@@ -200,21 +193,23 @@ abstract class FrontController {
     }
   }
 
-  private function invokeController($className, RequestContext $context, $page = null) {
-    $controller = new $className($page);
-    if (method_exists($controller, 'init')) $controller->init();
-    return $controller->dispatch($context);
-    //if (!empty($content)) $page->body = $content;
+  protected function invokeAction($funcOrClass, RequestContext $context) {
+    return $funcOrClass($context);
   }
 
-  /*
-  protected function getDefaultPageForRequest() {
-    $page = new HtmlPage;
-    $page->currentLocation = $_SERVER['REQUEST_URI'];
-    $page->contentType = 'text/html; charset=utf-8';
-    return $page;
+  protected function invokeController($className, RequestContext $context) {
+    $controller = $this->getControllerByName($className);
+    if (method_exists($controller, 'init')) $controller->init();
+    return $controller->dispatch($context);
   }
-  */
+
+  /**
+   * Override this method if, for example, you want to pass custom data to your controllers
+   * (such as request data or a default page-layout object or what have you).
+   */
+  protected function getControllerByName($className) {
+    return new $className();
+  }
 
   protected function handlePageNotFound($referrerInfo) {
     $relocateTo = null;
@@ -342,7 +337,6 @@ abstract class FrontController {
 
   protected function getUserForCurrentRequest() { return null; }
   abstract protected function checkAccessPrivileges($cmd, $user);
-  abstract protected function renderAndOutputPage($page);
 
   protected function nameOfSessionCookie() { return 'sessionid'; }
   protected function cookieDomain() { return null; }
@@ -372,6 +366,11 @@ class RoutingException extends Exception {}
 class HttpResponse {
   public $statusCode, $contentType, $content;
   private $headers = array();
+  function __construct($statusCode = null, $contentType = null, $content = null) {
+    $this->statusCode = $statusCode;
+    $this->contentType = $contentType;
+    $this->content = $content;
+  }
   public function addHeader($name, $value) {
     if (empty($this->headers[$name])) $this->headers[$name] = array();
     $this->headers[$name] []= $value;
@@ -392,8 +391,13 @@ class PageNotFound extends Exception {}
 class AccessForbidden extends Exception {}
 class MaliciousRequestException extends Exception {}
 
-class HtmlPage {
-  public $contentType = 'text/html', $body = '';
+abstract class Renderable {
+  abstract public function render();
+  public function statusCode() { return 200; }
+  public function contentType() { return "text/html"; }
+  public function toHttpResponse() {
+    return new HttpResponse($this->statusCode(), $this->contentType(), $this->render());
+  }
 }
 
 function htmlResponse($html, $charset = null) {
