@@ -13,7 +13,8 @@ require_once dirname(__FILE__) . '/assertions.php';                     # assert
 require_once dirname(dirname(__FILE__)) . '/web-client/html-form.php';  # HtmlForm
 require_once dirname(dirname(__FILE__)) . '/url.php';                   # makeUrlQuery, ...
 
-use \BadMethodCallException, \InvalidArgumentException, \DOMDocument, \DOMNode, \DOMXPath,
+use \BadMethodCallException, \InvalidArgumentException, \UnexpectedValueException,
+  \DOMDocument, \DOMNode, \DOMElement, \DOMXPath,
   \SpareParts\Test\TestHarness, \SpareParts\Test\TestFailure, \SpareParts\URL,
   \SpareParts\WebClient\HtmlForm, \SpareParts\WebClient, \SpareParts\Webapp\HttpResponse;
 
@@ -179,11 +180,33 @@ abstract class WebappTestingHarness extends TestHarness {
     $this->get($path);
   }
 
-  protected function xpathQuery($xpath) {
+  /**
+   * Like xpathQuery but will raise an exception if a non-element node is found for
+   * the given query/expression.
+   * @param string $expression XPath expression to query on
+   * @throws UnexpectedValueException
+   * @return DOMElement[]
+   */
+  protected function findElements($expression) {
+    $es = $this->xpathQuery($expression);
+    foreach ($es as $e) {
+      if (!($e instanceof DOMElement))
+        throw new \UnexpectedValueException("Expected to find only DOMElement nodes for XPath " .
+          "expression $expression but got node of type " . get_class($e));
+    }
+    return $es;
+  }
+
+  /**
+   * Return all nodes in content of current page that match the given XPath expression.
+   * @param string $expression XPath expression to query on
+   * @return DOMNode[]
+   */
+  protected function xpathQuery($expression) {
     $this->xpathObj = WebClient\htmlSoupToXPathObject($this->currentPageContent());
-    $r = $this->xpathObj->evaluate($xpath);
+    $r = $this->xpathObj->evaluate($expression);
     $elems = array();
-    if (empty($r)) fail("No matches found for XPath expression: $xpath");
+    if (empty($r)) fail("No matches found for XPath expression: $expression");
     for ($i = 0; $i < $r->length; ++$i) {
       $elems[] = $r->item($i);
     }
