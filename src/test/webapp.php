@@ -14,9 +14,8 @@ require_once dirname(dirname(__FILE__)) . '/web-client/html-form.php';  # HtmlFo
 require_once dirname(dirname(__FILE__)) . '/url.php';                   # makeUrlQuery, ...
 
 use \BadMethodCallException, \InvalidArgumentException, \UnexpectedValueException,
-  \DOMDocument, \DOMNode, \DOMElement, \DOMXPath,
-  \SpareParts\Test\TestHarness, \SpareParts\Test\TestFailure, \SpareParts\URL,
-  \SpareParts\WebClient\HtmlForm, \SpareParts\WebClient, \SpareParts\Webapp\HttpResponse;
+  \DOMDocument, \DOMNode, \DOMElement, \SpareParts\URL, \SpareParts\WebClient,
+  \SpareParts\WebClient\HtmlForm, \SpareParts\Webapp\HttpResponse;
 
 abstract class WebappTestingHarness extends TestHarness {
 
@@ -160,13 +159,11 @@ abstract class WebappTestingHarness extends TestHarness {
   protected function clickLink($xpathToLink) {
     $dom = new DOMDocument();
     $dom->loadHTML($this->currentPageContent());
-    $xpathObj = new DOMXPath($dom);
-    $hrefs = $xpathObj->query($xpathToLink);
-    if ($hrefs == false || $hrefs->length == 0) {
+    $as = $this->findElements($xpathToLink);
+    if (count($as) == 0) {
       fail("Could not find link matching XPath expression: $xpathToLink");
     }
-    $link = $hrefs->item(0);
-    $href = $link->getAttribute('href');
+    $href = $as[0]->getAttribute('href');
     $path = $href;
     $hrefLower = strtolower($href);
     if (beginsWith($hrefLower, 'http:') || beginsWith($hrefLower, 'https:')) {
