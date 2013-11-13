@@ -161,7 +161,7 @@ abstract class FrontController {
       if (is_callable($funcOrClass)) {
         $result = $this->invokeAction($funcOrClass, $context);
       } else if (class_exists($funcOrClass)) {
-        $result = $this->invokeController($funcOrClass, $context /*, $page*/);
+        $result = $this->invokeController($funcOrClass, $context);
       } else {
         $controllers = array_filter(Reflection\getClassesDefinedInFile($actionPath),
           function($cls) { return is_subclass_of($cls, 'SpareParts\\Webapp\\Controller'); });
@@ -327,14 +327,6 @@ abstract class FrontController {
     $origPath = $parts[0];
     $this->requestedPath = preg_replace('@\/index\.php[\/]*@i', '', $origPath);
     $this->cmd = explode('/', preg_replace('@^\/@', '', $this->requestedPath));
-  }
-
-  protected function getStaticPages() {
-    $staticPaths = array();
-    foreach (getFilesInDir(pathJoin(WEBAPP_DIR, 'templates', 'static')) as $fname) {
-      $staticPaths[] = substr($fname, 0, -4);
-    }
-    return $staticPaths;
   }
 
   protected function getUserForCurrentRequest() { return null; }
