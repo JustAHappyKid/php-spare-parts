@@ -68,7 +68,7 @@ abstract class WebappTestingHarness extends TestHarness {
   protected function get($path, $queryVars = null, $serverVars = null) {
     if ($queryVars !== null && strstr($path, '?') !== false) {
       throw new InvalidArgumentException(
-        "Query string given in \$path and \$queryVars was specified; " .
+        "Query string specified in both \$path and \$queryVars parameters; " .
         "please use one or the other for specifying your 'GET' parameters");
     }
     $_GET = $queryVars ? $queryVars : array();
@@ -191,6 +191,7 @@ abstract class WebappTestingHarness extends TestHarness {
         throw new \UnexpectedValueException("Expected to find only DOMElement nodes for XPath " .
           "expression $expression but got node of type " . get_class($e));
     }
+    reset($es);
     return $es;
   }
 
@@ -202,12 +203,12 @@ abstract class WebappTestingHarness extends TestHarness {
   protected function xpathQuery($expression) {
     $this->xpathObj = WebClient\htmlSoupToXPathObject($this->currentPageContent());
     $r = $this->xpathObj->evaluate($expression);
-    $elems = array();
+    $nodes = array();
     if (empty($r)) fail("No matches found for XPath expression: $expression");
     for ($i = 0; $i < $r->length; ++$i) {
-      $elems[] = $r->item($i);
+      $nodes[] = $r->item($i);
     }
-    return $elems;
+    return $nodes;
   }
 
   protected function assertContains($xpath) {
