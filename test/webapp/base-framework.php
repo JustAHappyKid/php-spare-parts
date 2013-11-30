@@ -85,4 +85,14 @@ class BaseFrameworkTests extends WebappTestHarness {
     $_COOKIE[$cookieName] = "4b!'@#$%^&*()[]{}-BM`~";
     $fc->configureAndStartSession();
   }
+
+  function testSupportForArrayInGetAndPostGlobals() {
+    $_GET = array('a' => array(1, 2, 3));
+    $_POST = array('b' => array(4, 5));
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = "/do-redirect";
+    $_SERVER['HTTP_HOST'] = 'example.com';
+    $fc = new \SpareParts\SelfTesting\FrontControllerForTesting(dirname(__FILE__));
+    $response = $fc->go();
+  }
 }

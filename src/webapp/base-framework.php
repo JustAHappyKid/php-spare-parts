@@ -250,23 +250,35 @@ abstract class FrontController {
   }
 
   protected function checkForMaliciousContent() {
-    $suspectContent = array("/passwd", "sleep(", "../", "%00");
     $varsToCheck = array('POST' => $_POST, 'GET' => $_GET, 'COOKIE' => $_COOKIE);
     foreach ($varsToCheck as $baseName => $base) {
       if (empty($base)) $base = array();
-      foreach ($base as $var => $val) {
-        foreach ($suspectContent as $suspect) {
-          if (contains(strtolower($var), $suspect) || contains(strtolower($val), $suspect)) {
-            throw new MaliciousRequestException(
-              "Found suspect content in \$_$baseName at index '$var': $val");
-          }
-        }
-      }
+      $this->checkForMaliciousContentInArray($base, $baseName);
     }
     foreach ($_COOKIE as $var => $val) {
       if (is_array($val)) {
         throw new MaliciousRequestException(
           "Found array in \$_COOKIE content at index '$var': " . asString($val));
+      }
+    }
+  }
+
+  private function checkForMaliciousContentInArray(Array $a, $arrayName) {
+    $suspectContent = array("/passwd", "sleep(", "../", "%00");
+    foreach ($a as $var => $val) {
+      if (is_array($val)) {
+        $this->checkForMaliciousContentInArray($val, $arrayName);
+      } else {
+        foreach ($suspectContent as $suspect) {
+          if (contains(strtolower($val), $suspect))
+            throw new MaliciousRequestException(
+              "Found suspect content in \$_$arrayName at index '$var': $val");
+        }
+      }
+      foreach ($suspectContent as $suspect) {
+        if (contains(strtolower($var), $suspect))
+          throw new MaliciousRequestException(
+            "Found suspect content in key of \$_$arrayName: $var");
       }
     }
   }
