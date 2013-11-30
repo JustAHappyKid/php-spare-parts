@@ -150,6 +150,11 @@ abstract class BaseFormContainer {
     return $this->findFieldByName($name)->renderInputHtml();
   }
 
+  /**
+   * @param string $name Name of field
+   * @return Field
+   * @throws Exception
+   */
   public function findFieldByName($name) {
     foreach ($this->nodes as $n) {
       if ($n instanceof Field) {
@@ -308,7 +313,7 @@ class RadioButtonSet extends Field {
         "<input type=\"radio\" value=\"$value\"" . $checked . $this->attrsHtml() . " />" .
         " $label</li>\n";
     }
-    return "<ul style=\"list-style-type: none; list-style-position: inside;\">$html</ul>";
+    return "<ul style=\"list-style: none inside;\">$html</ul>";
   }
 }
 function newRadioButtonSet($name, $label, $options) {
@@ -551,7 +556,7 @@ class MultiCheckboxField extends Field {
         "<input type=\"checkbox\" name=\"{$this->name}[$value]\" value=\"t\"" .
         $checked . " />" . " $label</li>\n";
     }
-    return "<ul style=\"list-style-type: none; list-style-position: inside;\">$html</ul>";
+    return "<ul style=\"list-style: none inside;\">$html</ul>";
   }
   public function validate(Array $submittedValues) {
     $this->checked = array();
