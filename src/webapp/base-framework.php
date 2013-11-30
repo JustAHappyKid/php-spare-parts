@@ -62,9 +62,7 @@ abstract class FrontController {
     echo $response->content;
   }
 
-  // XXX: Made public for the purposes of testing...  Should we factor this method
-  //      into separate module or something??
-  public function handleRequest() {
+  private function handleRequest() {
     if (empty($_SERVER['HTTP_HOST'])) {
       return $this->simpleTextResponse(400, "No 'Host' header given");
     }
