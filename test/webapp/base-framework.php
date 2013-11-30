@@ -65,7 +65,7 @@ class BaseFrameworkTests extends WebappTestHarness {
     unset($_SERVER['HTTP_HOST']);
     $fc = new \SpareParts\SelfTesting\FrontControllerForTesting(dirname(__FILE__));
     try {
-      $response = $fc->handleRequest();
+      $response = $fc->go();
       fail('Expected exception to be raised since HTTP_HOST is not set');
     } catch (Exception $_) { /* that's what we're looking for! */ }
   }
