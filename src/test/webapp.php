@@ -268,15 +268,21 @@ abstract class WebappTestingHarness extends TestHarness {
     } else if ($this->lastResponse->statusCode == 404) {
       throw new HttpNotFound;
     } else {
-      throw new UnexpectedHttpResponseCode("Response contained invalid/unexpected " .
-        "HTTP status code: " . $this->lastResponse->statusCode);
+      throw new UnexpectedHttpResponseCode($this->lastResponse->statusCode);
     }
   }
 
   const maxRedirects = 10;
 }
 
-class HttpNonOkayResponse extends TestFailure {}
+class HttpNonOkayResponse extends TestFailure {
+  public $statusCode;
+  function __construct($code) {
+    $this->statusCode = $code;
+    $this->message = "Received unexpected HTTP status code: $code";
+  }
+}
+
 class HttpRedirect extends HttpNonOkayResponse {
   public $path;
   function __construct($path, $code) {
@@ -284,7 +290,12 @@ class HttpRedirect extends HttpNonOkayResponse {
     $this->statusCode = $code;
   }
 }
-class HttpNotFound extends HttpNonOkayResponse {}
+
+class HttpNotFound extends HttpNonOkayResponse {
+  function __construct() {
+    $this->statusCode = 404;
+  }
+}
 class UnexpectedHttpResponseCode extends HttpNonOkayResponse {}
 class NoSuchForm extends TestFailure {}
 class ValidationErrors extends TestFailure {}
