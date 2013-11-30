@@ -38,15 +38,6 @@ class FrontControllerForTesting extends Webapp\FrontController {
   protected function outputHttpResponse(Webapp\HttpResponse $r) {
     return $this->lastResponse = $r;
   }
-
-  # XXX: Should we not have a base-line implementation of this in the base FrontController??
-  protected function renderAndOutputPage($page) {
-    $response = new Webapp\HttpResponse;
-    $response->statusCode = 200;
-    $response->contentType = $page->contentType;
-    $response->content = $page->body;
-    return $response;
-  }
 }
 
 global $__frontControllerForTesting;
