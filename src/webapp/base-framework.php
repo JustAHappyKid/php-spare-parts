@@ -79,6 +79,7 @@ abstract class FrontController {
     }
     $r = null;
     try {
+      $this->checkForMaliciousContent();
       $r = $this->dispatch();
     } catch (DoRedirect $e) {
       $r = $this->redirectResponse($e->path, $e->statusCode, $referrerInfo);
@@ -248,6 +249,28 @@ abstract class FrontController {
     $response->contentType = 'text/html; charset=utf-8';
     $response->content = $content;
     return $response;
+  }
+
+  protected function checkForMaliciousContent() {
+    $suspectContent = array("/passwd", "sleep(", "../", "%00");
+    $varsToCheck = array('POST' => $_POST, 'GET' => $_GET, 'COOKIE' => $_COOKIE);
+    foreach ($varsToCheck as $baseName => $base) {
+      if (empty($base)) $base = array();
+      foreach ($base as $var => $val) {
+        foreach ($suspectContent as $suspect) {
+          if (contains(strtolower($var), $suspect) || contains(strtolower($val), $suspect)) {
+            throw new MaliciousRequestException(
+              "Found suspect content in \$_$baseName at index '$var': $val");
+          }
+        }
+      }
+    }
+    foreach ($_COOKIE as $var => $val) {
+      if (is_array($val)) {
+        throw new MaliciousRequestException(
+          "Found array in \$_COOKIE content at index '$var': " . asString($val));
+      }
+    }
   }
 
   private function checkForRedirectDueToExtraCrapOnURI() {
