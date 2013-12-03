@@ -18,6 +18,29 @@ abstract class FrontController {
   protected $webappDir, $actionsDir, $requestedPath, $cmd;
   private $requiredActions = array();
 
+  /**
+   * Logging functions. It's recommended you override these methods, routing the provided $msg,
+   * in each case, to your logging mechanism of choice.
+   */
+  protected function info  ($msg) {}
+  protected function notice($msg) {}
+  protected function warn  ($msg) {}
+
+  /**
+   * Access-control and user session support.
+   */
+  protected function getUserForCurrentRequest() { return null; }
+  protected function checkAccessPrivileges($cmd, $user) { return true; }
+  protected function nameOfSessionCookie() { return 'sessionid'; }
+  protected function sessionLifetimeInSeconds() { return 60 * 60 * 24; /* one day */ }
+
+  /**
+   * If you run your website off of more than one sub-domain (e.g., a.my-site.com and
+   * b.my-site.com) and those two domains need to have access to the same cookies,
+   * override this method appropriately.
+   */
+  protected function cookieDomain() { return null; }
+
   function __construct($webappDir) {
     $this->webappDir = $webappDir;
     $this->actionsDir = pathJoin($this->webappDir, 'actions');
@@ -361,16 +384,6 @@ abstract class FrontController {
     $this->requestedPath = preg_replace('@\/index\.php[\/]*@i', '', $origPath);
     $this->cmd = explode('/', preg_replace('@^\/@', '', $this->requestedPath));
   }
-
-  protected function getUserForCurrentRequest() { return null; }
-  abstract protected function checkAccessPrivileges($cmd, $user);
-
-  protected function nameOfSessionCookie() { return 'sessionid'; }
-  protected function cookieDomain() { return null; }
-  abstract protected function sessionLifetimeInSeconds();
-  abstract protected function info($msg);
-  abstract protected function notice($msg);
-  abstract protected function warn($msg);
 }
 
 class RequestContext {
