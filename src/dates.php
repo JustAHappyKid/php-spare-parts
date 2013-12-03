@@ -2,7 +2,9 @@
 
 namespace SpareParts\DateTime;
 
-use \DateTime, \InvalidArgumentException;
+require_once dirname(__FILE__) . '/reflection.php'; # identifyClassOrType
+
+use \DateTime, \InvalidArgumentException, \SpareParts\Reflection;
 
 # A class representing *only* a date -- no time component is kept.
 class DateSansTime {
@@ -14,8 +16,7 @@ class DateSansTime {
       $this->date = strftime('%Y-%m-%d', strtotime($date));
     } else {
       throw new InvalidArgumentException("Expected DateTime object or string representation " .
-        "of date, but got " . (is_object($date) ? ("object of class " . get_class($date)) :
-                                                  gettype($date)));
+        "of date, but got " . Reflection\identifyClassOrType($date));
     }
   }
   public function dayAfter() {
