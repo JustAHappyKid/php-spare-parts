@@ -10,6 +10,7 @@ require_once dirname(__FILE__) . '/../utf8.php';          # hasInvalidUTF8Chars
 require_once dirname(__FILE__) . '/../http.php';          # messageForStatusCode
 require_once dirname(__FILE__) . '/../url.php';           # constructUrlFromRelativeLocation
 require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnection
+require_once dirname(__FILE__) . '/filters/interface.php';# Filter
 
 use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL, \SpareParts\Reflection;
 
@@ -17,6 +18,30 @@ abstract class FrontController {
 
   protected $webappDir, $actionsDir, $requestedPath, $cmd;
   private $requiredActions = array();
+
+  function __construct($webappDir) {
+    $this->webappDir = $webappDir;
+    $this->actionsDir = pathJoin($this->webappDir, 'actions');
+    if (!is_dir($this->actionsDir)) {
+      throw new Exception("'actions' directory does not exist at expected " .
+                          "location, {$this->actionsDir}");
+    }
+    foreach ($this->filters() as $f) {
+      if (!($f instanceof Filter))
+        throw new Exception("Found " . Reflection\identifyClassOrType($f) . ", which does " .
+                            "not implement the Filter interface");
+    }
+  }
+
+  /**
+   * Filters. Provide an array of Filter implementations, each of which will be invoked
+   * for each incoming request and respective outgoing response. For incoming requests
+   * the filters will be invoked (via the 'incoming' method) in the order in which they
+   * appear in the array; for outgoing requests, they'll be invoked (via the 'outgoing'
+   * method) in reverse order.
+   * @return Filter[]
+   */
+  protected function filters() { return array(); }
 
   /**
    * Logging functions. It's recommended you override these methods, routing the provided $msg,
@@ -40,15 +65,6 @@ abstract class FrontController {
    * override this method appropriately.
    */
   protected function cookieDomain() { return null; }
-
-  function __construct($webappDir) {
-    $this->webappDir = $webappDir;
-    $this->actionsDir = pathJoin($this->webappDir, 'actions');
-    if (!is_dir($this->actionsDir)) {
-      throw new Exception("'actions' directory does not exist at expected " .
-                          "location, {$this->actionsDir}");
-    }
-  }
 
   public function go() {
 
@@ -100,8 +116,18 @@ abstract class FrontController {
     }
     $r = null;
     try {
+
+      # XXX: Make this a filter?
       $this->checkForMaliciousContent();
+
+      foreach ($this->filters() as $f) $f->incoming();
+
       $r = $this->dispatch();
+
+      /** @var Filter[] $filtersReversed */
+      $filtersReversed = array_reverse($this->filters());
+      foreach ($filtersReversed as $f) $f->outgoing($r);
+
     } catch (DoRedirect $e) {
       $r = $this->redirectResponse($e->path, $e->statusCode, $referrerInfo);
     } catch (AccessForbidden $_) {
