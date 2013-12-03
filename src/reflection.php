@@ -4,6 +4,10 @@ namespace SpareParts\Reflection;
 
 use \ReflectionFunction, \ReflectionClass, \ReflectionObject, \ReflectionMethod;
 
+function identifyClassOrType($x) {
+  return is_object($x) ? ("object of class " . get_class($x)) : gettype($x);
+}
+
 function numberOfParameters($func) {
   $rf = new ReflectionFunction($func);
   return $rf->getNumberOfParameters();
