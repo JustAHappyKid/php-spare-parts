@@ -10,6 +10,7 @@ require_once dirname(__FILE__) . '/../utf8.php';          # hasInvalidUTF8Chars
 require_once dirname(__FILE__) . '/../http.php';          # messageForStatusCode
 require_once dirname(__FILE__) . '/../url.php';           # constructUrlFromRelativeLocation
 require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnection
+require_once dirname(__FILE__) . '/http-response.php';    # HttpResponse
 require_once dirname(__FILE__) . '/filters/interface.php';# Filter
 
 use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL, \SpareParts\Reflection;
@@ -429,22 +430,6 @@ class RequestContext {
 
 class RoutingException extends Exception {}
 
-class HttpResponse {
-  public $statusCode, $contentType, $content;
-  private $headers = array();
-  function __construct($statusCode = null, $contentType = null, $content = null) {
-    $this->statusCode = $statusCode;
-    $this->contentType = $contentType;
-    $this->content = $content;
-  }
-  public function addHeader($name, $value) {
-    if (empty($this->headers[$name])) $this->headers[$name] = array();
-    $this->headers[$name] []= $value;
-  }
-  public function headersSet() { return array_keys($this->headers); }
-  public function getValuesForHeader($name) { return $this->headers[$name]; }
-}
-
 class DoRedirect extends Exception {
   public $path;
   function __construct($path, $code = 302) {
@@ -464,12 +449,4 @@ abstract class Renderable {
   public function toHttpResponse() {
     return new HttpResponse($this->statusCode(), $this->contentType(), $this->render());
   }
-}
-
-function htmlResponse($html, $charset = null) {
-  $r = new HttpResponse();
-  $r->content = $html;
-  $r->contentType = 'text/html' . ($charset ? "charset=$charset" : "");
-  $r->statusCode = 200;
-  return $r;
 }
