@@ -56,3 +56,16 @@ function assertInArray($value, $arr) {
                           asString($arr));
   }
 }
+
+function assertThrows($exception, Closure $code) {
+  $raised = null;
+  try {
+    $code();
+    $raised = false;
+  } catch (Exception $e) {
+    $raised = true;
+    assertEqual($exception, get_class($e),
+      "Expected to get exception of type $exception; got exception " . get_class($e));
+  }
+  if (!$raised) fail("No exception was raised, but expected $exception");
+}
