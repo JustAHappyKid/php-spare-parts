@@ -17,6 +17,13 @@ function head(Array $a) {
   return reset($a);
 }
 
+function tail(Array $a) {
+  if (count($a) == 0)
+    throw new InvalidArgumentException("Zero-length array has no tail");
+  else
+    return array_slice($a, 1);
+}
+
 function at($arr, $index, $default = null) {
   if ($arr === null) {
     return $default;
