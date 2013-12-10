@@ -9,6 +9,11 @@ function at($arr, $index, $default = null) {
   return SpareParts\ArrayLib\at($arr, $index, $default);
 }
 
+function tail($arr) {
+  require_once dirname(__FILE__) . '/array.php';
+  return SpareParts\ArrayLib\tail($arr);
+}
+
 function head(Array $arr) {
   require_once dirname(__FILE__) . '/array.php';
   return SpareParts\ArrayLib\head($arr);
