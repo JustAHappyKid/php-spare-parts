@@ -28,9 +28,13 @@ function testGetLastDayOfMonth() {
   assertEqual(28, DT\getLastDayOfMonth(2007, 2));
   assertEqual(29, DT\getLastDayOfMonth(2008, 2));
   assertEqual(28, DT\getLastDayOfMonth(2009, 2));
-  assertEqual(31, DT\getLastDayOfMonth(1100, 1));
+  assertEqual(31, DT\getLastDayOfMonth(1997, 1));
+  assertEqual(31, DT\getLastDayOfMonth(1902, 1));
+  //assertEqual(31, DT\getLastDayOfMonth(1901, 1));
+  //assertEqual(31, DT\getLastDayOfMonth(1100, 1));
   assertEqual(30, DT\getLastDayOfMonth(2030, 11));
-  assertEqual(31, DT\getLastDayOfMonth(500, 12));
+  //assertEqual(31, DT\getLastDayOfMonth(500, 12));
+  assertEqual(31, DT\getLastDayOfMonth(1955, 12));
 }
 
 function testGetNextDay() {

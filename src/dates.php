@@ -53,6 +53,10 @@ function getNextMonth($date) {
 function getLastDayOfMonth($year, $month) {
   $yearNum = intval($year);
   $monthNum = intval($month);
+  if ($yearNum < 1902)
+    throw new InvalidArgumentException("Sorry, no dates before 1902 supported");
+  if ($monthNum < 1 || $monthNum > 12)
+    throw new InvalidArgumentException("Invalid month provided: $month");
   $m = null; $y = null;
   if ($monthNum == 12) {
     $m = 1; $y = $yearNum + 1;
