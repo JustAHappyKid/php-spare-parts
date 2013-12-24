@@ -63,7 +63,7 @@ class RecoverableError    extends Error {}
 class PhpDeprecated       extends Deprecated {}
 class UserDeprecated      extends Deprecated {}
 
-function errorHandler($errno, $errMsg, $file, $line) {
+function errorHandler($errNo, $errMsg, $file, $line) {
 
   $errorTypes = array(
     E_ERROR             => 'StandardPhpError',
@@ -77,30 +77,16 @@ function errorHandler($errno, $errMsg, $file, $line) {
     E_DEPRECATED        => 'PhpDeprecated',
     E_USER_DEPRECATED   => 'UserDeprecated');
 
-  // XXX: This was causing problems at one point or another...
-  //      Do we need/want it?
-  // Clear any output buffers that have been set
-  //while (ob_get_level()) {
-  //  ob_end_clean();
-  //}
-
   # If PHP is configured to ignore errors of the type that we've been passed,
   # we'll ignore the error.
-  if (!($errno & error_reporting())) {
+  if (!($errNo & error_reporting())) {
     return;
   } else {
-    $exceptionClass = isset($errorTypes[$errno]) ?
-      ('\\SpareParts\\ErrorHandling\\' . $errorTypes[$errno]) : null;
+    $exceptionClass = isset($errorTypes[$errNo]) ?
+      ('\\SpareParts\\ErrorHandling\\' . $errorTypes[$errNo]) : null;
     $errMsg = htmlspecialchars_decode($errMsg);
-    if ($exceptionClass == null) $exceptionClass == '\\ErrorException';
-    throw new $exceptionClass($errMsg, $errno, 0, $file, $line);
-    /*
-    if ($exceptionClass) {
-      throw new $exceptionClass($errMsg, $errno, );
-    } else {
-      throw new ErrorException($errMsg);
-    }
-    */
+    if ($exceptionClass == null) $exceptionClass = '\\ErrorException';
+    throw new $exceptionClass($errMsg, $errNo, 0, $file, $line);
   }
 }
 
@@ -120,7 +106,7 @@ function exceptionHandler($exception) {
   }
 }
 
-function constructErrorReport($exception) {
+function constructErrorReport(Exception $exception) {
 
   function renderGlobalVar($name, $value) {
     $str = '$' . $name . ': ';
