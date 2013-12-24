@@ -129,18 +129,18 @@ function runTestMethods($className) {
   return $methodsRun;
 }
 
-function exceptionHandler($exception) {
+function exceptionHandler(Exception $exception) {
   try {
-    $trace = ($exception instanceof ErrorHandlerInvokedException) ?
-      $exception->getAdjustedTraceAsString() : $exception->getTraceAsString();
+//    $trace = ($exception instanceof \ErrorException) ?
+//      $exception->getAdjustedTraceAsString() : $exception->getTraceAsString();
+    $trace = $exception->getTraceAsString();
     echo(
       "An exception of type " . get_class($exception) . " went uncaught...\n" .
       "  Message: " . $exception->getMessage() . "\n" .
       "  File: " . $exception->getFile() . "\n" .
       "  Line: " . $exception->getLine() . "\n" .
       "  Stack trace:\n" . $trace . "\n\n");
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     exit("UH-OH!  An exception was raised from within the exception " .
       "handler!  The exception's message follows:\n" . $e->getMessage());
   }
