@@ -18,3 +18,7 @@ function head(Array $arr) {
   require_once dirname(__FILE__) . '/array.php';
   return SpareParts\ArrayLib\head($arr);
 }
+
+function pathJoin() {
+  return call_user_func_array("\\SpareParts\\FilePath\\join", func_get_args());
+}

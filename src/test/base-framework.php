@@ -4,15 +4,16 @@ namespace SpareParts\Test;
 
 require_once dirname(dirname(__FILE__)) . '/string.php';      # withoutPrefix, beginsWith
 require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getSubclasses
+require_once dirname(dirname(__FILE__)) . '/file-path.php';   # normalize
 
-use \Exception, \SpareParts\Reflection;
+use \Exception, \SpareParts\Reflection, \SpareParts\FilePath as Path;
 
 # ---------------------------------------------------------------------------------------------
 # - main method -------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
 function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
-  $dirContainingTests = realpath($relPathToTestDir);
+  $dirContainingTests = Path\normalize($relPathToTestDir);
   $baseLibDir = dirname(dirname(__FILE__));
   require_once $baseLibDir . '/fs.php';    # recursivelyGetFilesInDir, ...
   require_once $baseLibDir . '/types.php'; # getSubclasses

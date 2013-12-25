@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . '/file-path.php';
+use \SpareParts\FilePath as Path;
 
 /**
  * Returns an array containing filenames for all files matching $pattern within
@@ -27,7 +28,7 @@ function getFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
  * No directory names will be returned, only files (and links, etc).
  */
 function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
-  $dir = normalizePath($dir);
+  $dir = Path\normalize($dir);
   $filesToReturn = array();
   $filesInDir = getFilesInDir($dir, $pattern, $getHiddenFiles);
   foreach ($filesInDir as $this_file) {
@@ -53,8 +54,8 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
  * string values.
  */
 function isWithinOrIsDirectory($item, $dir) {
-  $itemNorm = normalizePath($item);
-  $dirNorm = normalizePath($dir);
+  $itemNorm = Path\normalize($item);
+  $dirNorm = Path\normalize($dir);
   return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm;
 }
 
@@ -66,7 +67,7 @@ function isWithinOrIsDirectory($item, $dir) {
  * but only compare string values.
  */
 function isWithinDirectory($item, $dir) {
-  $dirNorm = normalizePath($dir);
+  $dirNorm = Path\normalize($dir);
   return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm &&
          // XXX: Will this "+ 1" cause some incorrect results??
          //      E.g., isWithinDirectory('path/to/f', 'path/to/');
@@ -244,7 +245,7 @@ function isWithinDirectory($item, $dir) {
             // if it's a directory, call move_dir() recursively, on all
             // contents of the directory...
 
-            $source = normalizePath($source);
+            $source = Path\normalize($source);
 
             if( !is_writable($source) || !is_readable($source) )
                 return false;

@@ -1,7 +1,10 @@
 <?php
 
+namespace SpareParts\FilePath;
 
-function pathJoin() {
+use \InvalidArgumentException;
+
+function join() {
   if (func_num_args() == 0) {
     throw new InvalidArgumentException("pathJoin() requires at least one parameter");
   }
@@ -19,17 +22,20 @@ function pathJoin() {
   return substr($path, 0, -1);  # Return the path minus the last slash.
 }
 
-
-// Tidy up a directory name.
-// Examples:
-//  xtra///slashes//   => xtra/slashes
-//  /dot/./slash/.     => /dot/slash
-//  ./some/path        => some/path
-//  /path/to/dir       => /path/to/dir
-// let/us/step/../back => let/us/back
-function normalizePath($path) {
+/**
+ * Tidy up a directory name.
+ * Examples:
+ *   extra///slashes//   => extra/slashes
+ *   /dot/./slash/.     => /dot/slash
+ *   ./some/path        => some/path
+ *   /path/to/dir       => /path/to/dir
+ *  let/us/step/../back => let/us/back
+ * @param string $path Path to normalize
+ * @return string Normalized path
+ */
+function normalize($path) {
   $isAbsolutePath = $path[0] == '/';
-  $relativePath = $isAbsolutePath ? substr($path, 1) : $path;
+//  $relativePath = $isAbsolutePath ? substr($path, 1) : $path;
   $combined = array_reduce(explode('/', $path),
     function($a, $b) {
       if ($b === "" || $b === ".")  return $a;

@@ -4,7 +4,7 @@ namespace SpareParts\URL;
 
 require_once dirname(__FILE__) . '/file-path.php';
 
-use \InvalidArgumentException;
+use \InvalidArgumentException, \SpareParts\FilePath;
 
 function takeScheme($url) { return takeUrlPart($url, 'scheme'); }
 function takeDomain($url) { return takeUrlPart($url, 'host');   }
@@ -44,7 +44,7 @@ function constructUrlFromRelativeLocation($baseUrl, $relativeLocation, $secure =
         $parts['path'] : (dirname($parts['path']));
       if (substr($dir, -1) != '/') { $dir .= '/'; }
       //$path = $relativeLocation == './' ? $dir : ($dir . $relativeLocation);
-      $normalizedPath = normalizePath($dir . $relativeLocation);
+      $normalizedPath = FilePath\normalize($dir . $relativeLocation);
       $path = $normalizedPath . (substr($relativeLocation, -1) == '/' ? '/' : '');
     }
     $scheme = null;
