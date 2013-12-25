@@ -5,7 +5,7 @@ namespace SpareParts\Test;
 require_once dirname(dirname(__FILE__)) . '/string.php';      # withoutPrefix, beginsWith
 require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getSubclasses
 
-use \ErrorHandlerInvokedException, \Exception, \SpareParts\Reflection;
+use \Exception, \SpareParts\Reflection;
 
 # ---------------------------------------------------------------------------------------------
 # - main method -------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
 
 function runTestFiles($baseTestDir, $testFiles) {
   requireTestFiles($testFiles);
-  set_exception_handler('\SpareParts\Test\exceptionHandler');
+  set_exception_handler(__NAMESPACE__ . '\\exceptionHandler');
   $tests = runDefinedTests();
   echo "Ran " . $tests['functions'] . " test functions and " .
     $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
@@ -85,13 +85,14 @@ function runDefinedTests() {
   $allFuncs = get_defined_functions();
   $userDefined = $allFuncs['user'];
   $testFuncs = array();
+  $ignorePrefix = strtolower(__NAMESPACE__ . '\\');
   foreach ($userDefined as $f) {
-    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), "spareparts\\test\\")) {
+    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), $ignorePrefix)) {
       $testFuncs[] = $f;
     }
   }
   $testClasses = array();
-  $baseHarnessClass = 'SpareParts\Test\TestHarness';
+  $baseHarnessClass = __NAMESPACE__ . '\\TestHarness';
   if (!class_exists($baseHarnessClass)) {
     throw new Exception("Something is wrong: class $baseHarnessClass does not exist!");
   }
@@ -106,23 +107,22 @@ function runDefinedTests() {
   }
   $numMethodsRun = 0;
   foreach ($testClasses as $c) {
-    $numMethodsRun += runTestMethods($c);
+    $numMethodsRun += runTestMethods(new $c);
   }
   return array('functions' => count($testFuncs), 'classes' => count($testClasses),
                'methods' => $numMethodsRun);
 }
 
-function runTestMethods($className) {
-  $t = new $className;
-  $ro = new \ReflectionObject($t);
+function runTestMethods(TestHarness $testObject) {
+  $ro = new \ReflectionObject($testObject);
   $methods = $ro->getMethods(\ReflectionMethod::IS_PUBLIC);
   $methodsRun = 0;
   foreach ($methods as $m) {
     $methodName = $m->getName();
     if ($methodName != 'setUp' && $methodName != 'tearDown') {
-      $t->setUp();
-      $t->$methodName();
-      $t->tearDown();
+      $testObject->setUp();
+      $testObject->$methodName();
+      $testObject->tearDown();
       $methodsRun += 1;
     }
   }
