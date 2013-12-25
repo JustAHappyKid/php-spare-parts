@@ -2,83 +2,69 @@
 
 require_once dirname(__FILE__) . '/file-path.php';
 
-# XXX: Does this function do anything different than PHP's built-in 'glob' function?
-# Returns an array containing filenames for all files matching $pattern within
-# the directory $dir.
+/**
+ * Returns an array containing filenames for all files matching $pattern within
+ * the directory $dir.
+ * XXX: Does this function do anything different than PHP's built-in 'glob' function?
+ */
 function getFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
   @ $handle = opendir($dir);
-  if (!$handle) {
-    throw new Exception("Could not read directory $dir");
-  }
-
+  if (!$handle) throw new Exception("Could not read directory $dir");
   $files = array();
   while (false !== ($f = readdir($handle))) {
     if ($f != '.' && $f != '..' && ($getHiddenFiles || $f[0] != '.') && fnmatch($pattern, $f)) {
       $files[] = $f;
     }
   }
-
   closedir($handle);
-  //sort($files);
-
   return $files;
 }
 
 
-# Returns an array containing a relative path to each file within the directory $dir.
-# Each path will be relative to the directory $dir.  Directories are traversed recursively.
-# No directory names will be returned, only files (and links, etc).
+/**
+ * Returns an array containing a relative path to each file within the directory $dir.
+ * Each path will be relative to the directory $dir.  Directories are traversed recursively.
+ * No directory names will be returned, only files (and links, etc).
+ */
 function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
   $dir = normalizePath($dir);
-
-  $files_to_return = array();
-  $files_in_dir = getFilesInDir($dir, $pattern, $getHiddenFiles);
-
-  foreach ($files_in_dir as $this_file) {
-
-    $full_path_to_file = "$dir/$this_file";
-
-    if (is_dir($full_path_to_file)) {
-      $files_in_subdir = recursivelyGetFilesInDir($full_path_to_file);
-      $parent_dir = $this_file;
-      foreach ($files_in_subdir as $f) {
-        $files_to_return[] = "$this_file/$f";
+  $filesToReturn = array();
+  $filesInDir = getFilesInDir($dir, $pattern, $getHiddenFiles);
+  foreach ($filesInDir as $this_file) {
+    $fullPathToFile = "$dir/$this_file";
+    if (is_dir($fullPathToFile)) {
+      $filesInSubDir = recursivelyGetFilesInDir($fullPathToFile);
+//      $parent_dir = $this_file;
+      foreach ($filesInSubDir as $f) {
+        $filesToReturn[] = "$this_file/$f";
       }
     } else {
-      $files_to_return[] = $this_file;
+      $filesToReturn[] = $this_file;
     }
   }
-
-  return $files_to_return;
+  return $filesToReturn;
 }
 
 
-// ***********************************************************************
-//
-// determines whether or not the first parameter, $item, is a
-// sub-directory of, the same directory as, or a file within the given
-// $parentdir.  this function will not actually check for the existence of
-// either directory, but only compare string values.
-//
-// ***********************************************************************
-
+/**
+ * Determines whether or not the first parameter, $item, is a sub-directory of,
+ * the same directory as, or a file within the given $dir. This function will
+ * not actually check for the existence of either directory, but only compare
+ * string values.
+ */
 function isWithinOrIsDirectory($item, $dir) {
   $itemNorm = normalizePath($item);
   $dirNorm = normalizePath($dir);
   return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm;
 }
 
-// ***********************************************************************
-//
-// determines whether or not the first parameter, $item, is a
-// sub-directory of or a file inside of the given $parentdir.
-// unlike isWithinDirectory(), above, this function will return
-// false if $item appears to be the same directory as $parentdir.
-// this function will not actually check for the existence of either
-// directory, but only compare string values.
-//
-// ***********************************************************************
-
+/**
+ * Determines whether or not the first parameter, $item, is a sub-directory of
+ * or a file inside of the given $dir. Unlike isWithinDirectory(), above, this
+ * function will return false if $item appears to be the same directory as $dir.
+ * This function will not actually check for the existence of either directory,
+ * but only compare string values.
+ */
 function isWithinDirectory($item, $dir) {
   $dirNorm = normalizePath($dir);
   return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm &&
