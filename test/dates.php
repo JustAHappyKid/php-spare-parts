@@ -35,6 +35,8 @@ function testGetLastDayOfMonth() {
   assertEqual(30, DT\getLastDayOfMonth(2030, 11));
   //assertEqual(31, DT\getLastDayOfMonth(500, 12));
   assertEqual(31, DT\getLastDayOfMonth(1955, 12));
+  assertThrows('InvalidArgumentException', function() { DT\getLastDayOfMonth('abc', 7); });
+  assertThrows('InvalidArgumentException', function() { DT\getLastDayOfMonth(2013, 'M'); });
 }
 
 function testGetNextDay() {

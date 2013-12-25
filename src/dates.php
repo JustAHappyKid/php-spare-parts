@@ -51,6 +51,8 @@ function getNextMonth($date) {
 }
 
 function getLastDayOfMonth($year, $month) {
+  if (!isInteger($year)) throw new InvalidArgumentException("Expected integer value for \$year");
+  if (!isInteger($month)) throw new InvalidArgumentException("Expected integer value for \$month");
   $yearNum = intval($year);
   $monthNum = intval($month);
   if ($yearNum < 1902)
