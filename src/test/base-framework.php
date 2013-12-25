@@ -21,10 +21,10 @@ function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
   if ($argc > 2) {
     quit("Please specify a test file to run or give no arguments to run all tests.");
   } else if ($argc == 2) {
-    $pathToTest = realpath($argv[1]);
+    $pathToTest = beginsWith($argv[1], '/') ? $argv[1] : (getcwd() . '/' . $argv[1]);
     if ($pathToTest == false) {
       quit("The specified test file or directory does not exist or is not accessible.");
-    } else if (!isWithinOrIsDirectory($pathToTest, realpath($dirContainingTests))) {
+    } else if (!isWithinOrIsDirectory($pathToTest, $dirContainingTests)) {
       quit("The specified path is not within the test directory.");
     }
     if (is_dir($pathToTest)) {
