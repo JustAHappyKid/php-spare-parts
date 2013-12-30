@@ -4,7 +4,7 @@ namespace SpareParts\Time;
 
 use \InvalidArgumentException, \DateInterval;
 
-# TODO: Extend this function to support other time units -- years, months, minutes, seconds.
+# TODO: Extend this function to support other time units -- years, months, minutes, etc.
 function readInterval($s) {
   $parts = explode(' ', $s);
   if (count($parts) != 2 || !is_numeric($parts[0])) {
@@ -12,7 +12,7 @@ function readInterval($s) {
   }
   $unit = strtolower($parts[1]);
   $bigUnits = array('day' => 'D', 'days' => 'D');
-  $smallUnits = array('hour' => 'H', 'hours' => 'H');
+  $smallUnits = array('second' => 'S', 'seconds' => 'S', 'hour' => 'H', 'hours' => 'H');
   if (isset($bigUnits[$unit])) {
     return new DateInterval('P' . $parts[0] . $bigUnits[$unit]);
   } else if (isset($smallUnits[$unit])) {
