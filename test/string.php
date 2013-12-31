@@ -18,3 +18,14 @@ function testWithoutSuffix() {
   assertEqual('/path/to/file', withoutSuffix('/path/to/file.txt', '.txt'));
   assertEqual('/path/to/file.', withoutSuffix('/path/to/file.txt', 'txt'));
 }
+
+function testCommonPrefix() {
+  assertEqual("hello", commonPrefix(array("hello")));
+  assertEqual("h", commonPrefix(array("hello", "hi")));
+  assertEqual("/home/johnny/appleseeds/",
+    commonPrefix(array(
+      "/home/johnny/appleseeds/red/pink-lady",
+      "/home/johnny/appleseeds/red/delicious",
+      "/home/johnny/appleseeds/green/green-apple")));
+  assertThrows('InvalidArgumentException', function() { commonPrefix(array()); });
+}
