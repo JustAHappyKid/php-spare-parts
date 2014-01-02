@@ -19,3 +19,15 @@ function testFilterByKey() {
 function testFlatten() {
   assertEqual(array(2), ArrayLib\flatten(array(0 => array(2))));
 }
+
+function testCommonPrefixForArrays() {
+  assertEqual(array('h'),
+    ArrayLib\commonPrefix(array(
+      array('h', 'e', 'l', 'l', 'o'), array('h', 'i'))));
+  assertEqual(array("home", "johnny", "appleseeds"),
+    ArrayLib\commonPrefix(array(
+      array("home", "johnny", "appleseeds", "red", "pink-lady"),
+      array("home", "johnny", "appleseeds", "red", "delicious"),
+      array("home", "johnny", "appleseeds", "green", "green-apple"))));
+  assertThrows('InvalidArgumentException', function() { ArrayLib\commonPrefix(array()); });
+}
