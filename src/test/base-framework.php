@@ -65,7 +65,11 @@ function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
 
 function runTestFiles($baseTestDir, $testFiles) {
   requireTestFiles($testFiles);
+
+  # TODO: Don't use 'set_exception_handler' to handle exceptions -- simply wrap the
+  #       test-runner in a try/catch block.
   set_exception_handler(__NAMESPACE__ . '\\exceptionHandler');
+
   $tests = runDefinedTests();
   echo "Ran " . $tests['functions'] . " test functions and " .
     $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
