@@ -15,4 +15,7 @@ function separateArgsAndSwitches($argv) {
 
 class ArgsAndSwitches {
   public $baseArguments = array(), $switches = array();
+  public function hasSwitch($s) {
+    return in_array($s, $this->switches);
+  }
 }
