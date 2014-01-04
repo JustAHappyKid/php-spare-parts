@@ -2,41 +2,51 @@
 
 namespace SpareParts\Test;
 
-require_once dirname(dirname(__FILE__)) . '/string.php';      # withoutPrefix, beginsWith
 require_once dirname(dirname(__FILE__)) . '/array.php';       # commonPrefix
-require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getSubclasses
 require_once dirname(dirname(__FILE__)) . '/file-path.php';   # normalize
+require_once dirname(dirname(__FILE__)) . '/reflection.php';  # getSubclasses
+require_once dirname(dirname(__FILE__)) . '/string.php';      # withoutPrefix, beginsWith
+require_once dirname(dirname(__FILE__)) . '/system/command-line-args.php';
 
-use \Exception, \SpareParts\Reflection, \SpareParts\FilePath as Path, \SpareParts\ArrayLib as A;
+use \Exception, \SpareParts\System\CommandLineArgs, \SpareParts\Reflection,
+  \SpareParts\FilePath as Path, \SpareParts\ArrayLib as A;
 
 # ---------------------------------------------------------------------------------------------
-# - main method -------------------------------------------------------------------------------
+# - main method / argument handling -----------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
-function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, $argv) {
-  $dirContainingTests = Path\normalize($relPathToTestDir);
+function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, Array $argv) {
+  $conf = new Config;
+  $conf->baseTestDir = Path\normalize($relPathToTestDir);
+  $conf->filesToIgnore = $filesToIgnore;
   $baseLibDir = dirname(dirname(__FILE__));
   require_once $baseLibDir . '/fs.php';    # recursivelyGetFilesInDir, ...
   require_once $baseLibDir . '/types.php'; # getSubclasses
+  handleCommand(CommandLineArgs\separateArgsAndSwitches($argv), $conf);
+}
+
+function handleCommand(CommandLineArgs\ArgsAndSwitches $a, Config $conf) {
+  $argc = count($a->baseArguments);
+  $argv = $a->baseArguments;
   $testFiles = null;
   if ($argc > 2) {
-    quit("Please specify a test file to run or give no arguments to run all tests.");
+    quit("Please specify a test file to run or provide no arguments to run all tests.");
   } else if ($argc == 2) {
     $pathToTest = beginsWith($argv[1], '/') ? $argv[1] : (getcwd() . '/' . $argv[1]);
     if ($pathToTest == false) {
       quit("The specified test file or directory does not exist or is not accessible.");
-    } else if (!isWithinOrIsDirectory($pathToTest, $dirContainingTests)) {
+    } else if (!isWithinOrIsDirectory($pathToTest, $conf->baseTestDir)) {
       quit("The specified path is not within the test directory.");
     }
     if (is_dir($pathToTest)) {
-      $testFiles = gatherTestFiles($dirContainingTests, $pathToTest, $filesToIgnore);
+      $testFiles = gatherTestFiles($conf->baseTestDir, $pathToTest, $conf->filesToIgnore);
     } else {
       $testFiles = array($pathToTest);
     }
   } else {
-    $testFiles = gatherTestFiles($dirContainingTests, $dirContainingTests, $filesToIgnore);
+    $testFiles = gatherTestFiles($conf->baseTestDir, $conf->baseTestDir, $conf->filesToIgnore);
   }
-  runTestFiles($dirContainingTests, $testFiles);
+  runTestFiles($conf->baseTestDir, $testFiles);
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -51,7 +61,7 @@ function quit($msg) {
 function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
   # Does file $f match one of the patterns in "files to ignore"?
   $fileShouldBeIgnored = function($f) use($baseTestDir, $pathToTest, $filesToIgnore) {
-    $pathRelativeToBaseTestDir = withoutPrefix(pathJoin($pathToTest, $f), $baseTestDir . '/');
+    $pathRelativeToBaseTestDir = withoutPrefix(Path\join($pathToTest, $f), $baseTestDir . '/');
     foreach ($filesToIgnore as $ignorePattern) {
       if (fnmatch($ignorePattern, $pathRelativeToBaseTestDir)) return true;
     }
@@ -59,7 +69,7 @@ function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
   };
   $relativePaths = array_filter(recursivelyGetFilesInDir($pathToTest),
     function($f) use($fileShouldBeIgnored) { return !$fileShouldBeIgnored($f); });
-  $testFiles = array_map(function($f) use($pathToTest) { return pathJoin($pathToTest, $f); },
+  $testFiles = array_map(function($f) use($pathToTest) { return Path\join($pathToTest, $f); },
     $relativePaths);
   return $testFiles;
 }
@@ -186,3 +196,7 @@ abstract class TestHarness {
 }
 
 class TestFailure extends Exception {}
+
+class Config {
+  public $baseTestDir, $filesToIgnore = array(), $verbose = false;
+}
