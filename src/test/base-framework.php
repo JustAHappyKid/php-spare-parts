@@ -28,6 +28,7 @@ function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, Array $argv) {
 function handleCommand(CommandLineArgs\ArgsAndSwitches $a, Config $conf) {
   $argc = count($a->baseArguments);
   $argv = $a->baseArguments;
+  if ($a->hasSwitch("--verbose")) $conf->verbose = true;
   $testFiles = null;
   if ($argc > 2) {
     quit("Please specify a test file to run or provide no arguments to run all tests.");
@@ -46,7 +47,7 @@ function handleCommand(CommandLineArgs\ArgsAndSwitches $a, Config $conf) {
   } else {
     $testFiles = gatherTestFiles($conf->baseTestDir, $conf->baseTestDir, $conf->filesToIgnore);
   }
-  runTestFiles($conf->baseTestDir, $testFiles);
+  runTestFiles($conf, $testFiles);
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -74,14 +75,14 @@ function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
   return $testFiles;
 }
 
-function runTestFiles($baseTestDir, $testFiles) {
+function runTestFiles(Config $conf, $testFiles) {
   requireTestFiles($testFiles);
 
   # TODO: Don't use 'set_exception_handler' to handle exceptions -- simply wrap the
   #       test-runner in a try/catch block.
   set_exception_handler(__NAMESPACE__ . '\\exceptionHandler');
 
-  $tests = runDefinedTests();
+  $tests = runDefinedTests($conf);
   echo "Ran " . $tests['functions'] . " test functions and " .
     $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
 }
@@ -96,7 +97,7 @@ function requireTestFiles($files) {
   }
 }
 
-function runDefinedTests() {
+function runDefinedTests(Config $conf) {
   require_once dirname(__FILE__) . '/assertions.php';
   $allFuncs = get_defined_functions();
   $userDefined = $allFuncs['user'];
@@ -119,23 +120,26 @@ function runDefinedTests() {
     throw new Exception("No test functions or test classes found");
   }
   foreach ($testFuncs as $f) {
+    if ($conf->verbose) echo "Running test-function $f...\n";
     call_user_func($f);
   }
   $numMethodsRun = 0;
   foreach ($testClasses as $c) {
-    $numMethodsRun += runTestMethods(new $c);
+    if ($conf->verbose) echo "Running test-class $c...\n";
+    $numMethodsRun += runTestMethods(new $c, $conf);
   }
   return array('functions' => count($testFuncs), 'classes' => count($testClasses),
                'methods' => $numMethodsRun);
 }
 
-function runTestMethods(TestHarness $testObject) {
+function runTestMethods(TestHarness $testObject, Config $conf) {
   $ro = new \ReflectionObject($testObject);
   $methods = $ro->getMethods(\ReflectionMethod::IS_PUBLIC);
   $methodsRun = 0;
   foreach ($methods as $m) {
     $methodName = $m->getName();
     if ($methodName != 'setUp' && $methodName != 'tearDown') {
+      if ($conf->verbose) echo "  Running test-method $methodName...\n";
       $testObject->setUp();
       $testObject->$methodName();
       $testObject->tearDown();
