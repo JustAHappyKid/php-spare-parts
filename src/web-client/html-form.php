@@ -55,7 +55,8 @@ class HtmlForm {
     $this->populateFromDOMNode($formNode);
   }
 
-  public function populateFromDOMNode($formNode) {
+  # TODO: Rename to populateFromDOMElement
+  public function populateFromDOMNode(\DOMElement $formNode) {
     foreach (array('name', 'id', 'class', 'action', 'enctype') as $attr) {
       $this->$attr = $formNode->hasAttribute($attr) ? $formNode->getAttribute($attr) : null;
     }
