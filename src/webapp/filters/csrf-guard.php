@@ -70,11 +70,11 @@ class CSRFGuard implements Filter {
     return $token;
   }
 
-  private function isValidToken($varName, $expectedToken) {
-    if (!is_string($varName) || !is_string($expectedToken))
+  private function isValidToken($varName, $submittedToken) {
+    if (!is_string($varName) || !is_string($submittedToken))
       throw new MaliciousRequestException("Invalid data-type provided for CSRF-guard name/token");
-    $token = @ $_SESSION[$varName];
+    $expectedToken = @ $_SESSION[$varName];
     unset($_SESSION[$varName]);
-    return $token === $expectedToken;
+    return $expectedToken === $submittedToken;
   }
 }
