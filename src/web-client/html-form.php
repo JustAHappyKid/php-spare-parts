@@ -174,8 +174,10 @@ class HtmlForm {
       throw new InvalidArgumentException("Form has no submit button named '$submitButton'");
     }
     if (count($submitButtons) > 1 && $submitButton == null) {
+      $btnNames = array_map(function(HtmlButtonField $b) { return "'" . $b->name . "'"; },
+                            $submitButtons);
       throw new InvalidArgumentException("Multiple submit buttons found on form, but no submit " .
-                                         "button specified for form submission");
+        "button specified for form submission (buttons are " . implode(', ', $btnNames) . ")");
     }
     if ($submitButton == null && count($submitButtons) == 1) {
       $submitButtonObj = current($submitButtons);
