@@ -6,8 +6,9 @@ function logMsg($level, $message) {
   if ($__msgFormatFunc) {
     $logLine = call_user_func($__msgFormatFunc, $level, $message) . "\n";
   } else {
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
     $datetime = strftime('%Y-%m-%d %H:%M');
-    $logLine = "[$datetime] [$level] $message\n";
+    $logLine = "[$datetime] [$level] " . ($ip ? "[$ip] " : "") . $message . "\n";
   }
   writeToLog($logLine);
 }
