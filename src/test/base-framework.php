@@ -184,10 +184,7 @@ function describeException(Exception $exception) {
 }
 
 abstract class TestHarness {
-  public function setUp() {
-    // XXX: is this relevant here?
-    //expectErrorLogMessages(0);
-  }
+  public function setUp() { }
   public function tearDown() { }
 }
 
