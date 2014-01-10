@@ -75,16 +75,15 @@ function gatherTestFiles($baseTestDir, $pathToTest, $filesToIgnore) {
   return $testFiles;
 }
 
-function runTestFiles(Config $conf, $testFiles) {
+function runTestFiles(Config $conf, Array $testFiles) {
   requireTestFiles($testFiles);
-
-  # TODO: Don't use 'set_exception_handler' to handle exceptions -- simply wrap the
-  #       test-runner in a try/catch block.
-  set_exception_handler(__NAMESPACE__ . '\\exceptionHandler');
-
-  $tests = runDefinedTests($conf);
-  echo "Ran " . $tests['functions'] . " test functions and " .
-    $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
+  try {
+    $tests = runDefinedTests($conf);
+    echo "Ran " . $tests['functions'] . " test functions and " .
+      $tests['methods'] . " test methods in " . $tests['classes'] . " classes.\n";
+  } catch (Exception $e) {
+    describeException($e);
+  }
 }
 
 function requireTestFiles($files) {
@@ -149,46 +148,39 @@ function runTestMethods(TestHarness $testObject, Config $conf) {
   return $methodsRun;
 }
 
-function exceptionHandler(Exception $exception) {
-  try {
-//    $trace = ($exception instanceof \ErrorException) ?
-//      $exception->getAdjustedTraceAsString() : $exception->getTraceAsString();
-    $entries = $exception->getTrace();
-    if (empty($entries[0]['file'])) unset($entries[0]);
-    $commonPathPrefix = implode('/',
-      A\commonPrefix(
-        array_map(function($t) { return explode('/', $t['file']); },
-                  array_filter($entries, function($t) { return !empty($t['file']); })))) . '/';
-    foreach ($entries as $i => $t) {
-      if (empty($entries[$i]['file'])) $entries[$i]['file'] = '?';
-      if (empty($entries[$i]['line'])) $entries[$i]['line'] = '?';
-      $entries[$i]['relative-path'] = withoutPrefix($entries[$i]['file'], $commonPathPrefix);
-      $entries[$i]['full-function-id'] =
-        (isset($t['class']) ? ($t['class'] . $t['type']) : '') . $t['function'];
-    }
-    $maxLenOf = function($f) use($entries) {
-      return max(array_map(function($t) use($f) { return strlen(strval($t[$f])); }, $entries));
-    };
-    $maxPathLength = $maxLenOf('relative-path');
-    $maxLineNumLength = $maxLenOf('line');
-    $maxFuncLength = $maxLenOf('full-function-id');
-    $trace = implode("\n",
-      array_map(
-        function($t) use($commonPathPrefix, $maxPathLength, $maxLineNumLength, $maxFuncLength) {
-          $paddedPath = str_pad($t['relative-path'], $maxPathLength, ' ', STR_PAD_RIGHT);
-          $paddedFunc = str_pad($t['full-function-id'], $maxFuncLength, ' ', STR_PAD_RIGHT);
-          $paddedLine = str_pad($t['line'], $maxLineNumLength);
-          return "| $paddedFunc : $paddedPath : $paddedLine |"; }, $entries));
-    echo("\n" .
-      "An exception of type " . get_class($exception) . " went uncaught...\n" .
-      "  Message: " . $exception->getMessage() . "\n" .
-      "  File: " . $exception->getFile() . "\n" .
-      "  Line: " . $exception->getLine() . "\n\n" .
-      "A full stack trace follows:\n\n" . $trace . "\n\n");
-  } catch (Exception $e) {
-    exit("UH-OH!  An exception was raised from within the exception " .
-      "handler!  The exception's message follows:\n" . $e->getMessage());
+function describeException(Exception $exception) {
+  $entries = $exception->getTrace();
+  if (empty($entries[0]['file'])) unset($entries[0]);
+  $commonPathPrefix = implode('/',
+    A\commonPrefix(
+      array_map(function($t) { return explode('/', $t['file']); },
+                array_filter($entries, function($t) { return !empty($t['file']); })))) . '/';
+  foreach ($entries as $i => $t) {
+    if (empty($entries[$i]['file'])) $entries[$i]['file'] = '?';
+    if (empty($entries[$i]['line'])) $entries[$i]['line'] = '?';
+    $entries[$i]['relative-path'] = withoutPrefix($entries[$i]['file'], $commonPathPrefix);
+    $entries[$i]['full-function-id'] =
+      (isset($t['class']) ? ($t['class'] . $t['type']) : '') . $t['function'];
   }
+  $maxLenOf = function($f) use($entries) {
+    return max(array_map(function($t) use($f) { return strlen(strval($t[$f])); }, $entries));
+  };
+  $maxPathLength = $maxLenOf('relative-path');
+  $maxLineNumLength = $maxLenOf('line');
+  $maxFuncLength = $maxLenOf('full-function-id');
+  $trace = implode("\n",
+    array_map(
+      function($t) use($commonPathPrefix, $maxPathLength, $maxLineNumLength, $maxFuncLength) {
+        $paddedPath = str_pad($t['relative-path'], $maxPathLength, ' ', STR_PAD_RIGHT);
+        $paddedFunc = str_pad($t['full-function-id'], $maxFuncLength, ' ', STR_PAD_RIGHT);
+        $paddedLine = str_pad($t['line'], $maxLineNumLength);
+        return "| $paddedFunc : $paddedPath : $paddedLine |"; }, $entries));
+  echo("\n" .
+    "An exception of type " . get_class($exception) . " went uncaught...\n" .
+    "  Message: " . $exception->getMessage() . "\n" .
+    "  File: " . $exception->getFile() . "\n" .
+    "  Line: " . $exception->getLine() . "\n\n" .
+    "A full stack trace follows:\n\n" . $trace . "\n\n");
 }
 
 abstract class TestHarness {
