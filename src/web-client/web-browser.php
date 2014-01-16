@@ -6,7 +6,7 @@ require_once dirname(__FILE__) . '/http-client.php';
 require_once dirname(__FILE__) . '/html-parsing.php';
 require_once dirname(dirname(__FILE__)) . '/url.php'; # constructUrlFromRelativeLocation
 
-use \SpareParts\WebClient\HttpClient, \SpareParts\WebClient\HttpResponse, \SpareParts\URL;
+use \SpareParts\WebClient\HttpClient, \SpareParts\HTTP, \SpareParts\URL;
 
 class WebBrowser extends HttpClient {
   protected $lastResponse;
@@ -23,14 +23,14 @@ class WebBrowser extends HttpClient {
     return $this->handleResponse(parent::post($url, $postValues, $extraHeaders));
   }
 
-  private function handleResponse(HttpResponse $response) {
+  private function handleResponse(HTTP\Response $response) {
     $this->lastResponse = $response;
     # Check for meta-tag-based or JavaScript-based redirect...
     $redirectResponse = $this->doMetaOrJavascriptRedirectIfNeeded($response);
     return $redirectResponse ? $redirectResponse : $response;
   }
 
-  private function doMetaOrJavascriptRedirectIfNeeded(HttpResponse $initialResponse) {
+  private function doMetaOrJavascriptRedirectIfNeeded(HTTP\Response $initialResponse) {
     $redirectTo = null;
     $haystack = trim(strtolower($initialResponse->content));
     $m = null;

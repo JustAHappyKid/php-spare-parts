@@ -1,5 +1,48 @@
 <?php
 
+namespace SpareParts\HTTP;
+
+class Request {
+
+  public $method, $protocol, $hostName, $remotePort, $relativeURI, $referer, $headers,
+    $postParams;
+
+  function __construct($m) {
+    $this->method = $m;
+  }
+
+  function __set($var, $_) {
+    throw new \InvalidArgumentException("HttpRequest has no attribute named '$var'");
+  }
+}
+
+class Response {
+
+  public $url, $statusCode, $contentType, $content;
+  public $headers = array();
+
+/*  function __construct($statusCode = null, $contentType = null, $content = null) {
+    $this->statusCode = $statusCode;
+    $this->contentType = $contentType;
+    $this->content = $content;
+  }*/
+
+  public function addHeader($name, $value) {
+    if (empty($this->headers[$name])) $this->headers[$name] = array();
+    $this->headers[$name] []= $value;
+  }
+
+  public function headersSet() { return array_keys($this->headers); }
+
+  public function getValuesForHeader($name) {
+    return isset($this->headers[$name]) ? $this->headers[$name] : array();
+  }
+}
+
+/**
+ * Retrieve the default text/message to be associated with a particular HTTP status-code.
+ * For example, for a $code of 404, "Not Found" would be returned.
+ */
 function messageForStatusCode($code) {
   return StatusCodes::$messages[$code];
 }

@@ -2,7 +2,7 @@
 
 require_once 'test/web-browser.php';
 
-use \SpareParts\Test, \SpareParts\WebClient\HttpClient, \SpareParts\WebClient\HttpResponse,
+use \SpareParts\Test, \SpareParts\WebClient\HttpClient, \SpareParts\HTTP,
   \SpareParts\WebClient\HostNameResolutionError, \SpareParts\WebClient\HttpConnectionError,
   \SpareParts\WebClient\TooManyRedirects;
 
@@ -17,7 +17,7 @@ class ToTestSendingHttpRequest extends HttpClient {
     return strlen($data);
   }
   protected function readResponse() {
-    $r = new HttpResponse;
+    $r = new HTTP\Response;
     $r->statusCode = 200;
     $r->content = 'Hey!';
     return $r;

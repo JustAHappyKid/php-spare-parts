@@ -4,12 +4,14 @@ namespace SpareParts\Test;
 
 require_once dirname(dirname(__FILE__)) . '/web-client/web-browser.php';
 
-use \Exception, \Closure, \SpareParts\WebClient\WebBrowser, \SpareParts\WebClient\HttpRequest;
+use \Exception, \Closure, \SpareParts\WebClient\WebBrowser, \SpareParts\HTTP;
 
-# This sub-class of WebBrowser (and, in turn, HttpClient) is for testing purposes.
-# It's not only used for testing the functionality of the WebBrowser and HttpClient
-# classes itself, but is also useful for mocking genuine HTTP network
-# activity for other code making use of the WebBrowser/HttpClient interface.
+/**
+ * This sub-class of WebBrowser (and, in turn, HttpClient) is for testing purposes.
+ * It's not only used for testing the functionality of the WebBrowser and HttpClient
+ * classes itself, but is also useful for mocking genuine HTTP network
+ * activity for other code making use of the WebBrowser/HttpClient interface.
+ */
 class WebBrowserForTesting extends WebBrowser {
 
   public $requestLine = null;
@@ -31,7 +33,7 @@ class WebBrowserForTesting extends WebBrowser {
     $this->mockResponses[$method][$url] = $hook;
   }
 
-  protected function sendRequest(HttpRequest $req) {
+  protected function sendRequest(HTTP\Request $req) {
     $method = $req->method;
     $url = $req->protocol . '://' . $req->hostName . $req->relativeURI;
     $resp = @ $this->mockResponses[$method][$url];
@@ -50,7 +52,7 @@ class WebBrowserForTesting extends WebBrowser {
     parent::sendRequest($req);
   }
 
-  protected function open(HttpRequest $req) {
+  protected function open(HTTP\Request $req) {
     $this->numBytesSent = 0;
     $this->requestLine = null;
     $this->headersSent = array();

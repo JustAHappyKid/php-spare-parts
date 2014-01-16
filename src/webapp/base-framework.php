@@ -13,7 +13,8 @@ require_once dirname(__FILE__) . '/current-request.php';  # isSecureHttpConnecti
 require_once dirname(__FILE__) . '/http-response.php';    # HttpResponse
 require_once dirname(__FILE__) . '/filters/interface.php';# Filter
 
-use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL, \SpareParts\Reflection;
+use \Exception, \SpareParts\Webapp\CurrentRequest, \SpareParts\URL, \SpareParts\HTTP,
+  \SpareParts\Reflection;
 
 abstract class FrontController {
 
@@ -88,7 +89,7 @@ abstract class FrontController {
   }
 
   protected function outputHttpResponse(HttpResponse $response) {
-    header("HTTP/1.1 " . messageForStatusCode($response->statusCode));
+    header("HTTP/1.1 " . HTTP\messageForStatusCode($response->statusCode));
     if ($response->contentType) {
       header('Content-Type: ' . $response->contentType);
     }

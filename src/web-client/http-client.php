@@ -2,23 +2,11 @@
 
 namespace SpareParts\WebClient;
 
-require_once dirname(dirname(__FILE__)) . '/types.php';  # asString
+require_once dirname(dirname(__FILE__)) . '/types.php'; # asString
+require_once dirname(dirname(__FILE__)) . '/http.php';  # HTTP\Response
+require_once dirname(__FILE__) . '/exceptions.php';     # HttpConnectionError, ...
 
-use \Exception, \InvalidArgumentException;
-
-class NetworkError extends Exception {}
-class HttpConnectionError extends NetworkError {}
-class HostNameResolutionError extends NetworkError {}
-class HttpProtocolError extends Exception {}
-class TooManyRedirects extends HttpProtocolError {}
-
-class HttpClientRedirect extends Exception {
-  public $location, $statusCode;
-  function __construct($location, $code = null) {
-    $this->location = $location;
-    $this->statusCode = $code;
-  }
-}
+use \Exception, \InvalidArgumentException, \SpareParts\HTTP;
 
 class HttpClient {
 
@@ -88,7 +76,7 @@ class HttpClient {
 
   # private variables
   private $state = "Disconnected";
-  private $connection=0;
+  private $connection = null;
   private $contentLength, $contentLengthGivenInHeader;
   private $response="";
   private $read_response=0;
@@ -120,17 +108,17 @@ class HttpClient {
   }
 
   public function get($url) {
-    return $this->makeRequest($url, new HttpRequest('GET'));
+    return $this->makeRequest($url, new HTTP\Request('GET'));
   }
 
   public function post($url, $postParams, $extraHeaders = array()) {
-    $req = new HttpRequest('POST');
+    $req = new HTTP\Request('POST');
     $req->postParams = $postParams;
     $req->headers = $extraHeaders;
     return $this->makeRequest($url, $req);
   }
 
-  protected function makeRequest($url, HttpRequest $req, $redirectionLevel = 0) {
+  protected function makeRequest($url, HTTP\Request $req, $redirectionLevel = 0) {
     if (strstr($url, ' ')) {
       $this->warn("Escaping space characters in following URL: $url");
       $url = str_replace(' ', '%20', $url);
@@ -163,7 +151,7 @@ class HttpClient {
       $this->info('Redirecting to ' . $e->location);
       $this->close();
       // $response = $this->get($e->location);
-      $response = $this->makeRequest($e->location, new HttpRequest('GET'), $redirectionLevel + 1);
+      $response = $this->makeRequest($e->location, new HTTP\Request('GET'), $redirectionLevel + 1);
       return $response;
     }
   }
@@ -420,7 +408,7 @@ class HttpClient {
     $this->state = "Disconnected";
   }
 
-  private function populateRequestObj($url, HttpRequest $req /*&$arguments*/) {
+  private function populateRequestObj($url, HTTP\Request $req) {
     if (empty($url)) throw new InvalidArgumentException("No URL given");
     $urlParts = parse_url($url);
     if (empty($urlParts["scheme"])) {
@@ -467,7 +455,7 @@ class HttpClient {
     }
   }
 
-  protected function open(HttpRequest $req) {
+  protected function open(HTTP\Request $req) {
     if ($this->state != 'Disconnected') $this->raiseError("Already connected");
     $this->protocol = $req->protocol;
     $this->hostName = $req->hostName;
@@ -774,7 +762,7 @@ class HttpClient {
     return("");
   }
 
-  protected function sendRequest(HttpRequest $req) {
+  protected function sendRequest(HTTP\Request $req) {
     if ($this->state == "Disconnected") {
       $this->raiseError("Connection was not yet established");
     } else if ($this->state != "Connected") {
@@ -945,6 +933,8 @@ class HttpClient {
         $defaultPort = 80;
       } else if (strtolower($this->protocol) == 'https') {
         $defaultPort = 443;
+      } else {
+        throw new InvalidArgumentException("Unsupported protocol '{$this->protocol}'");
       }
       $relativeURI = strtolower($this->protocol) . "://" . $this->hostName .
         (($this->remotePort == 0 || $this->remotePort == $defaultPort) ?
@@ -1418,8 +1408,7 @@ class HttpClient {
   }
 
   protected function readResponse() {
-    $response = new HttpResponse;
-    $chunk = "";
+    $response = new HTTP\Response;
     switch ($this->state) {
       case "Disconnected":
         $this->raiseError("Connection was not yet established");
@@ -1644,21 +1633,10 @@ class HttpClient {
   }
 }
 
-class HttpRequest {
-  public $method, $protocol, $hostName, $remotePort, $relativeURI, $referer, $headers,
-    $postParams;
-  function __construct($m) {
-    $this->method = $m;
-  }
-  function __set($var, $_) {
-    throw new InvalidArgumentException("HttpRequest has no attribute named '$var'");
-  }
-}
-
-class HttpResponse {
-  public $url, $statusCode, $headers, $content;
+/*class HttpResponse extends HTTP\Response {
+//  public $url, $statusCode, $headers, $content;
   function __construct($content = null) {
     //$this->statusCode = $statusCode;
     $this->content = $content;
   }
-}
+}*/
