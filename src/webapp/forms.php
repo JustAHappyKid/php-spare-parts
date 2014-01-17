@@ -337,8 +337,8 @@ class SelectField extends Field {
     $optionsHtml = '';
     foreach ($this->options as $value => $label) {
       $selected = $value == $this->defaultValue ? ' selected="selected"' : '';
-      $optionsHtml .= '<option value="' . $value . '"' . $selected . '>' .
-        $label . '</option>' . "\n";
+      $optionsHtml .= '<option value="' . htmlspecialchars($value) . '"' . $selected . '>' .
+        htmlspecialchars($label) . '</option>' . "\n";
     }
     return "<select" . $this->attrsHtml() . ">\n" . $optionsHtml . "</select>\n";
   }

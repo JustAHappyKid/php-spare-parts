@@ -34,6 +34,14 @@ class FormsAPITests extends Test\TestHarness {
     $this->assertNodeExists($xp, "//form//input[@type='submit' and @value='Submit it!']");
   }
 
+  # TODO: Add testing over other input types -- text, radio, etc.
+  function testRenderedHtmlIsProperlyEscaped() {
+    $select = new Forms\SelectField('type', 'Type', array("plain&pleasant" => "Plain & Pleasant"));
+    $html = $select->renderInputHtml();
+    assertTrue(contains($html, 'plain&amp;pleasant'));
+    assertTrue(contains($html, 'Plain &amp; Pleasant'));
+  }
+
   function testBasicValidation() {
     $f = new Form('post');
     $f->addHiddenInput('hehe', 'haha');
