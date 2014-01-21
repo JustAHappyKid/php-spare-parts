@@ -18,7 +18,7 @@ class Request {
 
 class Response {
 
-  public $url, $statusCode, $contentType, $content;
+  public $url, $statusCode, /*$contentType,*/ $content;
   public $headers = array();
 
 /*  function __construct($statusCode = null, $contentType = null, $content = null) {
