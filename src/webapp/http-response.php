@@ -2,26 +2,17 @@
 
 namespace SpareParts\Webapp;
 
-class HttpResponse {
+require_once dirname(dirname(__FILE__)) . '/http.php';
+use \SpareParts\HTTP;
 
-  public $statusCode, $contentType, $content;
-  private $headers = array();
+class HttpResponse extends HTTP\Response {
+
+  public $contentType;
 
   function __construct($statusCode = null, $contentType = null, $content = null) {
     $this->statusCode = $statusCode;
     $this->contentType = $contentType;
     $this->content = $content;
-  }
-
-  public function addHeader($name, $value) {
-    if (empty($this->headers[$name])) $this->headers[$name] = array();
-    $this->headers[$name] []= $value;
-  }
-
-  public function headersSet() { return array_keys($this->headers); }
-
-  public function getValuesForHeader($name) {
-    return isset($this->headers[$name]) ? $this->headers[$name] : array();
   }
 }
 
