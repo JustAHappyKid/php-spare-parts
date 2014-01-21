@@ -26,7 +26,8 @@ class Controller {
   public function dispatch(RequestContext $context) {
     $this->context = $context;
     $this->user = $context->user;
-    return $this->routeTo($context->takeNextPathComponent(), $context);
+    $action = $context->takeNextPathComponentOrNull();
+    return $this->routeTo($action == null ? 'index' : $action, $context);
   }
 
   protected function routeTo($cmd, $context) {
@@ -34,13 +35,10 @@ class Controller {
       return $this->pageNotFound("Requested path has capital letters in it");
     }
     $method = Names\hyphenatedToCamelCase($cmd);
-    //$content = '';
     $publicMethods = Reflection\getNamesOfPublicMethods($this);
     if ($method && in_array($method, $publicMethods) &&
         $method != 'init' && $method != 'dispatch') {
       $content = call_user_func(array($this, $method), $context);
-    } else if (empty($method) && in_array('index', $publicMethods)) {
-      $content = call_user_func(array($this, 'index'), $context);
     } else {
       return $this->pageNotFound("Controller " . get_class($this) . " has no method " .
                                  "named '$method'");

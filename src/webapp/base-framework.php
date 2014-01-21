@@ -423,9 +423,14 @@ class RequestContext {
     $this->user = $user;
   }
 
+  public function takeNextPathComponentOrNull() {
+    return array_shift($this->unconsumedPathComponents);
+  }
+
   public function takeNextPathComponent() {
-    $c = array_shift($this->unconsumedPathComponents);
-    return $c;
+    if (count($this->unconsumedPathComponents) == 0)
+      throw new NoMorePathComponents("Expected additional path component in URI");
+    return $this->takeNextPathComponentOrNull();
   }
 }
 
@@ -440,6 +445,7 @@ class DoRedirect extends Exception {
 }
 
 class PageNotFound extends Exception {}
+class NoMorePathComponents extends PageNotFound {}
 class AccessForbidden extends Exception {}
 class MaliciousRequestException extends Exception {}
 
