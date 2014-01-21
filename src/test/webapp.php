@@ -266,7 +266,7 @@ abstract class WebappTestingHarness extends TestHarness {
         throw new HttpRedirect($redirectTo, $this->lastResponse->statusCode);
       }
     } else if ($this->lastResponse->statusCode == 404) {
-      throw new HttpNotFound;
+      throw new HttpNotFound($pathAndQuery);
     } else {
       throw new UnexpectedHttpResponseCode($this->lastResponse->statusCode);
     }
@@ -292,8 +292,9 @@ class HttpRedirect extends HttpNonOkayResponse {
 }
 
 class HttpNotFound extends HttpNonOkayResponse {
-  function __construct() {
+  function __construct($requestedURI) {
     $this->statusCode = 404;
+    $this->message = "Received 404 response on request for {$requestedURI}";
   }
 }
 class UnexpectedHttpResponseCode extends HttpNonOkayResponse {}
