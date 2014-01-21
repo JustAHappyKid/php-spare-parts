@@ -21,11 +21,9 @@ class Response {
   public $url, $statusCode, /*$contentType,*/ $content;
   public $headers = array();
 
-/*  function __construct($statusCode = null, $contentType = null, $content = null) {
-    $this->statusCode = $statusCode;
-    $this->contentType = $contentType;
+  function __construct($content = null) {
     $this->content = $content;
-  }*/
+  }
 
   public function addHeader($name, $value) {
     if (empty($this->headers[$name])) $this->headers[$name] = array();
