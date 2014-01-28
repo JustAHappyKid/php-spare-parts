@@ -139,7 +139,7 @@ abstract class FrontController {
       $r = $this->handlePageNotFound($referrerInfo);
     } catch (MaliciousRequestException $e) {
       $this->warn("Detected malicious request: " . $e->getMessage());
-      $r = $this->simpleTextResponse(400, "go on, get");
+      $r = $this->handleMaliciousRequest($e);
     }
     if (strtolower($reqMethod) == 'head') $r->content = '';
     return $r;
@@ -282,6 +282,11 @@ abstract class FrontController {
 
   protected function get404Response() {
     return $this->simpleTextResponse(404, "Sorry, we've got none of that.");
+  }
+
+  protected function handleMaliciousRequest(MaliciousRequestException $e) {
+    $this->warn("Request appears to be malicious");
+    return $this->simpleTextResponse(400, "go on, get");
   }
 
   protected function simpleTextResponse($code, $content) {
