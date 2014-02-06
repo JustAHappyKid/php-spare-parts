@@ -49,7 +49,7 @@ abstract class WebappTestingHarness extends TestHarness {
   protected function domain() { return 'test.net'; }
 
   protected $lastResponse;
-  private $currentPath, $followRedirects = false;
+  private $currentPath, $currentQuery, $followRedirects = false;
 
   function setUp() {
     $_SESSION = array();
@@ -63,6 +63,10 @@ abstract class WebappTestingHarness extends TestHarness {
 
   protected function getCurrentPath() {
     return $this->currentPath;
+  }
+
+  protected function getCurrentQuery() {
+    return $this->currentQuery;
   }
 
   protected function get($path, $queryVars = null, $serverVars = null) {
@@ -242,6 +246,7 @@ abstract class WebappTestingHarness extends TestHarness {
                                          $pathAndQuery);
     }
     $this->currentPath = $pathAndQuerySplit[0];
+    $this->currentQuery = isset($pathAndQuerySplit[1]) ? ('?' . $pathAndQuerySplit[1]) : null;
     if (count($pathAndQuerySplit) > 1) $_SERVER['QUERY_STRING'] = $pathAndQuerySplit[1];
     $this->lastResponse = $this->dispatchToWebapp();
     if (empty($this->lastResponse) || !($this->lastResponse instanceof HttpResponse)) {
