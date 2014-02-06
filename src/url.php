@@ -65,8 +65,10 @@ function makeQueryString(Array $vars) {
               array_keys($filtered), array_values($filtered)));
 }
 
-# Read the query portion of a URI/URL and return a respective associated array.
-# E.g., given "/path/to/resource?a=b&c=123" yield array('a' => 'b', 'c' => 123).
+/**
+ * Read the query portion of a URI/URL and return a respective associated array.
+ * E.g., given "/path/to/resource?a=b&c=123" yield array('a' => 'b', 'c' => 123).
+ */
 function readQueryFromURI($uri) {
   $parts = explode('?', $uri);
   if (count($parts) > 2) {
