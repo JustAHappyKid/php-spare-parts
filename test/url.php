@@ -56,6 +56,9 @@ function testConstructUrlFromRelativeLocation() {
 function testReadQueryFromURI() {
   assertEqual(array(), URL\readQueryFromURI('/path/without/query'));
   assertEqual(array(), URL\readQueryFromURI('/path/without-query/but-with-question-mark?'));
+  assertEqual(array('a' => '10245', 'b' => 'something'),
+    URL\readQueryFromURI('/path/with-query?a=10245&b=something'));
+  assertEqual(array('query' => ''), URL\readQueryFromURI('/okay?query='));
 }
 
 function testTitleToUrlComponent() {

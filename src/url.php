@@ -74,7 +74,16 @@ function readQueryFromURI($uri) {
   if (count($parts) > 2) {
     throw new InvalidArgumentException("Multiple question marks found in given URI: $uri");
   }
-  $assignments = count($parts) > 1 && strlen($parts[1]) > 0 ? explode('&', $parts[1]) : array();
+  return queryToArray(at($parts, 1, ''));
+}
+
+/**
+ * Given a URI/URL query-string, return a respective associated array.
+ * E.g., given "?a=b&c=123" yield array('a' => 'b', 'c' => 123).
+ */
+function queryToArray($q) {
+  if ($q == '' || $q == '?') return array();
+  $assignments = explode('&', withoutPrefix($q, '?'));
   $queryVars = array();
   foreach ($assignments as $assignment) {
     list($var, $val) = explode('=', $assignment);
