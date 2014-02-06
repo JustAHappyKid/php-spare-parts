@@ -2,6 +2,8 @@
 
 namespace SpareParts\Webapp\Filters;
 
+require_once dirname(dirname(dirname(__FILE__))) . '/web-client/html-form.php'; # HtmlForm
+
 use \SpareParts\Webapp\Filter, \SpareParts\Webapp\HttpResponse,
   \SpareParts\Webapp\MaliciousRequestException, \SpareParts\WebClient\HtmlForm;
 
