@@ -40,6 +40,10 @@ class HtmlForm {
     return $form;
   }
 
+  public static function fromString($formHtml) {
+    return new HtmlForm($formHtml);
+  }
+
   public function parse($formHtml) {
     $dom = htmlSoupToDOMDocument($formHtml);
     $this->xpathObj = new \DOMXPath($dom);
