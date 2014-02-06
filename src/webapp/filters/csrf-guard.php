@@ -3,7 +3,7 @@
 namespace SpareParts\Webapp\Filters;
 
 use \SpareParts\Webapp\Filter, \SpareParts\Webapp\HttpResponse,
-  \SpareParts\Webapp\MaliciousRequestException;
+  \SpareParts\Webapp\MaliciousRequestException, \SpareParts\WebClient\HtmlForm;
 
 /**
  * Attempt to prevent Cross-Site Request Forgery (CSRF) attacks by adding some "magic dust"
@@ -16,6 +16,14 @@ class CSRFGuard implements Filter {
 
   protected $nameForNameInput  = '__sp_guard_name';
   protected $nameForTokenInput = '__sp_guard_token';
+
+  /**
+   * Should the given form be CSRF-guarded? The default implementation will include
+   * all forms except those that use a "get" method.
+   */
+  protected function shouldGuardForm(HtmlForm $f) {
+    return strtolower($f->method) != 'get';
+  }
 
   public function incoming() {
     if (count($_POST)) {
@@ -38,21 +46,23 @@ class CSRFGuard implements Filter {
     preg_match_all("/<form(.*?)>(.*?)<\\/form>/is", $html, $matches, PREG_SET_ORDER);
     if (is_array($matches)) {
       foreach ($matches as $m) {
-        // XXX: Maybe make this configurable via the constructor, so we can avoid the
-        // XXX: need to insert such text into HTML that end-users (e.g., hackers) could see?
-//        if (strpos($m[1],"nocsrf")!==false) { continue; }
-
-        $name = "SpareParts.CSRFGuard." . mt_rand(0, mt_getrandmax());
-//        $token=csrfguard_generate_token($name);
-        $token = $this->generateToken();
-        $_SESSION[$name] = $token;
-        $newForm = "<form{$m[1]}>\n" .
-          "<input type='hidden' name='{$this->nameForNameInput}' value='{$name}' /> " .
-          "<input type='hidden' name='{$this->nameForTokenInput}' value='{$token}' />{$m[2]}</form>";
-        $html = str_replace($m[0], $newForm, $html);
+        if ($this->shouldGuardForm(HtmlForm::fromString($m[0]))) {
+          $name = "SpareParts.CSRFGuard." . mt_rand(0, mt_getrandmax());
+          $token = $this->generateToken();
+          $_SESSION[$name] = $token;
+          $newForm = $this->reconstructForm($m[1], $m[2], $name, $token);
+          $html = str_replace($m[0], $newForm, $html);
+        }
       }
     }
     return $html;
+  }
+
+  private function reconstructForm($attrs, $content, $name, $token) {
+    return "<form " . trim($attrs) . ">\n" .
+      "<input type='hidden' name='{$this->nameForNameInput}' value='{$name}' />\n" .
+      "<input type='hidden' name='{$this->nameForTokenInput}' value='{$token}' />\n" .
+      "$content</form>";
   }
 
   private function generateToken() {
