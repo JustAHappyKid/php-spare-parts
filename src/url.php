@@ -86,7 +86,12 @@ function queryToArray($q) {
   $assignments = explode('&', withoutPrefix($q, '?'));
   $queryVars = array();
   foreach ($assignments as $assignment) {
-    list($var, $val) = explode('=', $assignment);
+    $parts = explode('=', $assignment);
+    $var = $parts[0];
+    $val = null;
+    if (count($parts) == 2) $val = $parts[1];
+    else if (count($parts) > 2) throw new InvalidArgumentException("Component of query-string " .
+                                  "contained multiple equal-signs");
     $queryVars[$var] = urldecode($val);
   }
   return $queryVars;

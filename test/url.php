@@ -59,6 +59,9 @@ function testReadQueryFromURI() {
   assertEqual(array('a' => '10245', 'b' => 'something'),
     URL\readQueryFromURI('/path/with-query?a=10245&b=something'));
   assertEqual(array('query' => ''), URL\readQueryFromURI('/okay?query='));
+  $r = URL\readQueryFromURI('/path?noEqualSign');
+  assertTrue($r == array('noEqualSign' => '') || $r == array('noEqualSign' => null));
+  assertThrows('InvalidArgumentException', function() { URL\readQueryFromURI('/?a=b=c'); });
 }
 
 function testTitleToUrlComponent() {
