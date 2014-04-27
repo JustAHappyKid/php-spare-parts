@@ -200,7 +200,7 @@ abstract class FrontController {
             (is_string($funcOrClass) && class_exists($funcOrClass) &&
              ($routedTo == $requestedPath || $routedTo == "$requestedPath/index"))) {
           if (!in_array(strtolower($_SERVER['REQUEST_METHOD']), array('get', 'head'))) {
-            throw new Exception("Attempting redirect for request other than GET or HEAD");
+            $this->warn("Performing redirect for {$_SERVER['REQUEST_METHOD']} request");
           }
           $q = at($_SERVER, 'QUERY_STRING');
           throw new DoRedirect($requestedPath . '/' . ($q ? ('?' . $q) : ''), 302);
