@@ -372,6 +372,14 @@ abstract class FrontController {
       }
     }
 
+    # On some Linux systems (e.g., Ubuntu) an outside cron task is used to clean up session
+    # data. In those cases, setting 'gc_maxlifetime' on-the-fly may not be effective...
+    $preConfiguredValue = (int) ini_get('session.gc_maxlifetime');
+    if ($preConfiguredValue < $sessionLifetime)
+      $this->warn("PHP's session.gc_maxlifetime config variable has a value " .
+        "($preConfiguredValue) less than application's configured session lifetime " .
+        "($sessionLifetime); this may lead to sessions not lasting as long as desired");
+
     ini_set('session.name', $sessionName);
     ini_set('session.cookie_path', '/');
     ini_set('session.cookie_domain', $cookieDomain);
