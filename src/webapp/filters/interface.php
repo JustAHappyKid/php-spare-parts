@@ -6,7 +6,10 @@ interface Filter {
 
   /**
    * Process the incoming HTTP request via direct access and/or manipulation of $_GET, $_POST,
-   * $_COOKIE, etc.
+   * $_COOKIE, etc. Under ordinary circumstances, this method should return null; however, if
+   * processing of the request should be halted, then an appropriate HttpResponse object should
+   * be returned.
+   * @return null|HttpResponse
    */
   public function incoming();
 

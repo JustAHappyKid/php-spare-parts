@@ -122,7 +122,10 @@ abstract class FrontController {
       # XXX: Make this a filter?
       $this->checkForMaliciousContent();
 
-      foreach ($this->filters() as $f) $f->incoming();
+      foreach ($this->filters() as $f) {
+        $filterResp = $f->incoming();
+        if ($filterResp !== null) return $filterResp;
+      }
 
       $r = $this->dispatch();
 
