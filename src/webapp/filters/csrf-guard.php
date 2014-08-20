@@ -3,9 +3,11 @@
 namespace SpareParts\Webapp\Filters;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/web-client/html-form.php'; # HtmlForm
+require_once dirname(dirname(__FILE__)) . '/ui.php';                            # errorAlert
 
 use \SpareParts\Webapp\Filter, \SpareParts\Webapp\HttpResponse,
-  \SpareParts\Webapp\MaliciousRequestException, \SpareParts\WebClient\HtmlForm;
+  \SpareParts\Webapp\MaliciousRequestException, \SpareParts\WebClient\HtmlForm,
+  \SpareParts\Webapp\UI;
 
 /**
  * Attempt to prevent Cross-Site Request Forgery (CSRF) attacks by adding some "magic dust"
@@ -28,14 +30,29 @@ class CSRFGuard implements Filter {
   }
 
   public function incoming() {
+
     if (count($_POST)) {
       if (!isset($_POST[$this->nameForNameInput]) || !isset($_POST[$this->nameForTokenInput]))
         throw new MaliciousRequestException("No CSRF-prevention token found in POST data");
       $name  = $_POST[$this->nameForNameInput];
       $token = $_POST[$this->nameForTokenInput];
       if (!$this->isValidToken($name, $token))
-        throw new MaliciousRequestException("Invalid CSRF-prevention token provided");
+        return new HttpResponse($statusCode = 400, $contentType = 'text/html',
+          $content = UI\errorAlert("
+            <h1>Invalid CSRF-Prevention Token</h1>
+            <p>Sorry, but we could not validate the authenticity of your request. This can happen
+              if your session has expired or you cleared your cookies. Please try completing
+              the action you intended to again, and if you continue to see this validation error,
+              please let us know.</p>
+            <p>Though it may prove a minor annoyance, we put this mechanism in place to keep our
+              users safe from
+              <a href=\"https://en.wikipedia.org/wiki/Cross-site_request_forgery\"
+                 >Cross-Site Request Forgery</a> attacks. Thanks for your understanding!</p>
+          "));
     }
+
+    /* If all looks okay, we return null to indicate so. */
+    return null;
   }
 
   # TODO: Only pass through filter if Content-Type indicates it is indeed HTML??
