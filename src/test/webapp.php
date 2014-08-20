@@ -125,6 +125,10 @@ abstract class WebappTestingHarness extends TestHarness {
                 "Expected to get validation error(s) from submitting form");
   }
 
+  /**
+   * Just submit the given $form without any expectations as to whether it should come back
+   * without errors or not.
+   */
   private function justSubmitForm(HtmlForm $form, $nonDefaultValues, $submitButton = null) {
     if (!$form->hasSubmitButton()) {
       fail("Form has no submit button");
