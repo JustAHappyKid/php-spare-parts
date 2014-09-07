@@ -10,7 +10,7 @@ abstract class LayoutWithFunction implements Renderable {
   function theDocument() {
     ?><html> <body>
       <?= $this->showSomething() ? 'This is it.' : '(nothing here.)' ?>
-    </body> </html><?
+    </body> </html><?php
   }
 
   function __render($vars) { return $this->theDocument(); }

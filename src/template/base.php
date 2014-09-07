@@ -112,7 +112,7 @@ function saveAsRenderableClass($content) {
   return saveMethodsAsClass('
     public function __render($vars) {
       $this->__vars = $vars;
-      ?>' . $content . '<?
+      ?>' . $content . '<?php
     }');
 }
 

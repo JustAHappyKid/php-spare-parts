@@ -19,7 +19,7 @@ class Block extends MethodOrBlock {
     $expanded = expandShorthandPhpVariableSubstitution(
       expandShorthandPhpLogic($this->body));
     $rescoped = rescopeVariables($expanded, $vars);
-    return $this->functionSignature() . " { ?>\n" . $rescoped . "<? }";
+    return $this->functionSignature() . " { ?>\n" . $rescoped . "<?php }";
   }
 }
 

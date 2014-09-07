@@ -15,7 +15,7 @@ abstract class Part {
 
 abstract class PHPPart extends Part {}
 class PHPLogicPart  extends PHPPart {
-  function render() { return '<? ' . $this->content . '?>'; }
+  function render() { return '<?php ' . $this->content . '?>'; }
 }
 class PHPOutputPart extends PHPPart {
   function render() { return '<?= ' . $this->content . '?>'; }

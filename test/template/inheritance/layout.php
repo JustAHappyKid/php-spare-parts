@@ -10,7 +10,7 @@ abstract class Layout implements Renderable {
   function content() {
     ?><html> <body>
       <div id="content"><?= $this->realStuff() ?></div>
-    </body> </html><?
+    </body> </html><?php
   }
 
   function __render($vars) { return $this->content(); }
