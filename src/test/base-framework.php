@@ -121,12 +121,14 @@ function runDefinedTests(Config $conf) {
   foreach ($testFuncs as $f) {
     if ($conf->verbose) echo "Running test-function $f...\n";
     call_user_func($f);
+    if ($conf->progressDots) echo ".";
   }
   $numMethodsRun = 0;
   foreach ($testClasses as $c) {
     if ($conf->verbose) echo "Running test-class $c...\n";
     $numMethodsRun += runTestMethods(new $c, $conf);
   }
+  if ($conf->progressDots) echo "\n";
   return array('functions' => count($testFuncs), 'classes' => count($testClasses),
                'methods' => $numMethodsRun);
 }
@@ -143,6 +145,7 @@ function runTestMethods(TestHarness $testObject, Config $conf) {
       $testObject->$methodName();
       $testObject->tearDown();
       $methodsRun += 1;
+      if ($conf->progressDots) echo ".";
     }
   }
   return $methodsRun;
@@ -191,5 +194,5 @@ abstract class TestHarness {
 class TestFailure extends Exception {}
 
 class Config {
-  public $baseTestDir, $filesToIgnore = array(), $verbose = false;
+  public $baseTestDir, $filesToIgnore = array(), $verbose = false, $progressDots = true;
 }
