@@ -36,18 +36,43 @@ function getStatesMap($includeMilitaryPseudoStates, $includeTerritories) {
 
 function getStateAbbr($stateName, $includeMilitaryPseudoStates = true,
                       $includeTerritories = true) {
-  $map = array_flip(getStatesMap($includeMilitaryPseudoStates, $includeTerritories));
-  if (isset($map[$stateName])) {
-    return $map[$stateName];
+  $map = array_flip(array_map(
+    function($n) { return strtolower($n); },
+    getStatesMap($includeMilitaryPseudoStates, $includeTerritories)));
+  $stateNameL = strtolower($stateName);
+  if (isset($map[$stateNameL])) {
+    return $map[$stateNameL];
   } else {
-    throw new Exception("Could not find state named '$stateName'");
+    throw new InvalidArgumentException("Could not find state named '$stateName'");
   }
+}
+
+/**
+ * Given a state abbreviation, return its full name.
+ */
+function getStateName($stateAbbr, $includeMilitaryPseudoStates = true,
+                      $includeTerritories = true) {
+  $map = getStatesMap($includeMilitaryPseudoStates, $includeTerritories);
+  if (isset($map[$stateAbbr]))
+    return $map[$stateAbbr];
+  else
+    throw new InvalidArgumentException("Could not find state with abbreviation '$stateAbbr'");
 }
 
 function isValidStateAbbr($abbr, $includeMilitaryPseudoStates = true,
                           $includeTerritories = true) {
   $map = getStatesMap($includeMilitaryPseudoStates, $includeTerritories);
   return isset($map[$abbr]);
+}
+
+function isValidStateName($stateName, $includeMilitaryPseudoStates = true,
+                          $includeTerritories = true) {
+  try {
+    getStateAbbr($stateName, $includeMilitaryPseudoStates, $includeTerritories);
+    return true;
+  } catch (InvalidArgumentException $_) {
+    return false;
+  }
 }
 
 # --
