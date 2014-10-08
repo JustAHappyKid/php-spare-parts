@@ -5,8 +5,9 @@ namespace SpareParts\ErrorHandling;
 require_once dirname(__FILE__) . '/types.php';
 require_once dirname(__FILE__) . '/email.php';                  # sendTextEmail
 require_once dirname(__FILE__) . '/webapp/current-request.php'; # getHost
+require_once dirname(__FILE__) . '/webapp/ui.php';              # errorAlert
 
-use \Exception, \ErrorException, \SpareParts\Webapp\CurrentRequest;
+use \Exception, \ErrorException, \SpareParts\Webapp\CurrentRequest, \SpareParts\Webapp\UI;
 
 function initErrorHandling($sendReportsTo) {
   global $__SpareParts_ErrorHandling_sendReportsTo;
@@ -172,33 +173,42 @@ function constructErrorReport(Exception $exception) {
  * email will be sent there.
  */
 function presentErrorReport($fullReport, $email = null) {
+
   global $__SpareParts_ErrorHandling_sendReportsTo;
   $sendReportTo = $email ? $email : $__SpareParts_ErrorHandling_sendReportsTo;
+
   if (php_sapi_name() == 'cli') {
-    # TODO: Shouldn't we still send an email if $__SpareParts_ErrorHandling_sendReportsTo
-    #       is set, even if we're running under the CLI??
     echo "\n$fullReport\n\n";
   } else {
+    respondToError($fullReport, $sendReportTo);
+  }
+
+  if ($sendReportTo) {
+    $host = CurrentRequest\getHost();
+    sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
+  }
+}
+
+function respondToError($fullReport, $sendReportTo) {
+  if (!headers_sent()) {
+    http_response_code(500);
     header('Content-Type: text/html; charset=utf-8');
     header('Content-Disposition: inline');
-    $displayErrors = readBoolFromStr(ini_get('display_errors'));
-    if ($displayErrors) {
-      echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
-    } else if ($sendReportTo) {
-      echo '<div style="color: #700; background-color: #fcc; padding: 0 0.9em;
-                        border: 0.1em solid #daa; border-radius: 0.2em;
-                        max-width: 40em; margin: 3em auto;">' .
-        "<p><strong>Sorry, something went wrong.</strong></p> " .
-        "<p>Our team has been notified of the problem, but it would be helpful if you
-           <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
-           were doing just before and leading up to this failure.  We'll do our best
-           to get this fixed ASAP!</p></div>\n";
-      //mail($sendReportTo, "PHP Error Report", $fullReport);
-      $host = CurrentRequest\getHost();
-      sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
-    } else {
-      echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and no email " .
-        "address was configured (via initErrorHandling) for receiving error reports!</p>\n";
-    }
+  }
+  $displayErrors = readBoolFromStr(ini_get('display_errors'));
+  if ($displayErrors) {
+    echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
+  } else if ($sendReportTo) {
+    echo UI\errorAlert(
+      "<p><strong>Sorry, something went wrong.</strong></p> " .
+      "<p>Our team has been notified of the problem, but it would be helpful if you
+         <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
+         were doing just before and leading up to this failure.  We'll do our best
+         to get this fixed ASAP!</p></div>\n");
+    $host = CurrentRequest\getHost();
+    sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
+  } else {
+    echo "<p>Uh-oh &ndash; something went wrong, but 'display_errors' is off and no email " .
+      "address was configured (via initErrorHandling) for receiving error reports!</p>\n";
   }
 }
