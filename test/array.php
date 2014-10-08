@@ -3,6 +3,15 @@
 require_once 'array.php';
 use \SpareParts\ArrayLib;
 
+function testHeadDoesNotCareIfFirstElementHasNonZeroIndex() {
+  $a = array('a', 'b', 'c');
+  assertEqual('a', ArrayLib\head($a));
+  unset($a[0]);
+  assertEqual('b', ArrayLib\head($a));
+  unset($a[1]);
+  assertEqual('c', ArrayLib\head($a));
+}
+
 function testTail() {
   assertEqual(array(2), ArrayLib\tail(array(1, 2)));
   assertEqual(array(90, 80, 50, 30, 0), ArrayLib\tail(array(100, 90, 80, 50, 30, 0)));
