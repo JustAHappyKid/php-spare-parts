@@ -20,5 +20,6 @@ function head(Array $arr) {
 }
 
 function pathJoin() {
+  require_once dirname(__FILE__) . '/file-path.php';
   return call_user_func_array("\\SpareParts\\FilePath\\join", func_get_args());
 }
