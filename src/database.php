@@ -208,15 +208,13 @@ function _questionMarks(Array $values) {
   return "(" . $qMarks . ")";
 }
 
-/**
- * G-damn, PHP is a stupid-ass language...  Why on Earth would it not properly pass booleans
- * to Postgres?!  What is the bloody purpose in having a database abstraction layer?!
- */
 function _sanitizeValues(Array $origValues) {
   $newValues = array();
   foreach ($origValues as $k => $v) {
     $sanitized = null;
     if (is_bool($v)) {
+      # G-damn, PHP is a stupid-ass language...  Why on Earth would it not properly pass booleans
+      # to Postgres?!  What is the bloody purpose in having a database abstraction layer?!
       $sanitized = ($v == true ? 't' : 'f');
     } else if ($v instanceof DateTime) {      /* XXX: DateTime needs namespace qualification ??? */
       $sanitized = $v->format('Y-m-d H:i:s');
