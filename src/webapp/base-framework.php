@@ -54,12 +54,13 @@ abstract class FrontController {
   protected function warn  ($msg) {}
 
   /**
-   * Access-control and user session support.
+   * Access-control and session support.
    */
   protected function getUserForCurrentRequest() { return null; }
   protected function checkAccessPrivileges($cmd, $user) { return true; }
   protected function nameOfSessionCookie() { return 'sessionid'; }
   protected function sessionLifetimeInSeconds() { return 60 * 60 * 24; /* one day */ }
+  protected function secureSessionCookie() { return CurrentRequest\isSecureHttpConnection(); }
 
   /**
    * If you run your website off of more than one sub-domain (e.g., a.my-site.com and
@@ -388,7 +389,7 @@ abstract class FrontController {
     ini_set('session.cookie_domain', $cookieDomain);
     ini_set('session.gc_maxlifetime', $sessionLifetime);
     ini_set('session.cookie_lifetime', $sessionLifetime);
-    ini_set('session.cookie_secure', 0);
+    ini_set('session.cookie_secure', $this->secureSessionCookie() ? 1 : 0);
     ini_set('session.cookie_httponly', 0);
 
     if (!isset($_COOKIE[$sessionName])) {
