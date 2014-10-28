@@ -4,6 +4,13 @@ require_once 'dates.php';
 
 use \SpareParts\DateTime\DateSansTime, \SpareParts\DateTime as DT;
 
+# Make sure a timezone is set, so PHP doesn't raise a warning...
+try {
+  date_default_timezone_get();
+} catch (\SpareParts\ErrorHandling\StandardPhpWarning $_) {
+  date_default_timezone_set('UTC');
+}
+
 function testDateSansTimeClass() {
   $d1 = new DateSansTime('February 17, 1970 7:56 PM');
   assertEqual('1970-02-17', $d1->asDatabaseString());
