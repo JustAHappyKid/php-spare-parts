@@ -9,7 +9,7 @@ namespace SpareParts\Database;
 
 require_once dirname(__FILE__) . '/dates.php';
 
-use \Exception, \PDO, \DateTime, \SpareParts\DateTime\DateSansTime;
+use \Exception, \BadMethodCallException, \PDO, \DateTime, \SpareParts\DateTime\DateSansTime;
 
 class NoMatchingRecords extends Exception {}
 class MultipleMatchingRecords extends Exception {}
@@ -20,12 +20,17 @@ function setConnectionParams($driver, $dbName, $username, $password, $host) {
     'username' => $username, 'password' => $password, 'host' => $host);
 }
 
+function assertConfigured() {
+  global $__SpareParts_Database_connectionParams;
+  if (empty($__SpareParts_Database_connectionParams)) {
+    throw new BadMethodCallException("Connection parameters must be set (via " .
+      "'setConnectionParams') before connection to database can be made.");
+  }
+}
+
 function getConnection() {
   global $__SpareParts_Database_connectionParams, $__SpareParts_Database_connection;
-  if (empty($__SpareParts_Database_connectionParams)) {
-    throw new Exception("Connection parameters must be set (via 'setConnectionParams') " .
-      "before connection to database can be made.");
-  }
+  assertConfigured();
   if ($__SpareParts_Database_connection === null) {
     $ps = $__SpareParts_Database_connectionParams;
     $dsn = $ps['driver'] . ":dbname=" . $ps['dbName'] . ";host=" . $ps['host'];
@@ -223,12 +228,17 @@ function _sanitizeValues(Array $origValues) {
   return $newValues;
 }
 
-/*
 function getTableNames() {
-  return array_map(function ($r) { return $r['tablename']; },
-    queryAndFetchAll("select * from pg_tables where schemaname = 'public'"));
+  global $__SpareParts_Database_connectionParams;
+  assertConfigured();
+  $driver = $__SpareParts_Database_connectionParams['driver'];
+  if ($driver == 'pgsql')
+    return array_map(function ($r) { return $r['tablename']; },
+      queryAndFetchAll("select * from pg_tables where schemaname = 'public'"));
+  else
+    throw new BadMethodCallException("Sorry, we 'getTableNames' does not (yet) support " .
+                                     "driver '$driver'");
 }
-*/
 
 $__SpareParts_Database_connectionParams = null;
 $__SpareParts_Database_connection = null;
