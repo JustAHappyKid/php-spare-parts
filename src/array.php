@@ -12,6 +12,8 @@ use \Closure, \InvalidArgumentException;
  * Re (1): 'reset' cannot be used in a case such as this: reset(functionReturningArray())
  * Such would yield an error, as 'functionReturningArray()' is not a variable. The following
  * will work, however: head(functionReturningArray())
+ *
+ * TODO: Make this leave the PHP array internal pointer in tact.
  */
 function head(Array $a) {
   return reset($a);
