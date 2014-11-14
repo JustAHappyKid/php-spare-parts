@@ -353,3 +353,14 @@ function areSameDir($dir1, $dir2) {
     return !strcmp($dir1, $dir2);
   }
 }
+
+
+# XXX: This is not ideal -- leaves potential room for race condition.
+function makeTempDir() {
+  $baseTempDir = sys_get_temp_dir();
+  $newTempDir = tempnam($baseTempDir, "");
+  unlink($newTempDir); // XXX: possibility for race condition here
+  if (!mkdir($newTempDir, 0700))
+    throw new Exception("Failed to make temporary directory at location $newTempDir");
+  return $newTempDir;
+}
