@@ -2,6 +2,7 @@
 
 require_once dirname(__FILE__) . '/array.php';      # head
 require_once dirname(__FILE__) . '/string.php';     # beginsWith
+require_once dirname(__FILE__) . '/utf8.php';       # hasInvalidUTF8Chars
 require_once dirname(__FILE__) . '/validation.php'; # isValidEmailAddr
 
 use \SpareParts\Validation as V, \SpareParts\ArrayLib as A;
@@ -42,6 +43,18 @@ function sendTextEmail($from, $to, $subject, $message, Array $headers = array())
       throw new InvalidArgumentException("Invalid header provided: " . $h);
     }
   }
+
+  # Ensure the message is properly encoded in UTF-8 (if the Content-Type header does indeed
+  # specify UTF-8 as the character-encoding)...
+  $contentType = getHeaderValue($allHeaders, "Content-Type");
+  $parts = explode(';', $contentType);
+  if (count($parts) == 2) {
+    $charset = strtolower(withoutPrefix($parts[1], "charset="));
+    if ($charset == 'utf-8' && hasInvalidUTF8Chars($message))
+      throw new InvalidArgumentException("Message body has non-UTF-8 characters but " .
+        "Content-Type specifies UTF-8 as charset");
+  }
+
   mail($to, $subject, $message, implode("\r\n", $allHeaders), "-f \"$from\"");
 }
 
