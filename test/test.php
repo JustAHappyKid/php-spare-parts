@@ -25,6 +25,9 @@ function configMockSendmail($testDir) {
       "'mock-sendmail' but it is set as '$smPath'");
   }
   putenv("PATH=$testDir/mock/bin:" . getenv('PATH'));
+  require_once 'fs.php';
+  $testEmailsDir = makeTempDir();
+  putenv("PHP_SPARE_PARTS_TEST_MAILDIR=$testEmailsDir");
 }
 
 main($argc, $argv);

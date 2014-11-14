@@ -1,3 +1,13 @@
-#!/bin/sh
-# Nothing to do here, for now... Maybe in the future add some assertions
-# that properly formed email addresses and headers and such have been passed?
+#!/usr/bin/php
+<?php
+
+# Get the payload of the email being "sent" -- headers and message body alike.
+$c = file_get_contents("php://stdin");
+
+# If an "outbox" has been specified, save the message content there, where our test-suite
+# can find it and make assertions against its content.
+$outboxDir = getenv("PHP_SPARE_PARTS_TEST_MAILDIR");
+if ($outboxDir) {
+  $fname = tempnam($outboxDir, "");
+  file_put_contents($fname, $c);
+}
