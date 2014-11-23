@@ -1,8 +1,10 @@
 <?php
 
-require_once 'email.php';   # sendTextEmail
-require_once 'fs.php';      # getFilesInDir
-require_once 'string.php';  # beginsWith
+require_once 'email.php';               # sendTextEmail
+require_once 'string.php';              # beginsWith
+require_once 'test/mock-sendmail.php';  # clearOutbox
+
+use \SpareParts\Test\MockEmail;
 
 function testSendingTextEmail() {
   sendTextEmail('dan@test.net', 'bill@test.com', 'Test', 'Nothing new here.');
@@ -22,14 +24,15 @@ function testThatInvalidEmailAddressIsRejected() {
 }
 
 function testConflictingHeadersAreNotEmittedIfExplicitContentTypeIsPassed() {
-  clearOutbox();
+  MockEmail\clearOutbox();
   sendTextEmail("a@test.org", "b@test.com", "Hi man", "Simple text.",
     array("Content-type: text/plain; charset=ISO-8859-1"));
-  $content = expectOneEmail();
-  $lines = explode("\n", $content);
-  $contentTypeHeaders = array_filter($lines,
-    function($l) { return beginsWith(strtolower($l), "content-type:"); });
-  assertEqual(1, count($contentTypeHeaders));
+  $emails = MockEmail\getSentEmails();
+  assertEqual(1, count($emails));
+  $e = reset($emails);
+  $contentType = $e->getHeaderValue("Content-Type");
+  assertTrue($contentType != null);
+  assertTrue(beginsWith($contentType, "text/plain"));
 }
 
 function testGetHeaderValue() {
@@ -40,21 +43,4 @@ function testGetHeaderValue() {
 function testHasHeader() {
   $headers = array("From: jon@test.net", "Content-Type: text/plain");
   assertTrue(hasHeader($headers, 'Content-Type'));
-}
-
-function expectOneEmail() {
-  $d = outboxDir();
-  $fs = getFilesInDir($d);
-  assertEqual(1, count($fs));
-  return file_get_contents($d . "/" . $fs[0]);
-}
-
-function clearOutbox() {
-  $d = outboxDir();
-  foreach (getFilesInDir($d) as $f)
-    unlink("$d/$f");
-}
-
-function outboxDir() {
-  return getenv("PHP_SPARE_PARTS_TEST_MAILDIR");
 }
