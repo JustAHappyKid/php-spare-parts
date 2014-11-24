@@ -200,9 +200,9 @@ if (!defined('PASSWORD_BCRYPT')) {
 	 * @param string $password The password to verify
 	 * @param string $hash     The hash to verify against
 	 *
-	 * @return boolean If the password matches the hash
+	 * @return boolean True if the password matches the hash
 	 */
-    function password_verify($password, $hash) {
+  function password_verify($password, $hash) {
 		if (!function_exists('crypt')) {
 			trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
 			return false;
