@@ -23,6 +23,14 @@ function testThatInvalidEmailAddressIsRejected() {
   }
 }
 
+function testBasicFunctionalityOfMockSendmailFramework() {
+  MockEmail\clearOutbox();
+  mail('john@example.com', 'Test Message', 'This is all I wrote!');
+  $es = MockEmail\getSentEmails();
+  assertTrue(count($es) > 0);
+  assertEqual('Test Message', $es[0]->subject);
+}
+
 function testConflictingHeadersAreNotEmittedIfExplicitContentTypeIsPassed() {
   MockEmail\clearOutbox();
   sendTextEmail("a@test.org", "b@test.com", "Hi man", "Simple text.",
