@@ -1,0 +1,22 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * This file can be used to "mock out" the 'sendmail' executable for purposes of testing PHP
+ * code; and, it is indeed used for the PHP Spare Parts test suite to do just that.  When this
+ * script is called, presumably via PHP's 'mail' function in the same way it would ordinarily
+ * call the real 'sendmail' binary, it will save the raw email content (passed via stdin) to a
+ * temporary file under the directory specified by the environment variable
+ * 'PHP_SPARE_PARTS_TEST_MAILDIR'.
+ */
+
+# Get the payload of the email being "sent" -- headers and message body alike.
+$c = file_get_contents("php://stdin");
+
+# If an "outbox" has been specified, save the message content there, where our test-suite
+# can find it and make assertions against its content.
+$outboxDir = getenv("PHP_SPARE_PARTS_TEST_MAILDIR");
+if ($outboxDir) {
+  $fname = tempnam($outboxDir, "");
+  file_put_contents($fname, $c);
+}
