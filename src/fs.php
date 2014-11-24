@@ -1,7 +1,9 @@
 <?php
 
 require_once dirname(__FILE__) . '/file-path.php';
-use \SpareParts\FilePath as Path;
+require_once dirname(__FILE__) . '/array.php';
+
+use \SpareParts\FilePath as Path, \SpareParts\ArrayLib as A;
 
 /**
  * Returns an array containing filenames for all files matching $pattern within
@@ -9,8 +11,11 @@ use \SpareParts\FilePath as Path;
  * XXX: Does this function do anything different than PHP's built-in 'glob' function?
  */
 function getFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) {
+  if (empty($dir))
+    throw new InvalidArgumentException("No directory specified");
   @ $handle = opendir($dir);
-  if (!$handle) throw new Exception("Could not read directory $dir");
+  if (!$handle)
+    throw new Exception("Could not read directory $dir");
   $files = array();
   while (false !== ($f = readdir($handle))) {
     if ($f != '.' && $f != '..' && ($getHiddenFiles || $f[0] != '.') && fnmatch($pattern, $f)) {
@@ -56,23 +61,23 @@ function recursivelyGetFilesInDir($dir, $pattern = '*', $getHiddenFiles = true) 
 function isWithinOrIsDirectory($item, $dir) {
   $itemNorm = Path\normalize($item);
   $dirNorm = Path\normalize($dir);
-  return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm;
+  $itemParts = explode("/", $itemNorm);
+  $dirParts = explode("/", $dirNorm);
+  return A\commonPrefix(array($itemParts, $dirParts)) === $dirParts;
 }
 
 /**
  * Determines whether or not the first parameter, $item, is a sub-directory of
- * or a file inside of the given $dir. Unlike isWithinDirectory(), above, this
+ * or a file inside of the given $dir. Unlike `isWithinOrIsDirectory`, above, this
  * function will return false if $item appears to be the same directory as $dir.
- * This function will not actually check for the existence of either directory,
- * but only compare string values.
+ *
+ * Note, this function does *not* actually check for the existence of either directory,
+ * but merely makes an assessment based on the path-names.
  */
 function isWithinDirectory($item, $dir) {
+  $itemNorm = Path\normalize($item);
   $dirNorm = Path\normalize($dir);
-  return substr($itemNorm, 0, strlen($dirNorm)) == $dirNorm &&
-         // XXX: Will this "+ 1" cause some incorrect results??
-         //      E.g., isWithinDirectory('path/to/f', 'path/to/');
-         //      Maybe not...  Tests would be in order, either way!
-         strlen($itemNorm) > (strlen($dirNorm) + 1);
+  return isWithinOrIsDirectory($itemNorm, $dirNorm) && $itemNorm != $dirNorm;
 }
 
 
