@@ -38,5 +38,10 @@ function testCommonPrefixForArrays() {
       array("home", "johnny", "appleseeds", "red", "pink-lady"),
       array("home", "johnny", "appleseeds", "red", "delicious"),
       array("home", "johnny", "appleseeds", "green", "green-apple"))));
+}
+
+function testCommonPrefixForArraysProperlyValidatesParameters() {
   assertThrows('InvalidArgumentException', function() { ArrayLib\commonPrefix(array()); });
+  assertThrows('InvalidArgumentException', function() {
+    ArrayLib\commonPrefix(array(1, 2), array(1, 2, 3)); });
 }

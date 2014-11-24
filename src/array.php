@@ -84,13 +84,19 @@ function dropWhile(Closure $qualify, Array $a) {
  * array(1, 2).
  */
 function commonPrefix(Array $a) {
+
+  if (func_num_args() > 1)
+    throw new InvalidArgumentException("'commonPrefix' takes exactly one argument");
+
   $length = function($arrayOrString) {
     return is_string($arrayOrString) ? strlen($arrayOrString) : count($arrayOrString);
   };
+
   $slice = function($arrayOrString, $to) {
     return is_string($arrayOrString) ? substr     ($arrayOrString, 0, $to) :
                                        array_slice($arrayOrString, 0, $to);
   };
+
   if (count($a) == 0) {
     throw new InvalidArgumentException("Must provide at least one element");
   } else if (count($a) == 1) {
