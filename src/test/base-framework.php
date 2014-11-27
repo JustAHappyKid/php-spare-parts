@@ -28,7 +28,8 @@ function testScriptMain($relPathToTestDir, $filesToIgnore, $argc, Array $argv) {
 function handleCommand(CommandLineArgs\ArgsAndSwitches $a, Config $conf) {
   $argc = count($a->baseArguments);
   $argv = $a->baseArguments;
-  if ($a->hasSwitch("--verbose")) $conf->verbose = true;
+  if ($a->hasSwitch("--verbose")) { $conf->verbose = true; $conf->progressDots = false; }
+  if ($a->hasSwitch("--no-progress")) $conf->progressDots = false;
   $testFiles = null;
   if ($argc > 2) {
     quit("Please specify a test file to run or provide no arguments to run all tests.");
