@@ -177,16 +177,20 @@ function presentErrorReport($fullReport, $email = null) {
   global $__SpareParts_ErrorHandling_sendReportsTo;
   $sendReportTo = $email ? $email : $__SpareParts_ErrorHandling_sendReportsTo;
 
-  if (php_sapi_name() == 'cli') {
+  if (inCommandLineInterface()) {
     echo "\n$fullReport\n\n";
   } else {
     respondToError($fullReport, $sendReportTo);
   }
 
   if ($sendReportTo) {
-    $host = CurrentRequest\getHost();
+    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : gethostname();
     sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
   }
+}
+
+function inCommandLineInterface() {
+  return php_sapi_name() == 'cli';
 }
 
 function respondToError($fullReport, $sendReportTo) {
