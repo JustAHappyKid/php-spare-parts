@@ -8,3 +8,14 @@ function errorAlert($msg) {
                         max-width: 40em; margin: 3em auto;">' . $msg . '</div>';
 }
 
+function simpleErrorPage($msg, $title = "An error has occurred") {
+  return "<!DOCTYPE html>\n" .
+    "<html>\n" .
+    "  <head>\n" .
+    "    <title>" . htmlspecialchars($title) . "</title>\n" .
+    "  </head>\n" .
+    "  <body>\n" .
+    "    " . errorAlert($msg) . "\n" .
+    "  </body>\n" .
+    "</html>";
+}

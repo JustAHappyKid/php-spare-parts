@@ -3,7 +3,7 @@
 namespace SpareParts\Webapp\Filters;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/web-client/html-form.php'; # HtmlForm
-require_once dirname(dirname(__FILE__)) . '/ui.php';                            # errorAlert
+require_once dirname(dirname(__FILE__)) . '/ui.php';                            # simpleErrorPage
 
 use \SpareParts\Webapp\Filter, \SpareParts\Webapp\HttpResponse,
   \SpareParts\Webapp\MaliciousRequestException, \SpareParts\WebClient\HtmlForm,
@@ -38,7 +38,7 @@ class CSRFGuard implements Filter {
       $token = $_POST[$this->nameForTokenInput];
       if (!$this->isValidToken($name, $token))
         return new HttpResponse($statusCode = 400, $contentType = 'text/html',
-          $content = UI\errorAlert("
+          $content = UI\simpleErrorPage("
             <h1>Invalid CSRF-Prevention Token</h1>
             <p>Sorry, but we could not validate the authenticity of your request. This can happen
               if your session has expired or you cleared your cookies. Please try completing

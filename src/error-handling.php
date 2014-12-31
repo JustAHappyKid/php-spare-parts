@@ -203,7 +203,7 @@ function respondToError($fullReport, $sendReportTo) {
   if ($displayErrors) {
     echo "<pre>\n" . htmlspecialchars($fullReport) . "\n</pre>";
   } else if ($sendReportTo) {
-    echo UI\errorAlert(
+    echo UI\simpleErrorPage(
       "<p><strong>Sorry, something went wrong.</strong></p> " .
       "<p>Our team has been notified of the problem, but it would be helpful if you
          <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
