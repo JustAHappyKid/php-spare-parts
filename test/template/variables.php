@@ -27,6 +27,22 @@ function testSupportForVarEmbeddedInStringInPhpBlock() {
   assertEqual('width: 75%;', $r);
 }
 
+/**
+ * In this case, we're testing that the template engine does not "double bracket" a variable
+ * that is already contained with in a <?-style block (i.e., a PHP block that *does not* contain
+ * the 'php' qualifier, as in <?php).
+ */
+function testSupportForVarEmbeddedBracketQuestionMarkBlock() {
+  $tpl = '<? $thisOne = $that; ?>Here it is: $thisOne';
+  try {
+    $r = T\renderString($tpl, array('that' => "pretzels makin' me thirsty!"));
+    assertEqual("Here it is: pretzels makin' me thirsty!", $r);
+  } catch (T\TemplateException $_) {
+    /* Okay, we'll accept that; failing to accept templates using "short open tag" (<?)
+     * is reasonable. */
+  }
+}
+
 function testSupportForLocalVariables() {
   $tpl = implode("\n", array(
     '<?php $total = $v1 + $v2; ?>',

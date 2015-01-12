@@ -108,6 +108,13 @@ function expandShorthandPhpVariableSubstitution($tpl) {
 }
 
 function expandVariablesInTextPart($tpl) {
+
+  if (strstr($tpl, '<?')) {
+    throw new ParseError("Use of \"short open tag\" (<?) is not permitted to avoid " .
+                         "compatibility problems across different PHP configurations",
+                         "XXX", "XXX");
+  }
+
   $result = '';
   $chars = str_split($tpl);
   for ($i = 0; $i < count($chars); ++$i) {
