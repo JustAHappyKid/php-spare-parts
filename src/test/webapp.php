@@ -48,6 +48,11 @@ abstract class WebappTestingHarness extends TestHarness {
    */
   protected function domain() { return 'test.net'; }
 
+  /**
+   * If this is true, $_SERVER['HTTPS'] will be given a value of 'on'.
+   */
+  protected function httpsByDefault() { return false; }
+
   protected $lastResponse;
   private $currentPath, $currentQuery, $followRedirects = false;
 
@@ -239,11 +244,14 @@ abstract class WebappTestingHarness extends TestHarness {
 
   protected function makeRequest($method, $pathAndQuery, $serverVars = null,
                                  $numRedirectsToFollow = self::maxRedirects) {
+
     $defaultServerVars = array('REQUEST_METHOD' => $method, 'REMOTE_ADDR' => '99.99.99.99',
       'HTTP_USER_AGENT' => 'Mozillar Farfox', 'HTTP_HOST' => $this->domain(),
       'SERVER_NAME' => $this->domain(), 'REQUEST_URI' => $pathAndQuery);
-    $_GET = URL\readQueryFromURI($pathAndQuery);
+    if ($this->httpsByDefault()) $defaultServerVars['HTTPS'] = 'on';
     $_SERVER = $serverVars ? array_merge($defaultServerVars, $serverVars) : $defaultServerVars;
+
+    $_GET = URL\readQueryFromURI($pathAndQuery);
     $pathAndQuerySplit = explode('?', $pathAndQuery);
     if (count($pathAndQuerySplit) > 2) {
       throw new InvalidArgumentException('Given URI has multiple question marks present: ' .
@@ -252,10 +260,13 @@ abstract class WebappTestingHarness extends TestHarness {
     $this->currentPath = $pathAndQuerySplit[0];
     $this->currentQuery = isset($pathAndQuerySplit[1]) ? ('?' . $pathAndQuerySplit[1]) : null;
     if (count($pathAndQuerySplit) > 1) $_SERVER['QUERY_STRING'] = $pathAndQuerySplit[1];
+
     $this->lastResponse = $this->dispatchToWebapp();
+
     if (empty($this->lastResponse) || !($this->lastResponse instanceof HttpResponse)) {
       fail("'dispatchToWebapp' did not return an HttpResponse instance!");
     }
+
     if ($this->lastResponse->statusCode == 200) {
       return $this->lastResponse;
     } else if (in_array($this->lastResponse->statusCode, array(301, 302, 303))) {
