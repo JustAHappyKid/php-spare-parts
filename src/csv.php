@@ -3,7 +3,7 @@
 namespace SpareParts\CSV;
 
 /**
- * Convert an associated array to a string in "Comma-Separated Values" format.
+ * Convert an associative array to a string in Comma-Separated Values (CSV) format.
  */
 function fromAssociativeArray($rows, $columnsToShow) {
   $output = implode(',', $columnsToShow);
