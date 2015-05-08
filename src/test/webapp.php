@@ -30,6 +30,7 @@ abstract class WebappTestingHarness extends TestHarness {
    *   $this->get('/path/to-something?q=abc123')
    * ...by the time 'dispatchToWebapp' were invoked, $_GET would equal array('q' => 'abc123'),
    * $_SERVER['REQUEST_URI'] would equal '/path/to-something?q=abc123' and so on.
+   * @return HttpResponse
    */
   abstract protected function dispatchToWebapp();
 
@@ -187,7 +188,7 @@ abstract class WebappTestingHarness extends TestHarness {
       }
       $path = URL\takePathAndQuery($href);
     }
-    $this->get($path);
+    return $this->get($path);
   }
 
   /**
