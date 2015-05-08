@@ -9,7 +9,7 @@ use \Closure, \InvalidArgumentException;
  * small purposes: (1) it can be used on non-variables, and (2) it adds readability (at
  * least for those accustomed to functional programming languages).
  * 
- * Re (1): 'reset' cannot be used in a case such as this: reset(functionReturningArray())
+ * Re (1): 'reset' cannot be used in a case such as this: reset(functionReturningArray());
  * Such would yield an error, as 'functionReturningArray()' is not a variable. The following
  * will work, however: head(functionReturningArray())
  *
