@@ -31,3 +31,15 @@ function fromDatabaseResult($dbRows) {
   }
   return fromAssociativeArray($dbRows, $columnsToShow);
 }
+
+/**
+ * Convert CSV content to an associative array.
+ */
+// TODO: Make this work for (quoted) multi-line values
+function toAssociativeArray($csvContent) {
+  $rows = explode(PHP_EOL, $csvContent);
+  $heading = str_getcsv(reset($rows), ',');
+  return array_map(
+    function($row) use($heading) { return array_combine($heading, str_getcsv($row, ',')); },
+    array_slice($rows, 1));
+}
