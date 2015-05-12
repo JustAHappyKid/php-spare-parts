@@ -21,6 +21,18 @@ function testReadingSimpleCsvContent() {
   assertEqual('last value', $r2['and2']);
 }
 
+/**
+ * If we attempt to render an empty array to CSV, it should be handled elegantly (either by
+ * raising an `InvalidArgumentException` or by not raising any exception at all).
+ */
+function testHandlingOfEmptyArray() {
+  try {
+    CSV\fromDatabaseResult(array());
+  } catch (\InvalidArgumentException $_) {
+    # That's acceptable.
+  }
+}
+
 // TODO: Make this pass!
 /*function testReadingCsvFileThatHasNewlinesInValues() {
 

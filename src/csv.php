@@ -24,9 +24,11 @@ function fromAssociativeArray($rows, $columnsToShow) {
  *          array('col1' => 'c', 0 => 'c', 'col2' => 'd', 1 => 'd') )
  * would yield the following CSV content: "col1,col2\na,b\nc,d"
  */
-function fromDatabaseResult($dbRows) {
+function fromDatabaseResult(Array $dbRows) {
+  if (count($dbRows) == 0)
+    throw new \InvalidArgumentException("Empty array provided");
   $columnsToShow = array();
-  foreach ($dbRows[0] as $col => $_) {
+  foreach (reset($dbRows) as $col => $_) {
     if (!is_int($col)) $columnsToShow []= $col;
   }
   return fromAssociativeArray($dbRows, $columnsToShow);
