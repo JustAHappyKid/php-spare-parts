@@ -196,7 +196,7 @@ abstract class FrontController {
         $this->requiredActions[$actionPath] : require $actionPath;
       $this->requiredActions[$actionPath] = $funcOrClass;
 
-      // Do we need to add an extra slash to end of the URI, by redirecting?
+      // Do we need to add an extra slash to the end of the URI, by redirecting?
       $requestedPath = current(explode('?', $_SERVER['REQUEST_URI']));
       if (!endsWith($requestedPath, '/')) {
         $routedTo = withoutSuffix(substr($actionPath, strlen($actionsDir)), '.php');
