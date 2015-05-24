@@ -37,7 +37,7 @@ class Controller {
     $method = Names\hyphenatedToCamelCase($cmd);
     $publicMethods = Reflection\getNamesOfPublicMethods($this);
     if ($method && in_array($method, $publicMethods) &&
-        $method != 'init' && $method != 'dispatch') {
+        $method != 'init' && $method != 'dispatch' && !beginsWith($method, '__')) {
       $content = call_user_func(array($this, $method), $context);
     } else {
       return $this->pageNotFound("Controller " . get_class($this) . " has no method " .

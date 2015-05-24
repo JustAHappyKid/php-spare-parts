@@ -26,11 +26,24 @@ class BaseFrameworkTests extends WebappTestHarness {
     assertEqual('...and take a load off.', $r->content);
   }
 
-  function testSpecialMethodsCannotBeAccessedViaRequest() {
-    $this->assertYields404('/a-controller/dispatch');
-    $this->assertYields404('/a-controller/init');
+  function testSpecialControllerMethodsDoNotReceiveHttpRequests() {
     assertTrue(method_exists(new AController, 'dispatch'));
+    $this->assertYields404('/a-controller/dispatch');
     assertTrue(method_exists(new AController, 'init'));
+    $this->assertYields404('/a-controller/init');
+  }
+
+  function testPrivateAndProtectedMethodsDoNotReceiveHttpRequests() {
+    assertTrue(method_exists(new AController, 'getSomething'));
+    $this->assertYields404('/a-controller/get-something');
+    assertTrue(method_exists(new AController, 'getOther'));
+    $this->assertYields404('/a-controller/get-other');
+  }
+
+  function testMagicMethodsDoNotReceiveHttpRequests() {
+    foreach(array('__construct', '__toString', '__to-string', '__isset') as $p) {
+      $this->assertYields404("/a-controller/$p");
+    }
   }
 
   private function assertYields404($path, $msg = null) {
