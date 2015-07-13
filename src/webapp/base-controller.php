@@ -18,8 +18,8 @@ class Controller {
   protected $context;
 
   /**
-   * Override this method of all action-methods of the controller implementation need
-   * to execute the same initialization code.
+   * Override this method if all of the action-methods (request-handling methods) of the
+   * controller implementation (sub-class) need to execute the same initialization code.
    */
   public function init() {}
 
