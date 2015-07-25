@@ -99,15 +99,28 @@ function requireTestFiles($files) {
 
 function runDefinedTests(Config $conf) {
   require_once dirname(__FILE__) . '/assertions.php';
+
+  # Gather all test functions.
   $allFuncs = get_defined_functions();
   $userDefined = $allFuncs['user'];
   $testFuncs = array();
-  $ignorePrefix = strtolower(__NAMESPACE__ . '\\');
+
+  # XXX: Filtering out functions from our namespace should now be redundant, since we are
+  # XXX: only executing functions defined in 'baseTestDir' now.
+  $ourNamespace = strtolower(__NAMESPACE__ . '\\');
+
+  # Loop over all user-defined functions (i.e. functions not built-into PHP) and keep each
+  # one that both (a) has the sub-string 'test' in its name and (b) was defined in a file
+  # that lives within the 'baseTestDir'.
   foreach ($userDefined as $f) {
-    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), $ignorePrefix)) {
+    $containingFile = (new \ReflectionFunction($f))->getFileName();
+    if (strstr(strtolower($f), 'test') && !beginsWith(strtolower($f), $ourNamespace) &&
+        isWithinDirectory($containingFile, $conf->baseTestDir)) {
       $testFuncs[] = $f;
     }
   }
+
+  # Gather all test classes.
   $testClasses = array();
   $baseHarnessClass = __NAMESPACE__ . '\\TestHarness';
   if (!class_exists($baseHarnessClass)) {
@@ -119,6 +132,8 @@ function runDefinedTests(Config $conf) {
   if (count($testFuncs) == 0 && count($testClasses) == 0) {
     throw new Exception("No test functions or test classes found");
   }
+
+  # And run all test functions and methods of test classes.
   foreach ($testFuncs as $f) {
     if ($conf->verbose) echo "Running test-function $f...\n";
     call_user_func($f);
@@ -130,6 +145,7 @@ function runDefinedTests(Config $conf) {
     $numMethodsRun += runTestMethods(new $c, $conf);
   }
   if ($conf->progressDots) echo "\n";
+
   return array('functions' => count($testFuncs), 'classes' => count($testClasses),
                'methods' => $numMethodsRun);
 }
