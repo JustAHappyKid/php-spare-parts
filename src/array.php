@@ -36,6 +36,13 @@ function at($arr, $index, $default = null) {
   }
 }
 
+/**
+ * Count the number of elements in $a for which $qualify returns true.
+ */
+function countQualifying(Closure $qualify, Array $a) {
+  return count(array_filter($a, function($i) use($qualify) { return $qualify($i); }));
+}
+
 function filterByKey(Closure $qualify, Array $orig) {
   $result = array();
   foreach ($orig as $k => $v) {
