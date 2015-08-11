@@ -30,7 +30,7 @@ class StateOrProvinceField extends Forms\BasicTextField {
       foreach ($states as $abbr => $name) {
         $upper = strtoupper($trimmedValue);
         if ($upper == $abbr || $upper == "$abbr." || $upper == strtoupper($name) ||
-            $upper == strtoupper("$name ($abbr)")) {
+            $upper == strtoupper("$name ($abbr)") || $upper == strtoupper("$abbr - $name")) {
           $this->cleanedValue = $abbr;
           return array();
         }
