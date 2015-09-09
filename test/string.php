@@ -29,3 +29,9 @@ function testCommonPrefix() {
       "/home/johnny/appleseeds/green/green-apple")));
   assertThrows('InvalidArgumentException', function() { commonPrefix(array()); });
 }
+
+function testCountWordsFunction() {
+  assertEqual(0, countWords(""));
+  assertEqual(1, countWords("hello"));
+  assertEqual(2, countWords("hello world"));
+}

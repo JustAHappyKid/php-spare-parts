@@ -43,6 +43,25 @@ function commonPrefix(Array $strings) {
   return A\commonPrefix($strings);
 }
 
+# TODO: Make this account for duplicitous spaces (e.g., "one  two" should return 2).
+function countWords($s) {
+  if (trim($s) == '')
+    return 0;
+  else
+    return count(explode(' ', $s));
+}
+
+/**
+ * Count the number of characters in $s for which $qualify returns true.
+ */
+function countQualifyingChars(Closure $qualify, $s) {
+  $count = 0;
+  for ($i = 0; $i < strlen($s); ++$i) {
+    if ($qualify($s[$i])) $count += 1;
+  }
+  return $count;
+}
+
 //function commonPrefix(Array $strings) {
 //  if (count($strings) == 0) {
 //    throw new InvalidArgumentException("Must provide at least one element");
