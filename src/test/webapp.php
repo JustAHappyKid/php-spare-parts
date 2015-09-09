@@ -108,7 +108,7 @@ abstract class WebappTestingHarness extends TestHarness {
 
   protected function submitForm(HtmlForm $form, Array $nonDefaultValues = array(),
                                 $submitButton = null) {
-    $this->justSubmitForm($form, $nonDefaultValues, $submitButton);
+    $response = $this->justSubmitForm($form, $nonDefaultValues, $submitButton);
     $errors = $this->getValidationErrors();
     if (count($errors) > 0) {
       $renderError = function($e) {
@@ -123,6 +123,7 @@ abstract class WebappTestingHarness extends TestHarness {
       $errorsStr = implode(', ', array_map($renderError, $errors));
       throw new ValidationErrors("Got validation error(s) when submitting form: " . $errorsStr);
     }
+    return $response;
   }
 
   protected function submitFormExpectingErrors($form, $nonDefaultValues, $submitButton = null) {
@@ -167,7 +168,7 @@ abstract class WebappTestingHarness extends TestHarness {
     }
     // XXX: Should we always assume HTTP here (as opposed to HTTPS)?
     $referer = 'http://' . $this->domain() . $this->getCurrentPath();
-    $this->$m($uri, $values, array('HTTP_REFERER' => $referer));
+    return $this->$m($uri, $values, array('HTTP_REFERER' => $referer));
   }
 
   protected function clickLink($xpathToLink) {
