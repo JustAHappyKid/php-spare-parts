@@ -336,8 +336,8 @@ class HttpClient {
           throw new HttpConnectionError("Could not connect to host $host_name ($errno)");
       }
     } else {
-      if ($this->data_timeout && function_exists("socket_set_timeout")) {
-        socket_set_timeout($this->connection, $this->data_timeout, 0);
+      if ($this->data_timeout && function_exists("stream_set_timeout")) {
+        stream_set_timeout($this->connection, $this->data_timeout, 0);
       }
       if(strlen($this->socks_host_name))
       {
