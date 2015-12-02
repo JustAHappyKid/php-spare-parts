@@ -208,7 +208,7 @@ function respondToError($fullReport, $sendReportTo) {
       "<p>Our team has been notified of the problem, but it would be helpful if you
          <a href=\"mailto:$sendReportTo\">email us</a> and tell us what you
          were doing just before and leading up to this failure.  We'll do our best
-         to get this fixed ASAP!</p></div>\n");
+         to get this fixed ASAP!</p>\n");
     $host = CurrentRequest\getHost();
     sendTextEmail("no-reply@$host", $sendReportTo, "PHP Error Report [$host]", $fullReport);
   } else {
