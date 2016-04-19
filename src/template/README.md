@@ -87,7 +87,7 @@ Suppose you have a base layout, in a file named `layout.diet-php`, like this:
       </body>
     </html>
 
-Then a template can _`extend`_ from the above layout like so:
+Then you can _extend_ from the above layout like so:
 
     !extends 'layout.diet-php'
 
